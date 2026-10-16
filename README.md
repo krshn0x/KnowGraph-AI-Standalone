@@ -4,7 +4,7 @@ An engineering company brain powered by **FalkorDB**. Investigate incidents, fin
 
 The **Next.js + React + TypeScript** frontend is a dark engineering console: charcoal panels, restrained green accents, dense incident context, and an interactive React Flow evidence graph. FastAPI owns the graph and agent logic.
 
-The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI chat supports **Google Gemini (free tier available)**, **Agent Router / DeepSeek** through OpenAI-compatible Chat Completions, or OpenAI’s Responses API with configurable `gpt-6.1-sol`. All structured investigation, expert, document, graph, and ingestion views work without an API key.
+The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI chat supports **local Ollama (no API key)**, **Google Gemini (free tier available)**, **Agent Router / DeepSeek** through OpenAI-compatible Chat Completions, or OpenAI’s Responses API with configurable `gpt-6.1-sol`. All structured investigation, expert, document, graph, and ingestion views work without an API key.
 
 ## Start with Docker
 
@@ -21,6 +21,39 @@ Open **http://localhost:8501** for the dashboard and **http://localhost:8000/doc
 A named volume persists FalkorDB's actual data directory (`/var/lib/falkordb/data`); append-only persistence is enabled. Normal startup skips seeding an existing graph, preserving imported updates. `docker compose down` retains the volume. Services are published on loopback for this local single-user prototype.
 
 If port 6379 is already occupied, set `FALKORDB_PORT=6380` in `.env`. Container-to-container connections still use 6379. After changing provider settings in .env, run `docker compose up -d api`. Credentials stay in the backend; never commit `.env`.
+
+## Run local AI with Ollama
+
+In **AI settings**, choose **Local Ollama**, select the downloaded model, and save. The starter model is `qwen3:4b`, which [supports tools](https://ollama.com/library/qwen3:4b). This provider uses Ollama’s local API without an API key; cloud provider credentials are never sent to it.
+
+**Use an Ollama server on your computer:**
+
+1. [Install and start Ollama](https://ollama.com/download).
+2. Download the starter model: `ollama pull qwen3:4b` (approximately 2.5 GB).
+3. Set the API URL in AI settings to `http://host.docker.internal:11434/v1` when the KnowGraph backend runs in Docker Desktop, or `http://127.0.0.1:11434/v1` for native Python development.
+4. Save, then use Ask KnowGraph. The model must support tool calling and JSON output.
+
+For larger evidence payloads, use a 16K context window. When starting Ollama from a terminal, use `OLLAMA_CONTEXT_LENGTH=16384 OLLAMA_NO_CLOUD=1 ollama serve`. For an existing app/service, follow [Ollama’s environment configuration](https://docs.ollama.com/faq#how-can-i-specify-the-context-window-size). On Linux, a container cannot reach a host service bound only to host loopback; configure an appropriate host interface or use the Compose option below.
+
+**Use the optional Compose Ollama service:**
+
+```bash
+docker compose --profile local-ai up -d --wait ollama
+docker compose --profile local-ai exec ollama ollama pull qwen3:4b
+```
+
+Then choose **Local Ollama** in AI settings and set the API URL to **http://ollama:11434/v1**. This service has cloud features disabled, a 16K context window, a persistent model volume, and a loopback-only published port. It runs only when the `local-ai` profile is requested. Model speed depends on your hardware; the profile uses CPU inference by default.
+
+To preserve the provider choice across backend restarts, set the gitignored `.env`:
+
+```dotenv
+LLM_PROVIDER=ollama
+OLLAMA_MODEL=qwen3:4b
+# Use host.docker.internal for a host server, or ollama for the Compose service.
+OLLAMA_BASE_URL=http://ollama:11434/v1
+```
+
+Run `docker compose up -d api` after environment changes. For slow local inference, `AGENT_DEADLINE_SECONDS=120` raises the default 60-second budget; the frontend proxy allows that full budget. Missing-server and missing-model errors preserve graph sources and display setup guidance. There is no automatic cloud fallback.
 
 ## Connect Google Gemini (free tier available)
 
@@ -139,7 +172,7 @@ curl -F bundle_file=@data/resolution_update.json http://localhost:8000/ingest
 
 History accepts up to 12 `{role: "user" | "assistant", content: "..."}` messages. Questions are limited to 4,000 characters. Chat history lives in browser memory across console navigation and resets on reload, while company knowledge persists in FalkorDB.
 
-The old `/chat` URL remains an alias for `/ask`, with the **new response schema**. AI provider configuration uses `LLM_PROVIDER` and the corresponding provider variables documented above; the original Ollama integration is not included. This version uses canonical `:Entity` nodes and source-qualified IDs; old demo records are not migrated or deleted. Select a fresh `FALKORDB_GRAPH` name if you want an entirely separate workspace.
+The old `/chat` URL remains an alias for `/ask`, with the **new response schema**. AI provider configuration uses `LLM_PROVIDER` and the corresponding provider variables documented above. This version uses canonical `:Entity` nodes and source-qualified IDs; old demo records are not migrated or deleted. Select a fresh `FALKORDB_GRAPH` name if you want an entirely separate workspace.
 
 ## Local development and tests
 
@@ -173,7 +206,7 @@ ruff check .
 ruff format --check .
 ```
 
-Integration tests create unique temporary graphs and delete those graphs afterward. They exercise actual Cypher, ingestion retries/concurrency, the three scenarios, document search, evidence consistency, and API contracts. Unit tests exercise all three providers through the OpenAI SDK with mock HTTP transports, including DeepSeek reasoning replay, citation rejection, limits, missing credentials, outages, and provider failures. Settings tests verify write-only credentials, sanitized validation, configuration switching, client cleanup, and session reset.
+Integration tests create unique temporary graphs and delete those graphs afterward. They exercise actual Cypher, ingestion retries/concurrency, the three scenarios, document search, evidence consistency, and API contracts. Unit tests exercise all four providers through the OpenAI SDK with mock HTTP transports, including DeepSeek reasoning replay, citation rejection, limits, missing credentials, outages, and provider failures. Settings tests verify write-only credentials, sanitized validation, configuration switching, client cleanup, and session reset.
 
 The browser suite covers source inspection, graph paths/export, incident controls, expert/document search, uploads, citations, conversation continuity, errors, and mobile navigation. Fixture responses are fictional seed data and are intercepted only inside tests. CI builds both Docker images and also tests the real same-origin API proxy and multipart validation.
 
@@ -196,7 +229,7 @@ Optional live-model evaluation incurs API usage:
 RUN_LIVE_MODEL=1 RUN_INTEGRATION=1 pytest -q -m live
 ```
 
-It requires credentials and model access for the selected provider (Gemini, Agent Router, or OpenAI). CI runs without paid credentials. A configured key in `/health` indicates configuration only; it does not prove model access or provider availability.
+It requires a running model for Ollama, or credentials and model access for the selected hosted provider (Ollama, Gemini, Agent Router, or OpenAI). CI runs without paid credentials. A configured key in `/health` indicates configuration only; it does not prove model access or provider availability.
 
 ## Limits and failure behavior
 

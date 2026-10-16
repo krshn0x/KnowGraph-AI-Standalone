@@ -62,9 +62,7 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
             # must never be echoed, even when another field is invalid.
             return JSONResponse(
                 status_code=422,
-                content={
-                    "detail": "Check the provider, HTTPS API base URL, model ID, and key length."
-                },
+                content={"detail": "Check the provider, API base URL, model ID, and key length."},
             )
         return await request_validation_exception_handler(request, exc)
 
@@ -90,6 +88,11 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
                     "base_url": GEMINI_BASE_URL,
                     "has_api_key": bool(current.gemini_api_key.get_secret_value().strip()),
                 },
+                "ollama": {
+                    "model": current.ollama_model,
+                    "base_url": current.ollama_base_url,
+                    "has_api_key": False,
+                },
             },
         }
 
@@ -102,9 +105,9 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
         nonlocal active_settings, session_configuration
         with configuration_lock:
             updates = {"llm_provider": payload.provider, f"{payload.provider}_model": payload.model}
-            if payload.provider == "agentrouter":
-                updates["agentrouter_base_url"] = payload.base_url
-            if payload.api_key is not None:
+            if payload.provider in {"agentrouter", "ollama"}:
+                updates[f"{payload.provider}_base_url"] = payload.base_url
+            if payload.api_key is not None and payload.provider != "ollama":
                 updates[f"{payload.provider}_api_key"] = payload.api_key.get_secret_value().strip()
             active_settings = Settings(_env_file=None, **(active_settings.model_dump() | updates))
             session_configuration = True

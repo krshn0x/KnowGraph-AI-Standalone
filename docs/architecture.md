@@ -5,7 +5,7 @@ flowchart LR
     UI[Next.js / React console] --> Proxy[Same-origin server API proxy]
     Proxy --> API[FastAPI and Pydantic]
     API --> Agent[Bounded tool-calling agent]
-    Agent <--> LLM[OpenAI Responses / Agent Router or Gemini Chat Completions]
+    Agent <--> LLM[OpenAI Responses / Agent Router, Gemini, or Ollama Chat Completions]
     Agent --> Tools[Typed read-only graph tools]
     API --> Tools
     Tools --> DB[(FalkorDB)]
@@ -20,9 +20,11 @@ The API owns all business logic. The TypeScript console consumes typed JSON thro
 
 ## Model providers and credentials
 
-`ModelSession` adapts the existing bounded agent to OpenAI Responses or Agent Router and Google Gemini’s OpenAI-compatible Chat Completions. Gemini uses a fixed Google endpoint and its own key; opaque Google thought signatures are replayed on every tool turn and never returned as evidence. Tool planning and final JSON formatting are separate for Gemini. The router adapter uses JSON-object output plus server-side Pydantic validation and replays DeepSeek `reasoning_content` with tool calls when present. Reasoning is never exposed as evidence. Both providers use the same five read-only tools, citation allowlist, deadline, and tool-call budget; there is no automatic cross-provider fallback.
+`ModelSession` adapts the existing bounded agent to OpenAI Responses or OpenAI-compatible Chat Completions for Agent Router, Google Gemini, and Ollama. Gemini uses a fixed Google endpoint and its own key; opaque Google thought signatures are replayed on every tool turn and never returned as evidence. Tool planning and final JSON formatting are separate for Gemini. The router adapter uses JSON-object output plus server-side Pydantic validation and replays DeepSeek `reasoning_content` with tool calls when present. Reasoning is never exposed as evidence. All providers use the same five read-only tools, citation allowlist, deadline, and tool-call budget; there is no automatic cross-provider fallback.
 
 The settings API accepts credentials as write-only fields and returns only whether a key exists. Invalid settings requests receive sanitized errors without raw request values. UI changes live in backend process memory and affect new questions; each question uses an immutable configuration snapshot and closes its provider client afterward. A restart restores environment settings. This prototype uses one backend process and loopback-only ports, with no multi-user authentication.
+
+The Ollama adapter uses the same Chat Completions tool loop with a non-secret SDK placeholder key. Cloud credentials are never used, and there is no provider fallback. Local endpoint validation supports loopback, private LAN addresses, the Docker host gateway, and the optional Compose service. Tool planning stays separate from final JSON formatting. The optional `local-ai` profile disables Ollama cloud features and persists downloaded models separately from FalkorDB. HTTP readiness reports configuration, while model availability is checked when asking a question.
 
 ## Graph schema
 

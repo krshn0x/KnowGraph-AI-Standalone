@@ -1,6 +1,22 @@
 name: knowgraph-ai
 
 services:
+  ollama:
+    profiles: ["local-ai"]
+    image: ollama/ollama@sha256:5d3a2f25f9825628daba94dc0b1d421c7d57d6c03ae5faa9ba050e058bab8241
+    ports:
+      - "127.0.0.1:11434:11434"
+    environment:
+      OLLAMA_CONTEXT_LENGTH: ${OLLAMA_CONTEXT_LENGTH:-16384}
+      OLLAMA_NO_CLOUD: "1"
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
   falkordb:
     image: falkordb/falkordb@sha256:b0bdcac2cbaff989e77cb0610439b7a9289e86de033ccbbd4368b66fb680ae7a
     ports:
@@ -38,6 +54,8 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6.1-sol}
       LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:4b}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash}
       AGENTROUTER_API_KEY: ${AGENTROUTER_API_KEY:-}
@@ -45,6 +63,8 @@ services:
       AGENTROUTER_MODEL: ${AGENTROUTER_MODEL:-}
       AGENT_DEADLINE_SECONDS: ${AGENT_DEADLINE_SECONDS:-60}
       AGENT_MAX_TOOL_CALLS: ${AGENT_MAX_TOOL_CALLS:-8}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       seed:
         condition: service_completed_successfully
@@ -73,3 +93,4 @@ services:
 
 volumes:
   graph-data:
+  ollama-data:

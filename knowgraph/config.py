@@ -1,4 +1,5 @@
 from functools import lru_cache
+from ipaddress import ip_address
 from typing import Literal
 from urllib.parse import urlsplit
 
@@ -7,6 +8,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
 DEFAULT_GEMINI_MODEL = "gemini-3.8-flash"
+DEFAULT_OLLAMA_MODEL = "qwen3:4b"
+DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434/v1"
 
 
 class Settings(BaseSettings):
@@ -18,7 +21,9 @@ class Settings(BaseSettings):
     falkordb_password: SecretStr = SecretStr("")
     openai_api_key: SecretStr = SecretStr("")
     openai_model: str = "gpt-6.1-sol"
-    llm_provider: Literal["openai", "agentrouter", "gemini"] = "openai"
+    llm_provider: Literal["openai", "agentrouter", "gemini", "ollama"] = "openai"
+    ollama_model: str = Field(default=DEFAULT_OLLAMA_MODEL, max_length=200)
+    ollama_base_url: str = Field(default=DEFAULT_OLLAMA_URL, max_length=2048)
     gemini_api_key: SecretStr = SecretStr("")
     gemini_model: str = Field(default=DEFAULT_GEMINI_MODEL, max_length=200)
     agentrouter_api_key: SecretStr = SecretStr("")
@@ -46,7 +51,30 @@ class Settings(BaseSettings):
             raise ValueError("Use an HTTPS API base URL without credentials, query, or fragment.")
         return value
 
-    @field_validator("agentrouter_model", "gemini_model")
+    @field_validator("ollama_base_url")
+    @classmethod
+    def validate_ollama_url(cls, value: str) -> str:
+        value = value.strip().rstrip("/") or DEFAULT_OLLAMA_URL
+        url = urlsplit(value)
+        local = url.hostname in {"localhost", "host.docker.internal", "ollama"}
+        try:
+            local = local or ip_address(url.hostname or "").is_private
+        except ValueError:
+            pass
+        if (
+            not url.hostname
+            or url.scheme not in {"http", "https"}
+            or (url.scheme == "http" and not local)
+            or url.username is not None
+            or url.password is not None
+            or url.query
+            or url.fragment
+            or (url.port is not None and not 1 <= url.port <= 65535)
+        ):
+            raise ValueError("Use a local Ollama HTTP URL or HTTPS URL without credentials.")
+        return value
+
+    @field_validator("agentrouter_model", "gemini_model", "ollama_model")
     @classmethod
     def trim_router_model(cls, value: str) -> str:
         return value.strip()
@@ -57,6 +85,9 @@ class Settings(BaseSettings):
 
     @property
     def active_api_key(self) -> SecretStr:
+        if self.llm_provider == "ollama":
+            # Required by the SDK, ignored by the local Ollama server.
+            return SecretStr("ollama")
         return getattr(self, f"{self.llm_provider}_api_key")
 
     @property
@@ -65,10 +96,18 @@ class Settings(BaseSettings):
             return GEMINI_BASE_URL
         if self.llm_provider == "agentrouter":
             return self.agentrouter_base_url
+        if self.llm_provider == "ollama":
+            return self.ollama_base_url
         return "https://api.openai.com/v1"
 
     @property
     def configuration_message(self) -> str | None:
+        if self.llm_provider == "ollama":
+            return (
+                "Set OLLAMA_MODEL to a downloaded, tool-capable model."
+                if not self.ollama_model
+                else None
+            )
         if self.llm_provider == "gemini":
             missing = []
             if not self.gemini_api_key.get_secret_value().strip():
@@ -98,7 +137,7 @@ class Settings(BaseSettings):
 class AISettingsInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    provider: Literal["openai", "agentrouter", "gemini"]
+    provider: Literal["openai", "agentrouter", "gemini", "ollama"]
     model: str = Field(min_length=1, max_length=200)
     base_url: str = Field(default="", max_length=2048)
     # Omitted/null preserves the saved key; an explicit empty string disconnects it.
@@ -117,6 +156,10 @@ class AISettingsInput(BaseModel):
             self.base_url = Settings.validate_router_url(self.base_url)
             if not self.base_url:
                 raise ValueError("Enter the Agent Router API base URL.")
+        if self.provider == "ollama":
+            if not self.base_url.strip():
+                raise ValueError("Enter the Ollama API base URL.")
+            self.base_url = Settings.validate_ollama_url(self.base_url)
         return self
 
 

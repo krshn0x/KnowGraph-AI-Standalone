@@ -123,3 +123,21 @@ def test_ui_configuration_does_not_modify_environment_defaults(configuration_cli
     assert settings["provider"] == "openai"
     assert settings["storage"] == "environment"
     assert settings["providers"]["agentrouter"]["has_api_key"] is False
+
+
+def test_ollama_settings_need_no_key_and_ignore_any_supplied_cloud_key(configuration_client):
+    response = configuration_client.post(
+        "/settings/ai",
+        json={
+            "provider": "ollama",
+            "model": "qwen3:4b",
+            "base_url": "http://host.docker.internal:11434/v1",
+            "api_key": "private-accidental-cloud-key",
+        },
+    )
+    assert response.status_code == 200 and response.json()["configured"] is True
+    assert response.json()["providers"]["ollama"]["has_api_key"] is False
+    assert "private-accidental-cloud-key" not in response.text
+    health = configuration_client.get("/health").json()
+    assert health["provider"] == "ollama" and health["ai_configured"] is True
+    assert health["model"] == "qwen3:4b"

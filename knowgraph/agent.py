@@ -4,7 +4,14 @@ import logging
 import time
 from typing import Literal
 
-from openai import OpenAI, RateLimitError
+from openai import (
+    APIConnectionError,
+    APITimeoutError,
+    BadRequestError,
+    NotFoundError,
+    OpenAI,
+    RateLimitError,
+)
 from pydantic import Field
 
 from knowgraph.config import Settings
@@ -247,6 +254,25 @@ class Agent:
                     "Gemini quota or rate limit reached. Check your Google project's free-tier "
                     "limits or wait and retry. No other provider was used."
                 )
+            if self.settings.llm_provider == "ollama":
+                if isinstance(exc, APITimeoutError):
+                    limit = True
+                    warning = (
+                        "Ollama exceeded the investigation deadline. Warm up the model, "
+                        "choose a smaller model, or increase AGENT_DEADLINE_SECONDS up to 120."
+                    )
+                elif isinstance(exc, APIConnectionError):
+                    warning = (
+                        "Cannot reach Ollama. Start its server and check the API URL. "
+                        "For a host server from Docker, use host.docker.internal:11434/v1."
+                    )
+                elif isinstance(exc, NotFoundError):
+                    warning = "Ollama model not found. Pull the selected model locally and retry."
+                elif isinstance(exc, BadRequestError):
+                    warning = (
+                        "Ollama could not process this request. Choose a downloaded model "
+                        "with tool calling and JSON output support."
+                    )
             return self.fallback(
                 request,
                 warning,

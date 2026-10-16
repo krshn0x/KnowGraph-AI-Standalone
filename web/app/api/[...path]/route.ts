@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-export const maxDuration = 90;
+export const maxDuration = 150;
 
 const allowed = new Set(["health", "entities", "incidents", "experts", "documents", "graph", "ask", "ingest", "settings"]);
 
@@ -29,7 +29,7 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
       }
     }
     const response = await fetch(target, {
-      method: request.method, headers, body, cache: "no-store", signal: AbortSignal.timeout(75000),
+      method: request.method, headers, body, cache: "no-store", signal: AbortSignal.timeout(125000),
     });
     return new NextResponse(response.body, { status: response.status, headers: {
       "content-type": response.headers.get("content-type") || "application/json",

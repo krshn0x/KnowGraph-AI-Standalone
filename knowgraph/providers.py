@@ -29,7 +29,7 @@ class ModelSession:
         self.messages.append({"role": "user", "content": request.question})
         self.schema = DraftAnswer.model_json_schema()
         if settings.llm_provider != "openai":
-            # Both Chat Completions providers use the same server-validated answer schema.
+            # Chat Completions providers use the same server-validated answer schema.
             self.messages.insert(
                 0,
                 {
@@ -88,8 +88,10 @@ class ModelSession:
             "max_tokens": 6000,
             "timeout": timeout,
         }
-        if self.settings.llm_provider == "gemini":
-            parameters["reasoning_effort"] = "low"
+        if self.settings.llm_provider in {"gemini", "ollama"}:
+            parameters["reasoning_effort"] = (
+                "none" if self.settings.llm_provider == "ollama" else "low"
+            )
             if at_limit:
                 # Keep the final JSON-only request separate from function calling.
                 parameters.pop("tools")
