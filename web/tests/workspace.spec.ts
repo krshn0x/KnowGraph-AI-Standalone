@@ -175,6 +175,7 @@ test("Agent Router settings save a write-only key and show the selected model", 
   const settings = () => ({ provider: saved ? "agentrouter" : "openai", configured: saved, storage: saved ? "session" : "environment", providers: {
     openai: { model: "gpt-6.1-sol", base_url: "https://api.openai.com/v1", has_api_key: false },
     agentrouter: { model: saved ? "my-deepseek-v4" : "", base_url: saved ? "https://router.example.test/v1" : "", has_api_key: saved },
+    gemini: { model: "gemini-3.8-flash", base_url: "https://generativelanguage.googleapis.com/v1beta/openai", has_api_key: false },
   } });
   await page.route("**/api/settings/ai", async route => {
     if (route.request().method() === "POST") {
@@ -202,4 +203,40 @@ test("Agent Router settings save a write-only key and show the selected model", 
   expect(await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }))).not.toContain("fake-router-key-for-ui-test");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: "test-results/ai-settings-mobile.png" });
+});
+
+test("Gemini settings offer the free-tier starter model and need only a key", async ({ page }) => {
+  let saved = false;
+  const endpoint = "https://generativelanguage.googleapis.com/v1beta/openai";
+  await page.route("**/api/settings/ai", async route => {
+    if (route.request().method() === "POST") {
+      expect(route.request().postDataJSON()).toEqual({ provider: "gemini", model: "gemini-3.8-flash", base_url: endpoint, api_key: "fake-gemini-ui-key" });
+      saved = true;
+    }
+    await route.fulfill({ json: { provider: saved ? "gemini" : "openai", configured: saved, storage: saved ? "session" : "environment", providers: {
+      openai: { model: "gpt-6.1-sol", base_url: "https://api.openai.com/v1", has_api_key: false },
+      agentrouter: { model: "", base_url: "", has_api_key: false },
+      gemini: { model: "gemini-3.8-flash", base_url: endpoint, has_api_key: saved },
+    } } });
+  });
+  await page.route("**/api/health", route => route.fulfill({ json: { ...fixtures.health, provider: saved ? "gemini" : "openai", model: saved ? "gemini-3.8-flash" : "gpt-6.1-sol", ai_configured: saved } }));
+  await page.goto("/ask");
+  await page.getByRole("button", { name: "AI settings", exact: true }).click();
+  await page.getByLabel("AI provider", { exact: true }).selectOption("gemini");
+  await expect(page.getByLabel("AI model ID")).toHaveValue("gemini-3.8-flash");
+  await expect(page.getByLabel("Agent Router API base URL")).toHaveCount(0);
+  await expect(page.getByRole("dialog")).toContainText("has a free tier");
+  await expect(page.getByRole("link", { name: "Get a Gemini API key" })).toHaveAttribute("href", "https://aistudio.google.com/apikey");
+  await page.getByLabel("Provider API key").fill("fake-gemini-ui-key");
+  await page.getByRole("button", { name: "Save AI settings" }).click();
+  await expect(page.locator(".model-tag")).toContainText("gemini-3.8-flash");
+  await page.getByRole("button", { name: "System status", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText("Google Gemini");
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "AI settings", exact: true }).click();
+  await expect(page.getByLabel("Provider API key")).toHaveValue("");
+  await expect(page.getByText("Saved on backend")).toBeVisible();
+  expect(await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }))).not.toContain("fake-gemini-ui-key");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: "test-results/gemini-settings-mobile.png" });
 });

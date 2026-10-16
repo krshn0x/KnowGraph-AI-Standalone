@@ -1,6 +1,6 @@
 # KnowGraph AI — three-minute demo
 
-Before presenting, run `docker compose up -d --build`. Open http://localhost:8501. The Northstar Labs records are fictional. For AI chat, use AI settings to configure Agent Router / DeepSeek or OpenAI with an accessible model and key; the deterministic feature screens do not require them.
+Before presenting, run `docker compose up -d --build`. Open http://localhost:8501. The Northstar Labs records are fictional. For AI chat, use AI settings to configure Gemini, Agent Router / DeepSeek, or OpenAI with an accessible model and key; the deterministic feature screens do not require them.
 
 **0:00–0:45 — Investigate checkout.** In Investigations, select “Checkout errors after morning release.” Show the incident timeline and the deployment/commit/PR/author paths. Explain that staging releases, deployments after onset, and unrelated services are excluded. Timing alone does not establish cause.
 

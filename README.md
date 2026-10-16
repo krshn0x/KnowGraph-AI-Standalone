@@ -4,7 +4,7 @@ An engineering company brain powered by **FalkorDB**. Investigate incidents, fin
 
 The **Next.js + React + TypeScript** frontend is a dark engineering console: charcoal panels, restrained green accents, dense incident context, and an interactive React Flow evidence graph. FastAPI owns the graph and agent logic.
 
-The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI chat supports **Agent Router / DeepSeek** through OpenAI-compatible Chat Completions, or OpenAI’s Responses API with configurable `gpt-6.1-sol`. All structured investigation, expert, document, graph, and ingestion views work without an API key.
+The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI chat supports **Google Gemini (free tier available)**, **Agent Router / DeepSeek** through OpenAI-compatible Chat Completions, or OpenAI’s Responses API with configurable `gpt-6.1-sol`. All structured investigation, expert, document, graph, and ingestion views work without an API key.
 
 ## Start with Docker
 
@@ -21,6 +21,23 @@ Open **http://localhost:8501** for the dashboard and **http://localhost:8000/doc
 A named volume persists FalkorDB's actual data directory (`/var/lib/falkordb/data`); append-only persistence is enabled. Normal startup skips seeding an existing graph, preserving imported updates. `docker compose down` retains the volume. Services are published on loopback for this local single-user prototype.
 
 If port 6379 is already occupied, set `FALKORDB_PORT=6380` in `.env`. Container-to-container connections still use 6379. After changing provider settings in .env, run `docker compose up -d api`. Credentials stay in the backend; never commit `.env`.
+
+## Connect Google Gemini (free tier available)
+
+1. Create a Gemini API key in [Google AI Studio](https://aistudio.google.com/apikey).
+2. Open **AI settings** in KnowGraph and choose **Google Gemini**.
+3. Keep the prefilled **gemini-3.8-flash** model, paste the key, and save. No custom API URL or OpenAI key is needed.
+4. Ask a question in **Ask KnowGraph**.
+
+Google currently lists this model with free-tier input/output usage; [project eligibility, quotas, and billing settings apply](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.8-flash). This app does not change your Google billing tier or guarantee unlimited free usage. A quota error preserves available graph evidence and does not retry automatically or switch providers. To retain the key across backend restarts, set the following in the gitignored root `.env`, then run `docker compose up -d api`:
+
+```dotenv
+LLM_PROVIDER=gemini
+GEMINI_API_KEY=your-google-ai-studio-key
+GEMINI_MODEL=gemini-3.8-flash
+```
+
+Gemini uses Google's fixed OpenAI-compatible endpoint, with thought signatures preserved between tool calls and the same server-side citation validation. UI-entered keys follow the session-only storage behavior described below.
 
 ## Connect Agent Router / DeepSeek
 
@@ -156,7 +173,7 @@ ruff check .
 ruff format --check .
 ```
 
-Integration tests create unique temporary graphs and delete those graphs afterward. They exercise actual Cypher, ingestion retries/concurrency, the three scenarios, document search, evidence consistency, and API contracts. Unit tests exercise both provider protocols through the OpenAI SDK with mock HTTP transports, including DeepSeek reasoning replay, citation rejection, limits, missing credentials, outages, and provider failures. Settings tests verify write-only credentials, sanitized validation, configuration switching, client cleanup, and session reset.
+Integration tests create unique temporary graphs and delete those graphs afterward. They exercise actual Cypher, ingestion retries/concurrency, the three scenarios, document search, evidence consistency, and API contracts. Unit tests exercise all three providers through the OpenAI SDK with mock HTTP transports, including DeepSeek reasoning replay, citation rejection, limits, missing credentials, outages, and provider failures. Settings tests verify write-only credentials, sanitized validation, configuration switching, client cleanup, and session reset.
 
 The browser suite covers source inspection, graph paths/export, incident controls, expert/document search, uploads, citations, conversation continuity, errors, and mobile navigation. Fixture responses are fictional seed data and are intercepted only inside tests. CI builds both Docker images and also tests the real same-origin API proxy and multipart validation.
 
@@ -179,7 +196,7 @@ Optional live-model evaluation incurs API usage:
 RUN_LIVE_MODEL=1 RUN_INTEGRATION=1 pytest -q -m live
 ```
 
-It requires credentials and model access for the selected provider (Agent Router or OpenAI). CI runs without paid credentials. A configured key in `/health` indicates configuration only; it does not prove model access or provider availability.
+It requires credentials and model access for the selected provider (Gemini, Agent Router, or OpenAI). CI runs without paid credentials. A configured key in `/health` indicates configuration only; it does not prove model access or provider availability.
 
 ## Limits and failure behavior
 

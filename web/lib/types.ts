@@ -7,7 +7,7 @@ export interface Entity {
 export interface GraphEdge { id: string; source: string; target: string; kind: string; source_ref: string }
 export interface EvidencePath { id: string; node_ids: string[]; edge_ids: string[] }
 export interface Evidence { nodes: Entity[]; edges: GraphEdge[]; paths: EvidencePath[]; truncated: boolean }
-export type Provider = "openai" | "agentrouter";
+export type Provider = "openai" | "agentrouter" | "gemini";
 export interface Health { status: string; database: string; ai_configured: boolean; model: string; nodes: number; edges: number; provider?: Provider; configuration_message?: string | null }
 export interface AISettings {
   provider: Provider; configured: boolean; storage: "environment" | "session";

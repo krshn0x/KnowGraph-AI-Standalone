@@ -28,9 +28,8 @@ class ModelSession:
         self.messages = [{"role": m.role, "content": m.content} for m in request.history]
         self.messages.append({"role": "user", "content": request.question})
         self.schema = DraftAnswer.model_json_schema()
-        if settings.llm_provider == "agentrouter":
-            # JSON mode is widely supported by DeepSeek-compatible routers. Validate the
-            # full schema in Python instead of assuming support for OpenAI strict schemas.
+        if settings.llm_provider != "openai":
+            # Both Chat Completions providers use the same server-validated answer schema.
             self.messages.insert(
                 0,
                 {
@@ -42,7 +41,7 @@ class ModelSession:
             )
 
     def next_turn(self, tools: list[dict], at_limit: bool, timeout: float) -> ModelTurn:
-        if self.settings.llm_provider == "agentrouter":
+        if self.settings.llm_provider != "openai":
             return self._chat_turn(tools, at_limit, timeout)
         response = self.client.responses.create(
             model=self.settings.active_model,
@@ -74,21 +73,30 @@ class ModelSession:
         )
 
     def _chat_turn(self, tools: list[dict], at_limit: bool, timeout: float) -> ModelTurn:
-        response = self.client.chat.completions.create(
-            model=self.settings.active_model,
-            messages=self.messages,
-            tools=[
+        parameters = {
+            "model": self.settings.active_model,
+            "messages": self.messages,
+            "tools": [
                 {
                     "type": "function",
                     "function": {k: v for k, v in tool.items() if k not in {"type", "strict"}},
                 }
                 for tool in tools
             ],
-            tool_choice="none" if at_limit else "auto",
-            response_format={"type": "json_object"},
-            max_tokens=6000,
-            timeout=timeout,
-        )
+            "tool_choice": "none" if at_limit else "auto",
+            "response_format": {"type": "json_object"},
+            "max_tokens": 6000,
+            "timeout": timeout,
+        }
+        if self.settings.llm_provider == "gemini":
+            parameters["reasoning_effort"] = "low"
+            if at_limit:
+                # Keep the final JSON-only request separate from function calling.
+                parameters.pop("tools")
+                parameters.pop("tool_choice")
+            else:
+                parameters.pop("response_format")
+        response = self.client.chat.completions.create(**parameters)
         choice = response.choices[0]
         if choice.finish_reason not in {"stop", "tool_calls"}:
             raise ValueError("The provider did not complete the answer or tool call")
@@ -107,10 +115,17 @@ class ModelSession:
                 }
                 for call in calls
             ]
+            if self.settings.llm_provider == "gemini":
+                for original, replay in zip(calls, serialized["tool_calls"], strict=True):
+                    # Google's opaque thought signatures must survive every tool turn.
+                    # This metadata stays inside the backend provider conversation.
+                    extra = getattr(original, "extra_content", None)
+                    if extra is not None:
+                        replay["extra_content"] = extra
             # DeepSeek thinking models require the reasoning content to be replayed
             # with tool calls. It remains server-side and is never shown as evidence.
             reasoning = getattr(message, "reasoning_content", None)
-            if reasoning is not None:
+            if self.settings.llm_provider == "agentrouter" and reasoning is not None:
                 serialized["reasoning_content"] = reasoning
         self.messages.append(serialized)
         return ModelTurn(
@@ -119,7 +134,7 @@ class ModelSession:
         )
 
     def append_tool_result(self, call: FunctionCall, payload: dict) -> None:
-        if self.settings.llm_provider == "agentrouter":
+        if self.settings.llm_provider != "openai":
             self.messages.append(
                 {"role": "tool", "tool_call_id": call.call_id, "content": json.dumps(payload)}
             )

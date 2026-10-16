@@ -4,7 +4,7 @@ import logging
 import time
 from typing import Literal
 
-from openai import OpenAI
+from openai import OpenAI, RateLimitError
 from pydantic import Field
 
 from knowgraph.config import Settings
@@ -96,13 +96,8 @@ class Agent:
     def __init__(self, retrieval: Retrieval, settings: Settings, client=None):
         self.retrieval, self.settings = retrieval, settings
         key = settings.active_api_key.get_secret_value().strip()
-        base_url = (
-            settings.agentrouter_base_url
-            if settings.llm_provider == "agentrouter"
-            else "https://api.openai.com/v1"
-        )
         self.client = client or (
-            OpenAI(api_key=key, base_url=base_url, max_retries=0)
+            OpenAI(api_key=key, base_url=settings.active_base_url, max_retries=0)
             if not settings.configuration_message
             else None
         )
@@ -247,6 +242,11 @@ class Agent:
                 if limit
                 else "The model request failed or returned an invalid answer. Check credentials, model access, and server logs."
             )
+            if self.settings.llm_provider == "gemini" and isinstance(exc, RateLimitError):
+                warning = (
+                    "Gemini quota or rate limit reached. Check your Google project's free-tier "
+                    "limits or wait and retry. No other provider was used."
+                )
             return self.fallback(
                 request,
                 warning,

@@ -19,6 +19,7 @@ def configuration_client(monkeypatch):
             agentrouter_api_key="",
             agentrouter_base_url="",
             agentrouter_model="",
+            gemini_api_key="",
         ),
     )
     store = SimpleNamespace(
@@ -38,22 +39,25 @@ def payload(**updates):
     }
 
 
-def test_settings_key_is_write_only_and_can_be_preserved_or_disconnected(configuration_client):
+@pytest.mark.parametrize("provider", ["agentrouter", "gemini"])
+def test_settings_key_is_write_only_and_can_be_preserved_or_disconnected(
+    configuration_client, provider
+):
     client = configuration_client
-    response = client.post("/settings/ai", json=payload())
+    response = client.post("/settings/ai", json=payload(provider=provider))
     assert response.status_code == 200
     assert response.json()["configured"] is True
     assert response.json()["storage"] == "session"
-    assert response.json()["providers"]["agentrouter"]["has_api_key"] is True
+    assert response.json()["providers"][provider]["has_api_key"] is True
     for response in [response, client.get("/settings/ai"), client.get("/health")]:
         assert "private-router-test-key" not in response.text
-    keep = payload(model="updated-deepseek-model")
+    keep = payload(provider=provider, model="updated-model")
     del keep["api_key"]
     response = client.post("/settings/ai", json=keep)
-    assert response.json()["providers"]["agentrouter"]["has_api_key"] is True
-    response = client.post("/settings/ai", json=payload(api_key=""))
+    assert response.json()["providers"][provider]["has_api_key"] is True
+    response = client.post("/settings/ai", json=payload(provider=provider, api_key=""))
     assert response.json()["configured"] is False
-    assert response.json()["providers"]["agentrouter"]["has_api_key"] is False
+    assert response.json()["providers"][provider]["has_api_key"] is False
     assert client.get("/health").json()["ai_configured"] is False
 
 

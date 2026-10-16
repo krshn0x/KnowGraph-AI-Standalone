@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from redis.exceptions import RedisError
 
 from knowgraph.agent import Agent
-from knowgraph.config import AISettingsInput, Settings, get_settings
+from knowgraph.config import GEMINI_BASE_URL, AISettingsInput, Settings, get_settings
 from knowgraph.graph import GraphStore
 from knowgraph.ingestion import ingest, parse_csv, parse_json
 from knowgraph.models import (
@@ -84,6 +84,11 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
                     "model": current.agentrouter_model,
                     "base_url": current.agentrouter_base_url,
                     "has_api_key": bool(current.agentrouter_api_key.get_secret_value().strip()),
+                },
+                "gemini": {
+                    "model": current.gemini_model,
+                    "base_url": GEMINI_BASE_URL,
+                    "has_api_key": bool(current.gemini_api_key.get_secret_value().strip()),
                 },
             },
         }

@@ -5,6 +5,9 @@ from urllib.parse import urlsplit
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+DEFAULT_GEMINI_MODEL = "gemini-3.8-flash"
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
@@ -15,7 +18,9 @@ class Settings(BaseSettings):
     falkordb_password: SecretStr = SecretStr("")
     openai_api_key: SecretStr = SecretStr("")
     openai_model: str = "gpt-6.1-sol"
-    llm_provider: Literal["openai", "agentrouter"] = "openai"
+    llm_provider: Literal["openai", "agentrouter", "gemini"] = "openai"
+    gemini_api_key: SecretStr = SecretStr("")
+    gemini_model: str = Field(default=DEFAULT_GEMINI_MODEL, max_length=200)
     agentrouter_api_key: SecretStr = SecretStr("")
     agentrouter_base_url: str = Field(default="", max_length=2048)
     agentrouter_model: str = Field(default="", max_length=200)
@@ -41,23 +46,36 @@ class Settings(BaseSettings):
             raise ValueError("Use an HTTPS API base URL without credentials, query, or fragment.")
         return value
 
-    @field_validator("agentrouter_model")
+    @field_validator("agentrouter_model", "gemini_model")
     @classmethod
     def trim_router_model(cls, value: str) -> str:
         return value.strip()
 
     @property
     def active_model(self) -> str:
-        return self.agentrouter_model if self.llm_provider == "agentrouter" else self.openai_model
+        return getattr(self, f"{self.llm_provider}_model")
 
     @property
     def active_api_key(self) -> SecretStr:
-        return (
-            self.agentrouter_api_key if self.llm_provider == "agentrouter" else self.openai_api_key
-        )
+        return getattr(self, f"{self.llm_provider}_api_key")
+
+    @property
+    def active_base_url(self) -> str:
+        if self.llm_provider == "gemini":
+            return GEMINI_BASE_URL
+        if self.llm_provider == "agentrouter":
+            return self.agentrouter_base_url
+        return "https://api.openai.com/v1"
 
     @property
     def configuration_message(self) -> str | None:
+        if self.llm_provider == "gemini":
+            missing = []
+            if not self.gemini_api_key.get_secret_value().strip():
+                missing.append("GEMINI_API_KEY")
+            if not self.gemini_model:
+                missing.append("GEMINI_MODEL")
+            return f"Set {', '.join(missing)} to enable Gemini answers." if missing else None
         if self.llm_provider == "agentrouter":
             missing = [
                 name
@@ -80,7 +98,7 @@ class Settings(BaseSettings):
 class AISettingsInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    provider: Literal["openai", "agentrouter"]
+    provider: Literal["openai", "agentrouter", "gemini"]
     model: str = Field(min_length=1, max_length=200)
     base_url: str = Field(default="", max_length=2048)
     # Omitted/null preserves the saved key; an explicit empty string disconnects it.
