@@ -11,6 +11,8 @@ The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationship
 Install Docker Desktop/Engine with Compose, start Docker, and run from this repository:
 
 ```bash
+git clone https://github.com/krshn0x/KnowGraph-AI-Standalone.git
+cd KnowGraph-AI-Standalone
 cp .env.example .env
 # Optional: configure provider credentials in .env, or use AI settings in the app.
 docker compose up -d --build
