@@ -1,6 +1,7 @@
 """Wire-format adapters; retrieval and citation validation stay in the agent."""
 
 import json
+import time
 from dataclasses import dataclass
 
 from knowgraph.config import Settings
@@ -164,6 +165,7 @@ class ModelSession:
             )
 
     def _gemini_turn(self, tools: list[dict], at_limit: bool, timeout: float) -> ModelTurn:
+        started = time.monotonic()
         config = {"maxOutputTokens": 4096}
         if self.settings.active_model.startswith(("gemini-3", "gemini-4")):
             config["thinkingConfig"] = {"thinkingLevel": "LOW"}
@@ -217,4 +219,23 @@ class ModelSession:
                 )
             elif "text" in part:
                 texts.append(part["text"])
+        if at_limit and calls:
+            raise ValueError("Gemini requested tools during the final JSON answer")
+        if not at_limit and not calls:
+            # Function calling cannot guarantee a JSON answer. Once planning is
+            # complete, request the final answer with Google's native schema.
+            remaining = timeout - (time.monotonic() - started)
+            if remaining <= 0:
+                raise TimeoutError("Investigation deadline reached")
+            self.messages.append(
+                {
+                    "role": "user",
+                    "parts": [
+                        {
+                            "text": "Return the final answer now using the required JSON schema. Cite only the graph evidence retrieved in this investigation. Do not call more tools."
+                        }
+                    ],
+                }
+            )
+            return self._gemini_turn(tools, True, remaining)
         return ModelTurn(text="".join(texts), calls=calls)

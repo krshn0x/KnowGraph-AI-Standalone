@@ -74,7 +74,7 @@ def make_agent(messages, **updates):
         assert request.headers["x-goog-api-key"] == "gemini-test-secret"
         assert "authorization" not in request.headers
         requests.append(json.loads(request.content))
-        message = messages[len(requests) - 1]
+        message = messages[min(len(requests) - 1, len(messages) - 1)]
         if isinstance(message, httpx.Response):
             return message
         return httpx.Response(
@@ -123,6 +123,22 @@ def test_native_gemini_cap_uses_json_schema_without_functions():
     assert requests[-1]["generationConfig"]["responseMimeType"] == "application/json"
     assert requests[-1]["generationConfig"]["responseJsonSchema"]["type"] == "object"
     assert "tools" not in requests[-1]
+
+
+def test_native_gemini_finishes_prose_with_a_separate_schema_enforced_answer():
+    agent, requests = make_agent(
+        [
+            {"role": "model", "parts": [call()]},
+            {"role": "model", "parts": [{"text": "Checkout is a service in the graph."}]},
+            final(),
+        ]
+    )
+    answer = agent.ask(AskRequest(question="checkout"))
+    assert answer.status == "ok" and answer.claims
+    assert len(requests) == 3
+    assert requests[-1]["generationConfig"]["responseJsonSchema"]["required"]
+    assert "tools" not in requests[-1]
+    assert requests[-1]["contents"][-1]["role"] == "user"
 
 
 @pytest.mark.parametrize(
