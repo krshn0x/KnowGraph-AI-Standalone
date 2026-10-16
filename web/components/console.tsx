@@ -112,7 +112,7 @@ export function Console({ children }: { children: React.ReactNode }) {
 }
 
 function BrandMark() {
-  return <svg className="brand-mark" width="27" height="27" viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#b4ec83" /><path d="m12 12 16 8-16 8V12Z" stroke="#24341a" strokeWidth="2" /><circle cx="12" cy="12" r="3" fill="#24341a" /><circle cx="28" cy="20" r="3" fill="#24341a" /><circle cx="12" cy="28" r="3" fill="#24341a" /></svg>;
+  return <svg className="brand-mark" width="27" height="27" viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#ffffff" /><path d="m12 12 16 8-16 8V12Z" stroke="#000000" strokeWidth="2" /><circle cx="12" cy="12" r="3" fill="#000000" /><circle cx="28" cy="20" r="3" fill="#000000" /><circle cx="12" cy="28" r="3" fill="#000000" /></svg>;
 }
 
 function SearchPalette({ onClose, onInspect }: { onClose: () => void; onInspect: (entity: Entity) => void }) {

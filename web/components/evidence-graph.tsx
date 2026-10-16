@@ -50,10 +50,10 @@ export function EvidenceGraph({ evidence, onInspect, compact = false, title = "E
   const edges = evidence.edges.filter(e => ids.has(e.source) && ids.has(e.target)).map(edge => ({
     id: edge.id, source: edge.source, target: edge.target,
     type: "smoothstep", label: edge.kind.replaceAll("_", " ").toLowerCase(),
-    markerEnd: { type: MarkerType.ArrowClosed, width: 13, height: 13, color: emphasizedEdges.has(edge.id) ? "#b4ec83" : "#61616e" },
-    style: { stroke: emphasizedEdges.has(edge.id) ? "#b4ec83" : "#484850", strokeWidth: emphasizedEdges.has(edge.id) ? 2 : 1, opacity: path && !emphasizedEdges.has(edge.id) ? .2 : 1 },
-    labelStyle: { fill: "#a7a7b4", fontSize: 9, fontWeight: 500 },
-    labelBgStyle: { fill: "#17171b", fillOpacity: .98 }, labelBgPadding: [5, 3] as [number, number], labelBgBorderRadius: 4,
+    markerEnd: { type: MarkerType.ArrowClosed, width: 13, height: 13, color: emphasizedEdges.has(edge.id) ? "#ffffff" : "#737373" },
+    style: { stroke: emphasizedEdges.has(edge.id) ? "#ffffff" : "#484848", strokeWidth: emphasizedEdges.has(edge.id) ? 2 : 1, opacity: path && !emphasizedEdges.has(edge.id) ? .2 : 1 },
+    labelStyle: { fill: "#a3a3a3", fontSize: 9, fontWeight: 500 },
+    labelBgStyle: { fill: "#000000", fillOpacity: .98 }, labelBgPadding: [5, 3] as [number, number], labelBgBorderRadius: 4,
   }));
   const onNodesChange = (changes: NodeChange<RecordNodeType>[]) => {
     if (!changes.some(change => change.type === "position" && change.position)) return;
@@ -77,7 +77,7 @@ export function EvidenceGraph({ evidence, onInspect, compact = false, title = "E
         onNodesChange={onNodesChange} onNodeClick={(_, node) => onInspect(node.data.entity)}
         nodesConnectable={false} edgesFocusable={false} deleteKeyCode={null} minZoom={.15} maxZoom={1.8}
         fitView fitViewOptions={{ padding: .16, maxZoom: 1 }} proOptions={{ hideAttribution: true }}>
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#35353e" />
+        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#202020" />
         <Controls showInteractive={false} position="bottom-right" />
       </ReactFlow><div className="graph-hint"><Maximize2 size={11} />Drag to explore · select a node to inspect</div></div>
       <div className="graph-footer"><div className="graph-legend">{[...new Set(evidence.nodes.map(n => n.kind))].map(kind => <span key={kind}><i style={{ background: kindMeta[kind].color }} />{kindMeta[kind].label}</span>)}</div>

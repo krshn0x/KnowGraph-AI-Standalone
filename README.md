@@ -2,7 +2,7 @@
 
 An engineering company brain powered by **FalkorDB**. Investigate incidents, find experienced people and useful documents, inspect cited graph paths, and update company knowledge without duplicates.
 
-The **Next.js + React + TypeScript** frontend is a dark engineering console: charcoal panels, restrained green accents, dense incident context, and an interactive React Flow evidence graph. FastAPI owns the graph and agent logic.
+The **Next.js + React + TypeScript** frontend is a dark engineering console: pure black surfaces, white actions, grayscale accents, dense incident context, and an interactive React Flow evidence graph. FastAPI owns the graph and agent logic.
 
 The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI chat supports **local Ollama (no API key)**, **Google Gemini (free tier available)**, **Agent Router / DeepSeek** through OpenAI-compatible Chat Completions, or OpenAI’s Responses API with configurable `gpt-6.1-sol`. All structured investigation, expert, document, graph, and ingestion views work without an API key.
 

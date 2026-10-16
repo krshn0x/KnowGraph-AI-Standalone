@@ -6,14 +6,14 @@ import type { Entity, Kind } from "@/lib/types";
 import { date, shortId } from "@/lib/api";
 
 export const kindMeta: Record<Kind, { icon: typeof Activity; color: string; label: string }> = {
-  Person: { icon: Users, color: "#c4a7ed", label: "Person" },
-  Service: { icon: Box, color: "#8db7f0", label: "Service" },
-  PullRequest: { icon: GitPullRequest, color: "#a3d598", label: "Pull request" },
-  Commit: { icon: GitCommitHorizontal, color: "#aaa5df", label: "Commit" },
-  Incident: { icon: Activity, color: "#efa978", label: "Incident" },
-  Ticket: { icon: Ticket, color: "#e2c58d", label: "Ticket" },
-  Document: { icon: FileText, color: "#8fcac0", label: "Document" },
-  Deployment: { icon: Network, color: "#dba0b9", label: "Deployment" },
+  Person: { icon: Users, color: "#b3b3b3", label: "Person" },
+  Service: { icon: Box, color: "#b3b3b3", label: "Service" },
+  PullRequest: { icon: GitPullRequest, color: "#b3b3b3", label: "Pull request" },
+  Commit: { icon: GitCommitHorizontal, color: "#b3b3b3", label: "Commit" },
+  Incident: { icon: Activity, color: "#b3b3b3", label: "Incident" },
+  Ticket: { icon: Ticket, color: "#b3b3b3", label: "Ticket" },
+  Document: { icon: FileText, color: "#b3b3b3", label: "Document" },
+  Deployment: { icon: Network, color: "#b3b3b3", label: "Deployment" },
 };
 
 export function KindIcon({ kind, size = 16 }: { kind: Kind; size?: number }) {
