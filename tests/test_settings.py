@@ -133,11 +133,28 @@ def test_ollama_settings_need_no_key_and_ignore_any_supplied_cloud_key(configura
             "model": "qwen3:4b",
             "base_url": "http://host.docker.internal:11434/v1",
             "api_key": "private-accidental-cloud-key",
+            "deadline_seconds": 600,
         },
     )
     assert response.status_code == 200 and response.json()["configured"] is True
     assert response.json()["providers"]["ollama"]["has_api_key"] is False
+    assert response.json()["providers"]["ollama"]["deadline_seconds"] == 600
     assert "private-accidental-cloud-key" not in response.text
     health = configuration_client.get("/health").json()
     assert health["provider"] == "ollama" and health["ai_configured"] is True
     assert health["model"] == "qwen3:4b"
+
+
+def test_invalid_local_deadline_does_not_change_saved_settings(configuration_client):
+    for deadline in (0, 901):
+        response = configuration_client.post(
+            "/settings/ai",
+            json={
+                "provider": "ollama",
+                "model": "qwen3:4b",
+                "base_url": "http://localhost:11434/v1",
+                "deadline_seconds": deadline,
+            },
+        )
+        assert response.status_code == 422
+    assert configuration_client.get("/settings/ai").json()["provider"] == "openai"

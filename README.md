@@ -55,7 +55,13 @@ OLLAMA_MODEL=qwen3:4b
 OLLAMA_BASE_URL=http://ollama:11434/v1
 ```
 
-Run `docker compose up -d api` after environment changes. For slow local inference, `AGENT_DEADLINE_SECONDS=120` raises the default 60-second budget; the frontend proxy allows that full budget. Missing-server and missing-model errors preserve graph sources and display setup guidance. There is no automatic cloud fallback.
+Run `docker compose up -d api` after environment changes. Ollama gets a **300-second total investigation budget** by default, including model loading and every graph tool round trip. In **AI settings → Local Ollama**, set **Investigation deadline** to 600 seconds for a slower machine (maximum 900). The saved value applies to new questions immediately; it is held for the backend session. To preserve it after restarts, set `OLLAMA_DEADLINE_SECONDS=600` in `.env` and recreate the API with `docker compose up -d api`. Editing `.env` alone or using `docker compose restart` does not update the container’s environment.
+
+When `OLLAMA_DEADLINE_SECONDS` is unset, the local budget is the larger of 300 and `AGENT_DEADLINE_SECONDS`, so existing increases to the shared setting still work. An explicit Ollama value overrides that fallback. Hosted providers retain the default 60-second shared deadline. The local adapter requests at most 1,536 output tokens per turn by default (`OLLAMA_MAX_OUTPUT_TOKENS`, range 256–4,096); thinking is disabled where the model supports it. The frontend allows the backend’s full 900-second maximum, including slow response headers. Hosting platforms may impose their own execution limits.
+
+A **tool-call limit** is separate from a timeout: the agent permits at most eight graph tool calls, then asks for a final answer. A model that continues calling tools receives a distinct warning; increasing the deadline does not change this limit. Deadline warnings show the effective seconds and tool count, and all failures preserve retrieved graph evidence. There is no automatic cloud fallback.
+
+For slow local models, run `ollama ps` to check whether inference uses CPU or GPU. Prefer the native Ollama app on macOS: [Docker Desktop on macOS does not support Ollama GPU acceleration](https://docs.ollama.com/faq#how-do-i-use-ollama-with-gpu-acceleration-in-docker). Preload the selected model with `ollama run qwen3:4b ""` before asking; [Ollama keeps models loaded for five minutes by default](https://docs.ollama.com/faq#how-do-i-keep-a-model-loaded-in-memory-or-make-it-unload-immediately).
 
 ## Connect Google Gemini (free tier available)
 
@@ -235,7 +241,7 @@ It requires a running model for Ollama, or credentials and model access for the 
 
 ## Limits and failure behavior
 
-- The agent has five predefined read-only graph tools, at most eight tool calls, and a default 60-second investigation deadline. Each graph query has a two-second execution timeout. No model-generated Cypher is executed.
+- The agent has five predefined read-only graph tools, at most eight tool calls, and default investigation deadlines of 300 seconds for Ollama and 60 seconds for hosted providers (configurable up to 900). Each graph query has a two-second execution timeout. No model-generated Cypher is executed.
 - Citation IDs must have been retrieved during the current question. This validates traceability, not semantic truth; inspect source bodies when judging a hypothesis.
 - Missing key, provider failure, malformed output, and time/tool limits retain available source evidence and show an explicit warning. Structured feature views remain available without the model.
 - Database outages return a sanitized HTTP 503. Unknown records return 404. Search is lexical full-text prefix matching with all supplied terms required, rather than embedding similarity.

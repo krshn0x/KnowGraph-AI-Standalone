@@ -248,14 +248,14 @@ test("local Ollama can be selected and saved without any API key", async ({ page
   const baseURL = "http://host.docker.internal:11434/v1";
   await page.route("**/api/settings/ai", async route => {
     if (route.request().method() === "POST") {
-      expect(route.request().postDataJSON()).toEqual({ provider: "ollama", model: "qwen3:4b", base_url: baseURL });
+      expect(route.request().postDataJSON()).toEqual({ provider: "ollama", model: "qwen3:4b", base_url: baseURL, deadline_seconds: 450 });
       saved = true;
     }
     await route.fulfill({ json: { provider: saved ? "ollama" : "openai", configured: saved, storage: saved ? "session" : "environment", providers: {
       openai: { model: "gpt-6.1-sol", base_url: "https://api.openai.com/v1", has_api_key: false },
       agentrouter: { model: "", base_url: "", has_api_key: false },
       gemini: { model: "gemini-3.8-flash", base_url: "https://generativelanguage.googleapis.com/v1beta/openai", has_api_key: false },
-      ollama: { model: "qwen3:4b", base_url: baseURL, has_api_key: false },
+      ollama: { model: "qwen3:4b", base_url: baseURL, has_api_key: false, deadline_seconds: saved ? 450 : 300 },
     } } });
   });
   await page.route("**/api/health", route => route.fulfill({ json: { ...fixtures.health, provider: saved ? "ollama" : "openai", model: saved ? "qwen3:4b" : "gpt-6.1-sol", ai_configured: saved } }));
@@ -268,6 +268,8 @@ test("local Ollama can be selected and saved without any API key", async ({ page
   await expect(page.getByRole("dialog")).toContainText("No API key is needed");
   await expect(page.getByLabel("AI model ID")).toHaveValue("qwen3:4b");
   await expect(page.getByLabel("Ollama API base URL")).toHaveValue(baseURL);
+  await expect(page.getByLabel("Ollama investigation deadline")).toHaveValue("300");
+  await page.getByLabel("Ollama investigation deadline").fill("450");
   await page.getByRole("button", { name: "Save AI settings" }).click();
   await expect(page.locator(".model-tag")).toContainText("qwen3:4b");
   await page.getByRole("button", { name: "System status", exact: true }).click();
@@ -277,5 +279,7 @@ test("local Ollama can be selected and saved without any API key", async ({ page
   await page.getByRole("button", { name: "AI settings", exact: true }).click();
   await expect(page.getByLabel("Provider API key")).toHaveCount(0);
   await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByLabel("Ollama investigation deadline")).toHaveValue("450");
+  await page.getByRole("button", { name: "Save AI settings" }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: "test-results/ollama-settings-mobile.png" });
 });

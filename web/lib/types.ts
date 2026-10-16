@@ -11,7 +11,7 @@ export type Provider = "openai" | "agentrouter" | "gemini" | "ollama";
 export interface Health { status: string; database: string; ai_configured: boolean; model: string; nodes: number; edges: number; provider?: Provider; configuration_message?: string | null }
 export interface AISettings {
   provider: Provider; configured: boolean; storage: "environment" | "session";
-  providers: Record<Provider, { model: string; base_url: string; has_api_key: boolean }>;
+  providers: Record<Provider, { model: string; base_url: string; has_api_key: boolean; deadline_seconds?: number }>;
 }
 export interface Investigation {
   incident: Entity; services: Entity[]; deployments: Entity[]; changes: Entity[];

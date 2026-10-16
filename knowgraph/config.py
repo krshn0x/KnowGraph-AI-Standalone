@@ -24,13 +24,20 @@ class Settings(BaseSettings):
     llm_provider: Literal["openai", "agentrouter", "gemini", "ollama"] = "openai"
     ollama_model: str = Field(default=DEFAULT_OLLAMA_MODEL, max_length=200)
     ollama_base_url: str = Field(default=DEFAULT_OLLAMA_URL, max_length=2048)
+    ollama_deadline_seconds: float | None = Field(default=None, ge=1, le=900)
+    ollama_max_output_tokens: int = Field(default=1536, ge=256, le=4096)
     gemini_api_key: SecretStr = SecretStr("")
     gemini_model: str = Field(default=DEFAULT_GEMINI_MODEL, max_length=200)
     agentrouter_api_key: SecretStr = SecretStr("")
     agentrouter_base_url: str = Field(default="", max_length=2048)
     agentrouter_model: str = Field(default="", max_length=200)
-    agent_deadline_seconds: float = Field(default=60, ge=1, le=120)
+    agent_deadline_seconds: float = Field(default=60, ge=1, le=900)
     agent_max_tool_calls: int = Field(default=8, ge=1, le=8)
+
+    @field_validator("ollama_deadline_seconds", mode="before")
+    @classmethod
+    def optional_local_deadline(cls, value):
+        return None if isinstance(value, str) and not value.strip() else value
 
     @field_validator("agentrouter_base_url")
     @classmethod
@@ -82,6 +89,13 @@ class Settings(BaseSettings):
     @property
     def active_model(self) -> str:
         return getattr(self, f"{self.llm_provider}_model")
+
+    @property
+    def active_deadline_seconds(self) -> float:
+        if self.llm_provider == "ollama":
+            # Retain compatibility with users who raised the shared deadline.
+            return self.ollama_deadline_seconds or max(300, self.agent_deadline_seconds)
+        return self.agent_deadline_seconds
 
     @property
     def active_api_key(self) -> SecretStr:
@@ -142,6 +156,7 @@ class AISettingsInput(BaseModel):
     base_url: str = Field(default="", max_length=2048)
     # Omitted/null preserves the saved key; an explicit empty string disconnects it.
     api_key: SecretStr | None = Field(default=None, max_length=4096)
+    deadline_seconds: float | None = Field(default=None, ge=1, le=900)
 
     @field_validator("model")
     @classmethod
@@ -152,6 +167,8 @@ class AISettingsInput(BaseModel):
 
     @model_validator(mode="after")
     def router_endpoint(self):
+        if self.deadline_seconds is not None and self.provider != "ollama":
+            raise ValueError("Investigation deadline is an Ollama setting.")
         if self.provider == "agentrouter":
             self.base_url = Settings.validate_router_url(self.base_url)
             if not self.base_url:

@@ -46,7 +46,7 @@ An investigation starts from an incident's AFFECTS edges, follows at most two DE
 
 ## Agent boundaries
 
-Tools: `search_entities`, `investigate_incident`, `find_experts`, `find_documents`, `get_evidence_paths`. Their arguments are Pydantic validated. Database reads use `GRAPH.RO_QUERY` and predefined parameterized Cypher; the agent cannot write the graph. Model tool execution is sequential with eight-call and 60-second default limits. SDK retries are disabled so repeated requests cannot silently expand the budget.
+Tools: `search_entities`, `investigate_incident`, `find_experts`, `find_documents`, `get_evidence_paths`. Their arguments are Pydantic validated. Database reads use `GRAPH.RO_QUERY` and predefined parameterized Cypher; the agent cannot write the graph. Model tool execution is sequential with an eight-call cap and provider-specific deadlines: Ollama defaults to 300 seconds, hosted providers to 60 seconds, with a configurable maximum of 900 seconds. Local output is limited to 1,536 tokens per turn by default. Deadline and tool-limit failures are reported separately. The Next.js proxy uses native Node HTTP with an absolute deadline above the backend maximum, avoiding both the former 125-second cutoff and fetch response-header timeouts. SDK retries are disabled so repeated requests cannot silently expand the budget.
 
 Responses contain observed findings and hypotheses with evidence IDs. Unknown IDs invalidate the generated answer. Relationship claims should cite path IDs for exact visual inspection. Source text is treated as data, and history cannot authorize citations that were not retrieved again.
 

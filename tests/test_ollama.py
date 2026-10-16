@@ -111,6 +111,7 @@ def test_local_tool_loop_works_without_a_key_and_forces_json_at_the_cap():
     assert answer.status == "ok" and answer.sources == [SOURCE]
     assert requests[0]["model"] == DEFAULT_OLLAMA_MODEL
     assert requests[0]["reasoning_effort"] == "none"
+    assert requests[0]["max_tokens"] == 1536
     assert "response_format" not in requests[0]
     assert requests[1]["messages"][-1]["tool_call_id"] == "local_call"
     assert "tools" not in requests[1] and "tool_choice" not in requests[1]
@@ -158,6 +159,51 @@ def test_slow_local_model_reports_deadline_instead_of_connection_failure():
     assert "Cannot reach" not in answer.warnings[0]
     assert answer.sources == [SOURCE] and len(requests) == 1
     assert "private-timeout-details" not in answer.model_dump_json()
+
+
+def test_local_answer_after_the_previous_120_second_cap_is_accepted(monkeypatch):
+    agent, _ = make_local([tool(), final()])
+    clock = iter([0, 0, 150, 150, 180])
+    monkeypatch.setattr("knowgraph.agent.time.monotonic", lambda: next(clock))
+    answer = agent.ask(AskRequest(question="checkout"))
+    assert answer.status == "ok" and answer.sources == [SOURCE]
+
+
+def test_local_deadline_still_applies_across_all_model_turns(monkeypatch):
+    agent, _ = make_local([tool(), final()], ollama_deadline_seconds=180)
+    clock = iter([0, 0, 150, 150, 181])
+    monkeypatch.setattr("knowgraph.agent.time.monotonic", lambda: next(clock))
+    answer = agent.ask(AskRequest(question="checkout"))
+    assert answer.status == "limit_reached" and not answer.claims
+    assert "180 seconds" in answer.warnings[0] and "1 graph tools" in answer.warnings[0]
+    assert answer.sources == [SOURCE]
+
+
+def test_local_tool_limit_is_not_misreported_as_a_timeout():
+    agent, _ = make_local([tool(), tool()], agent_max_tool_calls=1)
+    answer = agent.ask(AskRequest(question="checkout"))
+    assert answer.status == "limit_reached"
+    assert "tool-call limit" in answer.warnings[0] and "deadline" not in answer.warnings[0]
+
+
+def test_local_deadline_defaults_support_old_env_settings_and_ui_overrides():
+    assert local_settings().active_deadline_seconds == 300
+    assert local_settings(agent_deadline_seconds=600).active_deadline_seconds == 600
+    assert (
+        local_settings(
+            agent_deadline_seconds=600, ollama_deadline_seconds=450
+        ).active_deadline_seconds
+        == 450
+    )
+    assert (
+        local_settings(
+            agent_deadline_seconds=600, ollama_deadline_seconds=""
+        ).active_deadline_seconds
+        == 600
+    )
+    assert local_settings(llm_provider="openai").active_deadline_seconds == 60
+    with pytest.raises(ValidationError):
+        local_settings(ollama_deadline_seconds=901)
 
 
 @pytest.mark.parametrize(

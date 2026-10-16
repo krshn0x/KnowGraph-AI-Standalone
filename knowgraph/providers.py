@@ -89,6 +89,8 @@ class ModelSession:
             "timeout": timeout,
         }
         if self.settings.llm_provider in {"gemini", "ollama"}:
+            if self.settings.llm_provider == "ollama":
+                parameters["max_tokens"] = self.settings.ollama_max_output_tokens
             parameters["reasoning_effort"] = (
                 "none" if self.settings.llm_provider == "ollama" else "low"
             )

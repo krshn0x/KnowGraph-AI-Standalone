@@ -62,7 +62,9 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
             # must never be echoed, even when another field is invalid.
             return JSONResponse(
                 status_code=422,
-                content={"detail": "Check the provider, API base URL, model ID, and key length."},
+                content={
+                    "detail": "Check the provider, API base URL, model ID, deadline, and key length."
+                },
             )
         return await request_validation_exception_handler(request, exc)
 
@@ -92,6 +94,8 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
                     "model": current.ollama_model,
                     "base_url": current.ollama_base_url,
                     "has_api_key": False,
+                    "deadline_seconds": current.ollama_deadline_seconds
+                    or max(300, current.agent_deadline_seconds),
                 },
             },
         }
@@ -107,6 +111,8 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
             updates = {"llm_provider": payload.provider, f"{payload.provider}_model": payload.model}
             if payload.provider in {"agentrouter", "ollama"}:
                 updates[f"{payload.provider}_base_url"] = payload.base_url
+            if payload.provider == "ollama" and payload.deadline_seconds is not None:
+                updates["ollama_deadline_seconds"] = payload.deadline_seconds
             if payload.api_key is not None and payload.provider != "ollama":
                 updates[f"{payload.provider}_api_key"] = payload.api_key.get_secret_value().strip()
             active_settings = Settings(_env_file=None, **(active_settings.model_dump() | updates))

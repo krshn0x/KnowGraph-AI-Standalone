@@ -31,6 +31,10 @@ from knowgraph.retrieval import Retrieval
 logger = logging.getLogger(__name__)
 
 
+class ToolCallLimitError(Exception):
+    """The model continued requesting tools after the final-answer turn."""
+
+
 class SearchArgs(StrictModel):
     query: str = Field(min_length=1, max_length=500)
     kind: (
@@ -185,7 +189,7 @@ class Agent:
             }
             for name, (model, description) in TOOL_ARGS.items()
         ]
-        deadline = time.monotonic() + self.settings.agent_deadline_seconds
+        deadline = time.monotonic() + self.settings.active_deadline_seconds
         try:
             # One response per tool call, followed by a final no-tools response at the cap.
             for _ in range(self.settings.agent_max_tool_calls + 1):
@@ -231,7 +235,7 @@ class Agent:
                     )
                 for call in function_calls:
                     if len(calls) >= self.settings.agent_max_tool_calls:
-                        raise TimeoutError("Tool-call limit reached")
+                        raise ToolCallLimitError("Tool-call limit reached")
                     calls.append(call.name)
                     try:
                         payload, found, people = self.execute(call.name, call.arguments)
@@ -240,26 +244,41 @@ class Agent:
                     except (ValueError, KeyError) as exc:
                         payload = {"error": str(exc)[:500]}
                     session.append_tool_result(call, payload)
-            raise TimeoutError("Tool-call limit reached")
+            raise ToolCallLimitError("Tool-call limit reached")
         except Exception as exc:
-            logger.warning("Agent failed (%s)", type(exc).__name__)
-            limit = isinstance(exc, TimeoutError)
-            warning = (
-                "Investigation time or tool-call limit reached."
-                if limit
-                else "The model request failed or returned an invalid answer. Check credentials, model access, and server logs."
+            logger.warning(
+                "Agent failed (%s): provider=%s tools=%s deadline_seconds=%s",
+                type(exc).__name__,
+                self.settings.llm_provider,
+                len(calls),
+                self.settings.active_deadline_seconds,
             )
+            limit = isinstance(exc, (TimeoutError, ToolCallLimitError))
+            warning = "The model request failed or returned an invalid answer. Check credentials, model access, and server logs."
+            if isinstance(exc, ToolCallLimitError):
+                warning = (
+                    "The model reached the graph tool-call limit without producing a final answer. "
+                    "Ask a narrower question. Increasing the time limit will not change this limit."
+                )
+            elif isinstance(exc, TimeoutError):
+                warning = (
+                    f"Investigation deadline reached ({self.settings.active_deadline_seconds:g} "
+                    "seconds). Review the retrieved evidence or try a narrower question."
+                )
             if self.settings.llm_provider == "gemini" and isinstance(exc, RateLimitError):
                 warning = (
                     "Gemini quota or rate limit reached. Check your Google project's free-tier "
                     "limits or wait and retry. No other provider was used."
                 )
             if self.settings.llm_provider == "ollama":
-                if isinstance(exc, APITimeoutError):
+                if isinstance(exc, (APITimeoutError, TimeoutError)):
                     limit = True
                     warning = (
-                        "Ollama exceeded the investigation deadline. Warm up the model, "
-                        "choose a smaller model, or increase AGENT_DEADLINE_SECONDS up to 120."
+                        f"Ollama exceeded the investigation deadline "
+                        f"({self.settings.active_deadline_seconds:g} seconds, "
+                        f"{len(calls)} graph tools used). Increase the Ollama investigation "
+                        "deadline in AI settings (up to 900 seconds), warm up the model, "
+                        "or choose a smaller model. This budget includes loading and all model turns."
                     )
                 elif isinstance(exc, APIConnectionError):
                     warning = (
