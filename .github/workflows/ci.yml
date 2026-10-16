@@ -9,6 +9,7 @@ permissions:
 jobs:
   tests:
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -16,6 +17,11 @@ jobs:
           python-version: '3.13'
           cache: pip
           cache-dependency-path: requirements.lock
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
       - run: python -m pip install -r requirements.lock
       - run: python -m pip install --no-deps -e .
       - run: ruff check .
@@ -24,11 +30,23 @@ jobs:
       - run: python -m pytest -q -m 'not live'
         env:
           RUN_INTEGRATION: '1'
-      - name: Verify application container builds
-        run: docker compose build api
-      - name: Database logs on failure
+      - run: npm ci --no-fund
+        working-directory: web
+      - run: npm run lint && npm run typecheck
+        working-directory: web
+      - run: npx playwright install --with-deps chromium
+        working-directory: web
+      - name: Build and start the complete application
+        run: docker compose up -d --build --wait
+      - name: Browser workflows and real API proxy
+        run: npm run test:e2e
+        working-directory: web
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:8501
+          KNOWGRAPH_LIVE_API: '1'
+      - name: Service logs on failure
         if: failure()
-        run: docker compose logs falkordb
+        run: docker compose logs
       - name: Stop test services
         if: always()
         run: docker compose down

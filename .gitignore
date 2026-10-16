@@ -7,3 +7,10 @@ __pycache__/
 .env
 .DS_Store
 artifacts/
+node_modules/
+.next/
+*.tsbuildinfo
+playwright-report/
+test-results/
+web/public/samples/
+web/.env.local

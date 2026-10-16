@@ -5,10 +5,8 @@ COPY requirements.lock ./
 RUN pip install -r requirements.lock
 COPY pyproject.toml ./
 COPY knowgraph ./knowgraph
-COPY frontend ./frontend
 COPY data ./data
-COPY .streamlit ./.streamlit
 RUN pip install --no-deps . && useradd --create-home app && chown -R app:app /app
 USER app
-EXPOSE 8000 8501
+EXPOSE 8000
 CMD ["uvicorn", "knowgraph.api:app", "--host", "0.0.0.0", "--port", "8000"]

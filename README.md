@@ -2,6 +2,8 @@
 
 An engineering company brain powered by **FalkorDB**. Investigate incidents, find experienced people and useful documents, inspect cited graph paths, and update company knowledge without duplicates.
 
+The **Next.js + React + TypeScript** frontend is a dark engineering console: charcoal panels, restrained green accents, dense incident context, and an interactive React Flow evidence graph. FastAPI owns the graph and agent logic.
+
 The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI chat uses OpenAI's Responses API with configurable `gpt-6.1-sol`. All structured investigation, expert, document, graph, and ingestion views work without an API key.
 
 ## Start with Docker
@@ -14,7 +16,7 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Open **http://localhost:8501** for the dashboard and **http://localhost:8000/docs** for the API. Compose starts FalkorDB, seeds an empty graph, starts the API, then starts Streamlit. Initial startup downloads images and dependencies. Check startup with `docker compose ps` and `docker compose logs api seed frontend`.
+Open **http://localhost:8501** for the dashboard and **http://localhost:8000/docs** for the API. Compose starts FalkorDB, seeds an empty graph, starts the API, then starts the Next.js standalone server. Initial startup downloads images and dependencies. Check startup with `docker compose ps` and `docker compose logs api seed frontend`.
 
 A named volume persists FalkorDB's actual data directory (`/var/lib/falkordb/data`); append-only persistence is enabled. Normal startup skips seeding an existing graph, preserving imported updates. `docker compose down` retains the volume. Services are published on loopback for this local single-user prototype.
 
@@ -24,21 +26,24 @@ If port 6379 is already occupied, set `FALKORDB_PORT=6380` in `.env`. Container-
 
 | View | Behavior |
 |---|---|
+| Overview | Live graph counts, recent incidents, and a connected investigation map. |
 | Ask KnowGraph | Natural-language questions, bounded conversation history, model-selected graph tools, cited claims, experts, and sources. |
-| Incidents | Timeline, affected services, dependencies, deployments preceding onset, included commits/PRs, authors, similar incidents, and resolution notes. |
+| Investigations | Timeline, affected services, dependencies, deployments preceding onset, included commits/PRs, authors, similar incidents, and resolution notes. |
 | Experts | Search independently by service, incident ID, or topic. Rank distinct records: resolved incident = 3, authored change = 2, authored document = 1. Latest activity breaks ties. |
 | Documents | Full-text search for documents/tickets plus connected service and incident evidence. Inspect original source bodies and references. |
 | Evidence Graph | Interactive directed graph with source inspection and path highlighting. Cited answer evidence is separate from additional retrieved context and neighborhood exploration. |
-| Knowledge Update | Upload JSON or node/edge CSV files; validate before writes; display created/updated/unchanged/rejected counts. |
+| Data sources | Upload JSON or node/edge CSV files; validate before writes; display created/updated/unchanged/rejected counts. |
+
+Use **Cmd/Ctrl + K** to search source records from any screen. Graphs support pan, zoom, dragging nodes, path highlighting, source inspection, layout reset, and JSON export. Mobile navigation and layouts adapt to smaller screens. Every displayed metric comes from the API.
 
 Incident investigation defaults to the preceding **24 hours**, matches the incident environment, and traverses up to two service-dependency hops. Deployment timing is evidence of correlation. A causal explanation remains a hypothesis unless source records explicitly establish a resolution.
 
 ## Demo in three minutes
 
-1. In **Incidents**, investigate “Checkout errors after morning release” (`demo:inc-checkout`). Inspect `demo:deploy-checkout-retry` → commits → PR → Ada. Staging, future, old, and unrelated releases are excluded.
+1. In **Investigations**, investigate “Checkout errors after morning release” (`demo:inc-checkout`). Inspect `demo:deploy-checkout-retry` → commits → PR → Ada. Staging, future, old, and unrelated releases are excluded.
 2. Find checkout experts and the checkout retry runbook. Nina ranks highly from recorded resolutions, changes, and documents.
 3. Investigate `demo:inc-payments`: follow payments → ledger to the ledger deployment. Investigate `demo:inc-queue`: historical incidents and Mei's experience help despite no recent worker deployment.
-4. In **Knowledge Update**, upload `data/resolution_update.json`. Reinvestigate checkout: the incident is resolved and the newly recorded resolution is visible. Reimport the same file to see unchanged counts.
+4. In **Data sources**, upload `data/resolution_update.json`. Reinvestigate checkout: the incident is resolved and the newly recorded resolution is visible. Reimport the same file to see unchanged counts.
 5. With a key configured, ask: “Investigate demo:inc-checkout. What changed, who can help, and which runbook should I read?” Open the cited evidence graph.
 
 [Detailed demo script](docs/demo-script.md) · [Architecture and schema](docs/architecture.md)
@@ -89,13 +94,13 @@ curl -F bundle_file=@data/resolution_update.json http://localhost:8000/ingest
 | `POST /ingest` | Import summary or validation errors. |
 | `GET /health` | Database readiness, record counts, model setting, and whether a key is configured. |
 
-History accepts up to 12 `{role: "user" | "assistant", content: "..."}` messages. Questions are limited to 4,000 characters. Chat history lives in the Streamlit session, while company knowledge persists in FalkorDB.
+History accepts up to 12 `{role: "user" | "assistant", content: "..."}` messages. Questions are limited to 4,000 characters. Chat history lives in browser memory across console navigation and resets on reload, while company knowledge persists in FalkorDB.
 
 The old `/chat` URL remains an alias for `/ask`, with the **new response schema**. The initial Ollama settings are replaced by `OPENAI_API_KEY` and `OPENAI_MODEL`. This version uses canonical `:Entity` nodes and source-qualified IDs; old demo records are not migrated or deleted. Select a fresh `FALKORDB_GRAPH` name if you want an entirely separate workspace.
 
 ## Local development and tests
 
-Python **3.13+** is required; the lockfile, container, and CI use Python 3.13.
+Python **3.13+** and Node.js **22+** are required; containers and CI use Python 3.13 and Node 24.
 
 ```bash
 python3 -m venv .venv
@@ -107,9 +112,14 @@ cp .env.example .env
 docker compose up -d --wait falkordb
 knowgraph seed
 uvicorn knowgraph.api:app --host 127.0.0.1 --port 8000
-# In another terminal with the same environment:
-streamlit run frontend/app.py
+# In another terminal:
+cd web
+npm ci
+cp .env.example .env.local
+npm run dev
 ```
+
+Open **http://localhost:3000** during development. The Next.js server proxies `/api/*` to `API_BASE_URL` (default `http://127.0.0.1:8000`). Configure it in `web/.env.local` for local development; Compose supplies its internal API address at runtime. OpenAI credentials stay exclusively in FastAPI.
 
 `knowgraph stats` prints canonical graph counts. Explicit `knowgraph seed` merges the fixture, so use it intentionally: it can restore fixture fields changed by a previous import. Automatic Compose seeding uses `--only-if-empty` instead.
 
@@ -120,7 +130,22 @@ ruff check .
 ruff format --check .
 ```
 
-Integration tests create unique temporary graphs and delete those graphs afterward. They exercise actual Cypher, ingestion retries/concurrency, the three scenarios, document search, evidence consistency, and API contracts. Unit tests exercise the OpenAI SDK through a mock HTTP transport, citation rejection, limits, missing credentials, outages, and Streamlit interactions.
+Integration tests create unique temporary graphs and delete those graphs afterward. They exercise actual Cypher, ingestion retries/concurrency, the three scenarios, document search, evidence consistency, and API contracts. Unit tests exercise the OpenAI SDK through a mock HTTP transport, citation rejection, limits, missing credentials, outages, and provider failures.
+
+The browser suite covers source inspection, graph paths/export, incident controls, expert/document search, uploads, citations, conversation continuity, errors, and mobile navigation. Fixture responses are fictional seed data and are intercepted only inside tests. CI builds both Docker images and also tests the real same-origin API proxy and multipart validation.
+
+```bash
+cd web
+npm run lint
+npm run build
+npm run typecheck
+npx playwright install chromium
+npm run test:e2e
+# Against a running Docker stack, including the real API proxy check:
+PLAYWRIGHT_BASE_URL=http://127.0.0.1:8501 KNOWGRAPH_LIVE_API=1 npm run test:e2e
+```
+
+Production JavaScript dependencies pass `npm audit --omit=dev`. The development-only Next.js lint dependency chain currently reports an unpatched `braces` advisory; do not lint untrusted glob configurations.
 
 Optional live-model evaluation incurs API usage:
 

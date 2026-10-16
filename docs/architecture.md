@@ -2,7 +2,8 @@
 
 ```mermaid
 flowchart LR
-    UI[Streamlit: chat and five feature views] --> API[FastAPI and Pydantic]
+    UI[Next.js / React console] --> Proxy[Same-origin server API proxy]
+    Proxy --> API[FastAPI and Pydantic]
     API --> Agent[Bounded tool-calling agent]
     Agent <--> LLM[OpenAI Responses API]
     Agent --> Tools[Typed read-only graph tools]
@@ -15,7 +16,7 @@ flowchart LR
     Evidence --> API
 ```
 
-The API owns all business logic. Streamlit consumes typed JSON. The model selects tools and composes claims; the server validates citations and constructs the evidence graph from actual retrieved records. Cited evidence is returned separately from the complete retrieval context.
+The API owns all business logic. The TypeScript console consumes typed JSON through a server-only Next.js route handler. React Flow and Dagre display actual evidence nodes, directed relationships, and selectable paths. The persistent workspace layout retains chat and selected incident state across navigation; a full reload clears browser memory. The proxy forwards JSON and multipart requests to a runtime API_BASE_URL, with no public provider credentials. The model selects tools and composes claims; the server validates citations and constructs the evidence graph from actual retrieved records. Cited evidence is returned separately from the complete retrieval context.
 
 ## Graph schema
 

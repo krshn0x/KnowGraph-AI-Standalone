@@ -1,0 +1,4788 @@
+{
+  "health": {
+    "status": "ok",
+    "database": "ready",
+    "ai_configured": false,
+    "model": "gpt-6.1-sol",
+    "nodes": 113,
+    "edges": 209
+  },
+  "incidents": [
+    {
+      "id": "demo:inc-analytics",
+      "kind": "Incident",
+      "title": "Analytics report delay",
+      "body": "Slow report job. Unrelated to checkout, payments and queue incidents.",
+      "source_ref": "fixture://northstar/inc-analytics",
+      "occurred_at": "2026-10-14T08:00:00Z",
+      "status": "resolved",
+      "environment": "production"
+    },
+    {
+      "id": "demo:inc-checkout",
+      "kind": "Incident",
+      "title": "Checkout errors after morning release",
+      "body": "HTTP 503 rate rose to 18%. Retry volume increased. Root cause is not yet confirmed.",
+      "source_ref": "fixture://northstar/inc-checkout",
+      "occurred_at": "2026-10-15T10:00:00Z",
+      "status": "investigating",
+      "environment": "production"
+    },
+    {
+      "id": "demo:inc-checkout-older",
+      "kind": "Incident",
+      "title": "Checkout retry budget exhausted in August",
+      "body": "Retry budget and jitter configuration corrected by Nina after investigating checkout overload.",
+      "source_ref": "fixture://northstar/inc-checkout-older",
+      "occurred_at": "2026-08-20T09:00:00Z",
+      "status": "resolved",
+      "environment": "production"
+    },
+    {
+      "id": "demo:inc-checkout-old",
+      "kind": "Incident",
+      "title": "Checkout retry saturation in September",
+      "body": "Unbounded retries saturated downstream connections. Nina restored bounded exponential backoff.",
+      "source_ref": "fixture://northstar/inc-checkout-old",
+      "occurred_at": "2026-09-12T09:00:00Z",
+      "status": "resolved",
+      "environment": "production"
+    },
+    {
+      "id": "demo:inc-ledger-old",
+      "kind": "Incident",
+      "title": "Ledger database pool saturation",
+      "body": "Bruno restored pool limits after identifying idle transaction growth.",
+      "source_ref": "fixture://northstar/inc-ledger-old",
+      "occurred_at": "2026-09-20T08:00:00Z",
+      "status": "resolved",
+      "environment": "production"
+    },
+    {
+      "id": "demo:inc-payments",
+      "kind": "Incident",
+      "title": "Payment authorization timeouts",
+      "body": "Authorization p99 reached 8 seconds. Ledger connection waits increased. Investigate dependency changes.",
+      "source_ref": "fixture://northstar/inc-payments",
+      "occurred_at": "2026-10-15T11:00:00Z",
+      "status": "investigating",
+      "environment": "production"
+    },
+    {
+      "id": "demo:inc-queue-older",
+      "kind": "Incident",
+      "title": "Queue dead-letter routing disabled",
+      "body": "Mei restored dead-letter routing to stop repeated job delivery.",
+      "source_ref": "fixture://northstar/inc-queue-older",
+      "occurred_at": "2026-08-24T08:00:00Z",
+      "status": "resolved",
+      "environment": "production"
+    },
+    {
+      "id": "demo:inc-queue-old",
+      "kind": "Incident",
+      "title": "Queue poison-message retry storm",
+      "body": "Mei isolated a poison message and configured dead-letter routing.",
+      "source_ref": "fixture://northstar/inc-queue-old",
+      "occurred_at": "2026-09-24T08:00:00Z",
+      "status": "resolved",
+      "environment": "production"
+    },
+    {
+      "id": "demo:inc-queue",
+      "kind": "Incident",
+      "title": "Recurring queue lag and duplicate retries",
+      "body": "Queue age exceeded 15 minutes. Similar retry storms occurred in September. No new worker deployment today.",
+      "source_ref": "fixture://northstar/inc-queue",
+      "occurred_at": "2026-10-15T12:00:00Z",
+      "status": "investigating",
+      "environment": "production"
+    }
+  ],
+  "services": [
+    {
+      "id": "demo:analytics",
+      "kind": "Service",
+      "title": "analytics",
+      "body": "Analytics service: event aggregation and reporting.",
+      "source_ref": "fixture://northstar/analytics",
+      "occurred_at": null,
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:checkout",
+      "kind": "Service",
+      "title": "checkout",
+      "body": "Checkout API: shopping cart, retry policy and order submission.",
+      "source_ref": "fixture://northstar/checkout",
+      "occurred_at": null,
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:ledger",
+      "kind": "Service",
+      "title": "ledger",
+      "body": "Ledger service: transaction storage and database connection pooling.",
+      "source_ref": "fixture://northstar/ledger",
+      "occurred_at": null,
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:notifications",
+      "kind": "Service",
+      "title": "notifications",
+      "body": "Notifications service: email and message delivery.",
+      "source_ref": "fixture://northstar/notifications",
+      "occurred_at": null,
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:payments",
+      "kind": "Service",
+      "title": "payments",
+      "body": "Payments API: payment authorization and ledger integration.",
+      "source_ref": "fixture://northstar/payments",
+      "occurred_at": null,
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:queue-worker",
+      "kind": "Service",
+      "title": "queue-worker",
+      "body": "Queue worker: background jobs, delivery retries and queue lag.",
+      "source_ref": "fixture://northstar/queue-worker",
+      "occurred_at": null,
+      "status": "",
+      "environment": ""
+    }
+  ],
+  "checkout": {
+    "incident": {
+      "id": "demo:inc-checkout",
+      "kind": "Incident",
+      "title": "Checkout errors after morning release",
+      "body": "HTTP 503 rate rose to 18%. Retry volume increased. Root cause is not yet confirmed.",
+      "source_ref": "fixture://northstar/inc-checkout",
+      "occurred_at": "2026-10-15T10:00:00Z",
+      "status": "investigating",
+      "environment": "production"
+    },
+    "services": [
+      {
+        "id": "demo:checkout",
+        "kind": "Service",
+        "title": "checkout",
+        "body": "Checkout API: shopping cart, retry policy and order submission.",
+        "source_ref": "fixture://northstar/checkout",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:payments",
+        "kind": "Service",
+        "title": "payments",
+        "body": "Payments API: payment authorization and ledger integration.",
+        "source_ref": "fixture://northstar/payments",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:ledger",
+        "kind": "Service",
+        "title": "ledger",
+        "body": "Ledger service: transaction storage and database connection pooling.",
+        "source_ref": "fixture://northstar/ledger",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      }
+    ],
+    "deployments": [
+      {
+        "id": "demo:deploy-checkout-retry",
+        "kind": "Deployment",
+        "title": "Deploy checkout-retry",
+        "body": "Release to production.",
+        "source_ref": "fixture://northstar/deploy-checkout-retry",
+        "occurred_at": "2026-10-15T09:50:00Z",
+        "status": "completed",
+        "environment": "production"
+      }
+    ],
+    "changes": [
+      {
+        "id": "demo:commit-checkout-retry",
+        "kind": "Commit",
+        "title": "Adjust checkout retry policy \u2014 implementation",
+        "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+        "source_ref": "fixture://northstar/commit-checkout-retry",
+        "occurred_at": "2026-10-15T09:20:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-checkout-retry-test",
+        "kind": "Commit",
+        "title": "Tests for Adjust checkout retry policy",
+        "body": "Regression tests for checkout.",
+        "source_ref": "fixture://northstar/commit-checkout-retry-test",
+        "occurred_at": "2026-10-15T09:20:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:pr-checkout-retry",
+        "kind": "PullRequest",
+        "title": "Adjust checkout retry policy",
+        "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+        "source_ref": "fixture://northstar/pr-checkout-retry",
+        "occurred_at": "2026-10-15T09:20:00Z",
+        "status": "merged",
+        "environment": ""
+      }
+    ],
+    "related_incidents": [
+      {
+        "id": "demo:inc-checkout-old",
+        "kind": "Incident",
+        "title": "Checkout retry saturation in September",
+        "body": "Unbounded retries saturated downstream connections. Nina restored bounded exponential backoff.",
+        "source_ref": "fixture://northstar/inc-checkout-old",
+        "occurred_at": "2026-09-12T09:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      },
+      {
+        "id": "demo:inc-checkout-older",
+        "kind": "Incident",
+        "title": "Checkout retry budget exhausted in August",
+        "body": "Retry budget and jitter configuration corrected by Nina after investigating checkout overload.",
+        "source_ref": "fixture://northstar/inc-checkout-older",
+        "occurred_at": "2026-08-20T09:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      },
+      {
+        "id": "demo:inc-ledger-old",
+        "kind": "Incident",
+        "title": "Ledger database pool saturation",
+        "body": "Bruno restored pool limits after identifying idle transaction growth.",
+        "source_ref": "fixture://northstar/inc-ledger-old",
+        "occurred_at": "2026-09-20T08:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      }
+    ],
+    "timeline": [
+      {
+        "id": "demo:inc-checkout-older",
+        "kind": "Incident",
+        "title": "Checkout retry budget exhausted in August",
+        "body": "Retry budget and jitter configuration corrected by Nina after investigating checkout overload.",
+        "source_ref": "fixture://northstar/inc-checkout-older",
+        "occurred_at": "2026-08-20T09:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      },
+      {
+        "id": "demo:inc-checkout-old",
+        "kind": "Incident",
+        "title": "Checkout retry saturation in September",
+        "body": "Unbounded retries saturated downstream connections. Nina restored bounded exponential backoff.",
+        "source_ref": "fixture://northstar/inc-checkout-old",
+        "occurred_at": "2026-09-12T09:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      },
+      {
+        "id": "demo:inc-ledger-old",
+        "kind": "Incident",
+        "title": "Ledger database pool saturation",
+        "body": "Bruno restored pool limits after identifying idle transaction growth.",
+        "source_ref": "fixture://northstar/inc-ledger-old",
+        "occurred_at": "2026-09-20T08:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      },
+      {
+        "id": "demo:doc-checkout-runbook",
+        "kind": "Document",
+        "title": "checkout runbook",
+        "body": "Check checkout metrics, identify recent deployments, compare historical incidents, and escalate to @nina. For retry saturation, inspect retry budget, exponential backoff and jitter before proposing rollback.",
+        "source_ref": "fixture://northstar/doc-checkout-runbook",
+        "occurred_at": "2026-10-02T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-checkout-retry",
+        "kind": "Commit",
+        "title": "Adjust checkout retry policy \u2014 implementation",
+        "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+        "source_ref": "fixture://northstar/commit-checkout-retry",
+        "occurred_at": "2026-10-15T09:20:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-checkout-retry-test",
+        "kind": "Commit",
+        "title": "Tests for Adjust checkout retry policy",
+        "body": "Regression tests for checkout.",
+        "source_ref": "fixture://northstar/commit-checkout-retry-test",
+        "occurred_at": "2026-10-15T09:20:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:pr-checkout-retry",
+        "kind": "PullRequest",
+        "title": "Adjust checkout retry policy",
+        "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+        "source_ref": "fixture://northstar/pr-checkout-retry",
+        "occurred_at": "2026-10-15T09:20:00Z",
+        "status": "merged",
+        "environment": ""
+      },
+      {
+        "id": "demo:deploy-checkout-retry",
+        "kind": "Deployment",
+        "title": "Deploy checkout-retry",
+        "body": "Release to production.",
+        "source_ref": "fixture://northstar/deploy-checkout-retry",
+        "occurred_at": "2026-10-15T09:50:00Z",
+        "status": "completed",
+        "environment": "production"
+      },
+      {
+        "id": "demo:inc-checkout",
+        "kind": "Incident",
+        "title": "Checkout errors after morning release",
+        "body": "HTTP 503 rate rose to 18%. Retry volume increased. Root cause is not yet confirmed.",
+        "source_ref": "fixture://northstar/inc-checkout",
+        "occurred_at": "2026-10-15T10:00:00Z",
+        "status": "investigating",
+        "environment": "production"
+      }
+    ],
+    "evidence": {
+      "nodes": [
+        {
+          "id": "demo:inc-checkout",
+          "kind": "Incident",
+          "title": "Checkout errors after morning release",
+          "body": "HTTP 503 rate rose to 18%. Retry volume increased. Root cause is not yet confirmed.",
+          "source_ref": "fixture://northstar/inc-checkout",
+          "occurred_at": "2026-10-15T10:00:00Z",
+          "status": "investigating",
+          "environment": "production"
+        },
+        {
+          "id": "demo:checkout",
+          "kind": "Service",
+          "title": "checkout",
+          "body": "Checkout API: shopping cart, retry policy and order submission.",
+          "source_ref": "fixture://northstar/checkout",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:payments",
+          "kind": "Service",
+          "title": "payments",
+          "body": "Payments API: payment authorization and ledger integration.",
+          "source_ref": "fixture://northstar/payments",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:ledger",
+          "kind": "Service",
+          "title": "ledger",
+          "body": "Ledger service: transaction storage and database connection pooling.",
+          "source_ref": "fixture://northstar/ledger",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:deploy-checkout-retry",
+          "kind": "Deployment",
+          "title": "Deploy checkout-retry",
+          "body": "Release to production.",
+          "source_ref": "fixture://northstar/deploy-checkout-retry",
+          "occurred_at": "2026-10-15T09:50:00Z",
+          "status": "completed",
+          "environment": "production"
+        },
+        {
+          "id": "demo:commit-checkout-retry",
+          "kind": "Commit",
+          "title": "Adjust checkout retry policy \u2014 implementation",
+          "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+          "source_ref": "fixture://northstar/commit-checkout-retry",
+          "occurred_at": "2026-10-15T09:20:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:commit-checkout-retry-test",
+          "kind": "Commit",
+          "title": "Tests for Adjust checkout retry policy",
+          "body": "Regression tests for checkout.",
+          "source_ref": "fixture://northstar/commit-checkout-retry-test",
+          "occurred_at": "2026-10-15T09:20:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:pr-checkout-retry",
+          "kind": "PullRequest",
+          "title": "Adjust checkout retry policy",
+          "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+          "source_ref": "fixture://northstar/pr-checkout-retry",
+          "occurred_at": "2026-10-15T09:20:00Z",
+          "status": "merged",
+          "environment": ""
+        },
+        {
+          "id": "demo:ada",
+          "kind": "Person",
+          "title": "Ada Chen",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @ada.",
+          "source_ref": "fixture://northstar/ada",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:inc-checkout-old",
+          "kind": "Incident",
+          "title": "Checkout retry saturation in September",
+          "body": "Unbounded retries saturated downstream connections. Nina restored bounded exponential backoff.",
+          "source_ref": "fixture://northstar/inc-checkout-old",
+          "occurred_at": "2026-09-12T09:00:00Z",
+          "status": "resolved",
+          "environment": "production"
+        },
+        {
+          "id": "demo:inc-checkout-older",
+          "kind": "Incident",
+          "title": "Checkout retry budget exhausted in August",
+          "body": "Retry budget and jitter configuration corrected by Nina after investigating checkout overload.",
+          "source_ref": "fixture://northstar/inc-checkout-older",
+          "occurred_at": "2026-08-20T09:00:00Z",
+          "status": "resolved",
+          "environment": "production"
+        },
+        {
+          "id": "demo:inc-ledger-old",
+          "kind": "Incident",
+          "title": "Ledger database pool saturation",
+          "body": "Bruno restored pool limits after identifying idle transaction growth.",
+          "source_ref": "fixture://northstar/inc-ledger-old",
+          "occurred_at": "2026-09-20T08:00:00Z",
+          "status": "resolved",
+          "environment": "production"
+        },
+        {
+          "id": "demo:nina",
+          "kind": "Person",
+          "title": "Nina Patel",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @nina.",
+          "source_ref": "fixture://northstar/nina",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:bruno",
+          "kind": "Person",
+          "title": "Bruno Silva",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @bruno.",
+          "source_ref": "fixture://northstar/bruno",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:doc-checkout-runbook",
+          "kind": "Document",
+          "title": "checkout runbook",
+          "body": "Check checkout metrics, identify recent deployments, compare historical incidents, and escalate to @nina. For retry saturation, inspect retry budget, exponential backoff and jitter before proposing rollback.",
+          "source_ref": "fixture://northstar/doc-checkout-runbook",
+          "occurred_at": "2026-10-02T08:00:00Z",
+          "status": "",
+          "environment": ""
+        }
+      ],
+      "edges": [
+        {
+          "source": "demo:inc-checkout",
+          "kind": "AFFECTS",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/inc-checkout/AFFECTS/checkout",
+          "id": "edge:e6765b2943334e4d36f3cdfb"
+        },
+        {
+          "source": "demo:checkout",
+          "kind": "DEPENDS_ON",
+          "target": "demo:payments",
+          "source_ref": "fixture://northstar/links/checkout/DEPENDS_ON/payments",
+          "id": "edge:5ffa24b7925c2ac9f08eab98"
+        },
+        {
+          "source": "demo:payments",
+          "kind": "DEPENDS_ON",
+          "target": "demo:ledger",
+          "source_ref": "fixture://northstar/links/payments/DEPENDS_ON/ledger",
+          "id": "edge:842e8c3709f07e61a6ebb425"
+        },
+        {
+          "source": "demo:deploy-checkout-retry",
+          "kind": "DEPLOYED",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/deploy-checkout-retry/DEPLOYED/checkout",
+          "id": "edge:346b6da0a598b3beab260382"
+        },
+        {
+          "source": "demo:deploy-checkout-retry",
+          "kind": "INCLUDES",
+          "target": "demo:commit-checkout-retry",
+          "source_ref": "fixture://northstar/links/deploy-checkout-retry/INCLUDES/commit-checkout-retry",
+          "id": "edge:add4c4a558c2be232eca1148"
+        },
+        {
+          "source": "demo:deploy-checkout-retry",
+          "kind": "INCLUDES",
+          "target": "demo:commit-checkout-retry-test",
+          "source_ref": "fixture://northstar/links/deploy-checkout-retry/INCLUDES/commit-checkout-retry-test",
+          "id": "edge:391d89d8d07d7d36e34f176d"
+        },
+        {
+          "source": "demo:pr-checkout-retry",
+          "kind": "INCLUDES",
+          "target": "demo:commit-checkout-retry",
+          "source_ref": "fixture://northstar/links/pr-checkout-retry/INCLUDES/commit-checkout-retry",
+          "id": "edge:70d2269efed054bf4c416d35"
+        },
+        {
+          "source": "demo:pr-checkout-retry",
+          "kind": "INCLUDES",
+          "target": "demo:commit-checkout-retry-test",
+          "source_ref": "fixture://northstar/links/pr-checkout-retry/INCLUDES/commit-checkout-retry-test",
+          "id": "edge:0f112d45f922a6b57e9648af"
+        },
+        {
+          "source": "demo:ada",
+          "kind": "AUTHORED",
+          "target": "demo:pr-checkout-retry",
+          "source_ref": "fixture://northstar/links/ada/AUTHORED/pr-checkout-retry",
+          "id": "edge:833f09f36b33fa8f2c170868"
+        },
+        {
+          "source": "demo:ada",
+          "kind": "AUTHORED",
+          "target": "demo:commit-checkout-retry",
+          "source_ref": "fixture://northstar/links/ada/AUTHORED/commit-checkout-retry",
+          "id": "edge:8531572e4910ff01295500a7"
+        },
+        {
+          "source": "demo:ada",
+          "kind": "AUTHORED",
+          "target": "demo:commit-checkout-retry-test",
+          "source_ref": "fixture://northstar/links/ada/AUTHORED/commit-checkout-retry-test",
+          "id": "edge:6a2d91f4e105f679771b5099"
+        },
+        {
+          "source": "demo:inc-checkout-old",
+          "kind": "AFFECTS",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/inc-checkout-old/AFFECTS/checkout",
+          "id": "edge:9ad94387fbbef70a56e7ae6b"
+        },
+        {
+          "source": "demo:inc-checkout-older",
+          "kind": "AFFECTS",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/inc-checkout-older/AFFECTS/checkout",
+          "id": "edge:848318860c7772d41caff7fe"
+        },
+        {
+          "source": "demo:inc-ledger-old",
+          "kind": "AFFECTS",
+          "target": "demo:ledger",
+          "source_ref": "fixture://northstar/links/inc-ledger-old/AFFECTS/ledger",
+          "id": "edge:f36e6442af78728b862df3d3"
+        },
+        {
+          "source": "demo:nina",
+          "kind": "RESOLVED",
+          "target": "demo:inc-checkout-old",
+          "source_ref": "fixture://northstar/links/nina/RESOLVED/inc-checkout-old",
+          "id": "edge:4cf6cf60612bddb89ec292e5"
+        },
+        {
+          "source": "demo:nina",
+          "kind": "RESOLVED",
+          "target": "demo:inc-checkout-older",
+          "source_ref": "fixture://northstar/links/nina/RESOLVED/inc-checkout-older",
+          "id": "edge:815cec9751ebb5b8a4df9c3f"
+        },
+        {
+          "source": "demo:bruno",
+          "kind": "RESOLVED",
+          "target": "demo:inc-ledger-old",
+          "source_ref": "fixture://northstar/links/bruno/RESOLVED/inc-ledger-old",
+          "id": "edge:ef106108117a8fe051c0c5d0"
+        },
+        {
+          "source": "demo:doc-checkout-runbook",
+          "kind": "DESCRIBES",
+          "target": "demo:inc-checkout-old",
+          "source_ref": "fixture://northstar/links/doc-checkout-runbook/DESCRIBES/inc-checkout-old",
+          "id": "edge:93e5418abfdcaa44be1fcde7"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path:8c67642e09936a64b4689221",
+          "node_ids": [
+            "demo:inc-checkout",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:e6765b2943334e4d36f3cdfb"
+          ]
+        },
+        {
+          "id": "path:64122957f0b8144978d5d0c4",
+          "node_ids": [
+            "demo:inc-checkout",
+            "demo:checkout",
+            "demo:payments"
+          ],
+          "edge_ids": [
+            "edge:e6765b2943334e4d36f3cdfb",
+            "edge:5ffa24b7925c2ac9f08eab98"
+          ]
+        },
+        {
+          "id": "path:a3343eb8ff4cc6d2d19b28c3",
+          "node_ids": [
+            "demo:inc-checkout",
+            "demo:checkout",
+            "demo:payments",
+            "demo:ledger"
+          ],
+          "edge_ids": [
+            "edge:e6765b2943334e4d36f3cdfb",
+            "edge:5ffa24b7925c2ac9f08eab98",
+            "edge:842e8c3709f07e61a6ebb425"
+          ]
+        },
+        {
+          "id": "path:de23f144478d480339416398",
+          "node_ids": [
+            "demo:checkout",
+            "demo:deploy-checkout-retry"
+          ],
+          "edge_ids": [
+            "edge:346b6da0a598b3beab260382"
+          ]
+        },
+        {
+          "id": "path:2d490d16a1887be697c9e734",
+          "node_ids": [
+            "demo:deploy-checkout-retry",
+            "demo:commit-checkout-retry"
+          ],
+          "edge_ids": [
+            "edge:add4c4a558c2be232eca1148"
+          ]
+        },
+        {
+          "id": "path:5d280d70d77768f1319e7e0f",
+          "node_ids": [
+            "demo:deploy-checkout-retry",
+            "demo:commit-checkout-retry-test"
+          ],
+          "edge_ids": [
+            "edge:391d89d8d07d7d36e34f176d"
+          ]
+        },
+        {
+          "id": "path:b26bf36339370bda6fc0e0ff",
+          "node_ids": [
+            "demo:deploy-checkout-retry",
+            "demo:commit-checkout-retry",
+            "demo:pr-checkout-retry"
+          ],
+          "edge_ids": [
+            "edge:add4c4a558c2be232eca1148",
+            "edge:70d2269efed054bf4c416d35"
+          ]
+        },
+        {
+          "id": "path:36c0accf1daa4c39f5d0494d",
+          "node_ids": [
+            "demo:deploy-checkout-retry",
+            "demo:commit-checkout-retry-test",
+            "demo:pr-checkout-retry"
+          ],
+          "edge_ids": [
+            "edge:391d89d8d07d7d36e34f176d",
+            "edge:0f112d45f922a6b57e9648af"
+          ]
+        },
+        {
+          "id": "path:43c476bbdaa295b98b312c5e",
+          "node_ids": [
+            "demo:ada",
+            "demo:pr-checkout-retry"
+          ],
+          "edge_ids": [
+            "edge:833f09f36b33fa8f2c170868"
+          ]
+        },
+        {
+          "id": "path:02415dcafec1af5b43fa4f16",
+          "node_ids": [
+            "demo:ada",
+            "demo:commit-checkout-retry"
+          ],
+          "edge_ids": [
+            "edge:8531572e4910ff01295500a7"
+          ]
+        },
+        {
+          "id": "path:23ca7e9453e32aa9550305ad",
+          "node_ids": [
+            "demo:ada",
+            "demo:commit-checkout-retry-test"
+          ],
+          "edge_ids": [
+            "edge:6a2d91f4e105f679771b5099"
+          ]
+        },
+        {
+          "id": "path:62e53bf8c80baa759e322a9e",
+          "node_ids": [
+            "demo:inc-checkout-old",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:9ad94387fbbef70a56e7ae6b"
+          ]
+        },
+        {
+          "id": "path:8922c0f0e8b817a2914a5ef7",
+          "node_ids": [
+            "demo:inc-checkout-older",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:848318860c7772d41caff7fe"
+          ]
+        },
+        {
+          "id": "path:ba94dbebb29b7e06cac89daa",
+          "node_ids": [
+            "demo:inc-ledger-old",
+            "demo:ledger"
+          ],
+          "edge_ids": [
+            "edge:f36e6442af78728b862df3d3"
+          ]
+        },
+        {
+          "id": "path:fe7a7cd7ebb36ccd910d19ad",
+          "node_ids": [
+            "demo:nina",
+            "demo:inc-checkout-old"
+          ],
+          "edge_ids": [
+            "edge:4cf6cf60612bddb89ec292e5"
+          ]
+        },
+        {
+          "id": "path:7c6ef6ae939ef427dde7f4f7",
+          "node_ids": [
+            "demo:nina",
+            "demo:inc-checkout-older"
+          ],
+          "edge_ids": [
+            "edge:815cec9751ebb5b8a4df9c3f"
+          ]
+        },
+        {
+          "id": "path:4f0a5bd1461e5e032b52edbb",
+          "node_ids": [
+            "demo:bruno",
+            "demo:inc-ledger-old"
+          ],
+          "edge_ids": [
+            "edge:ef106108117a8fe051c0c5d0"
+          ]
+        },
+        {
+          "id": "path:7635cc9c5b1b254712d6ec4f",
+          "node_ids": [
+            "demo:doc-checkout-runbook",
+            "demo:inc-checkout-old"
+          ],
+          "edge_ids": [
+            "edge:93e5418abfdcaa44be1fcde7"
+          ]
+        }
+      ],
+      "truncated": false
+    },
+    "warnings": [
+      "Deployments preceding an incident are candidates; timing alone does not prove causation."
+    ]
+  },
+  "payments": {
+    "incident": {
+      "id": "demo:inc-payments",
+      "kind": "Incident",
+      "title": "Payment authorization timeouts",
+      "body": "Authorization p99 reached 8 seconds. Ledger connection waits increased. Investigate dependency changes.",
+      "source_ref": "fixture://northstar/inc-payments",
+      "occurred_at": "2026-10-15T11:00:00Z",
+      "status": "investigating",
+      "environment": "production"
+    },
+    "services": [
+      {
+        "id": "demo:payments",
+        "kind": "Service",
+        "title": "payments",
+        "body": "Payments API: payment authorization and ledger integration.",
+        "source_ref": "fixture://northstar/payments",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:ledger",
+        "kind": "Service",
+        "title": "ledger",
+        "body": "Ledger service: transaction storage and database connection pooling.",
+        "source_ref": "fixture://northstar/ledger",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      }
+    ],
+    "deployments": [
+      {
+        "id": "demo:deploy-ledger-pool",
+        "kind": "Deployment",
+        "title": "Deploy ledger-pool",
+        "body": "Release to production.",
+        "source_ref": "fixture://northstar/deploy-ledger-pool",
+        "occurred_at": "2026-10-15T10:40:00Z",
+        "status": "completed",
+        "environment": "production"
+      }
+    ],
+    "changes": [
+      {
+        "id": "demo:commit-ledger-pool",
+        "kind": "Commit",
+        "title": "Reduce ledger connection pool size \u2014 implementation",
+        "body": "Change in ledger. Reduce ledger connection pool size. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/commit-ledger-pool",
+        "occurred_at": "2026-10-15T10:10:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-ledger-pool-test",
+        "kind": "Commit",
+        "title": "Tests for Reduce ledger connection pool size",
+        "body": "Regression tests for ledger.",
+        "source_ref": "fixture://northstar/commit-ledger-pool-test",
+        "occurred_at": "2026-10-15T10:10:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:pr-ledger-pool",
+        "kind": "PullRequest",
+        "title": "Reduce ledger connection pool size",
+        "body": "Change in ledger. Reduce ledger connection pool size. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/pr-ledger-pool",
+        "occurred_at": "2026-10-15T10:10:00Z",
+        "status": "merged",
+        "environment": ""
+      }
+    ],
+    "related_incidents": [
+      {
+        "id": "demo:inc-ledger-old",
+        "kind": "Incident",
+        "title": "Ledger database pool saturation",
+        "body": "Bruno restored pool limits after identifying idle transaction growth.",
+        "source_ref": "fixture://northstar/inc-ledger-old",
+        "occurred_at": "2026-09-20T08:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      }
+    ],
+    "timeline": [
+      {
+        "id": "demo:inc-ledger-old",
+        "kind": "Incident",
+        "title": "Ledger database pool saturation",
+        "body": "Bruno restored pool limits after identifying idle transaction growth.",
+        "source_ref": "fixture://northstar/inc-ledger-old",
+        "occurred_at": "2026-09-20T08:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      },
+      {
+        "id": "demo:commit-ledger-pool",
+        "kind": "Commit",
+        "title": "Reduce ledger connection pool size \u2014 implementation",
+        "body": "Change in ledger. Reduce ledger connection pool size. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/commit-ledger-pool",
+        "occurred_at": "2026-10-15T10:10:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-ledger-pool-test",
+        "kind": "Commit",
+        "title": "Tests for Reduce ledger connection pool size",
+        "body": "Regression tests for ledger.",
+        "source_ref": "fixture://northstar/commit-ledger-pool-test",
+        "occurred_at": "2026-10-15T10:10:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:pr-ledger-pool",
+        "kind": "PullRequest",
+        "title": "Reduce ledger connection pool size",
+        "body": "Change in ledger. Reduce ledger connection pool size. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/pr-ledger-pool",
+        "occurred_at": "2026-10-15T10:10:00Z",
+        "status": "merged",
+        "environment": ""
+      },
+      {
+        "id": "demo:deploy-ledger-pool",
+        "kind": "Deployment",
+        "title": "Deploy ledger-pool",
+        "body": "Release to production.",
+        "source_ref": "fixture://northstar/deploy-ledger-pool",
+        "occurred_at": "2026-10-15T10:40:00Z",
+        "status": "completed",
+        "environment": "production"
+      },
+      {
+        "id": "demo:inc-payments",
+        "kind": "Incident",
+        "title": "Payment authorization timeouts",
+        "body": "Authorization p99 reached 8 seconds. Ledger connection waits increased. Investigate dependency changes.",
+        "source_ref": "fixture://northstar/inc-payments",
+        "occurred_at": "2026-10-15T11:00:00Z",
+        "status": "investigating",
+        "environment": "production"
+      }
+    ],
+    "evidence": {
+      "nodes": [
+        {
+          "id": "demo:inc-payments",
+          "kind": "Incident",
+          "title": "Payment authorization timeouts",
+          "body": "Authorization p99 reached 8 seconds. Ledger connection waits increased. Investigate dependency changes.",
+          "source_ref": "fixture://northstar/inc-payments",
+          "occurred_at": "2026-10-15T11:00:00Z",
+          "status": "investigating",
+          "environment": "production"
+        },
+        {
+          "id": "demo:payments",
+          "kind": "Service",
+          "title": "payments",
+          "body": "Payments API: payment authorization and ledger integration.",
+          "source_ref": "fixture://northstar/payments",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:ledger",
+          "kind": "Service",
+          "title": "ledger",
+          "body": "Ledger service: transaction storage and database connection pooling.",
+          "source_ref": "fixture://northstar/ledger",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:deploy-ledger-pool",
+          "kind": "Deployment",
+          "title": "Deploy ledger-pool",
+          "body": "Release to production.",
+          "source_ref": "fixture://northstar/deploy-ledger-pool",
+          "occurred_at": "2026-10-15T10:40:00Z",
+          "status": "completed",
+          "environment": "production"
+        },
+        {
+          "id": "demo:commit-ledger-pool",
+          "kind": "Commit",
+          "title": "Reduce ledger connection pool size \u2014 implementation",
+          "body": "Change in ledger. Reduce ledger connection pool size. Review deployment lineage before attributing an incident.",
+          "source_ref": "fixture://northstar/commit-ledger-pool",
+          "occurred_at": "2026-10-15T10:10:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:commit-ledger-pool-test",
+          "kind": "Commit",
+          "title": "Tests for Reduce ledger connection pool size",
+          "body": "Regression tests for ledger.",
+          "source_ref": "fixture://northstar/commit-ledger-pool-test",
+          "occurred_at": "2026-10-15T10:10:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:pr-ledger-pool",
+          "kind": "PullRequest",
+          "title": "Reduce ledger connection pool size",
+          "body": "Change in ledger. Reduce ledger connection pool size. Review deployment lineage before attributing an incident.",
+          "source_ref": "fixture://northstar/pr-ledger-pool",
+          "occurred_at": "2026-10-15T10:10:00Z",
+          "status": "merged",
+          "environment": ""
+        },
+        {
+          "id": "demo:bruno",
+          "kind": "Person",
+          "title": "Bruno Silva",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @bruno.",
+          "source_ref": "fixture://northstar/bruno",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:inc-ledger-old",
+          "kind": "Incident",
+          "title": "Ledger database pool saturation",
+          "body": "Bruno restored pool limits after identifying idle transaction growth.",
+          "source_ref": "fixture://northstar/inc-ledger-old",
+          "occurred_at": "2026-09-20T08:00:00Z",
+          "status": "resolved",
+          "environment": "production"
+        }
+      ],
+      "edges": [
+        {
+          "source": "demo:inc-payments",
+          "kind": "AFFECTS",
+          "target": "demo:payments",
+          "source_ref": "fixture://northstar/links/inc-payments/AFFECTS/payments",
+          "id": "edge:240269f6966b037afdd71afe"
+        },
+        {
+          "source": "demo:payments",
+          "kind": "DEPENDS_ON",
+          "target": "demo:ledger",
+          "source_ref": "fixture://northstar/links/payments/DEPENDS_ON/ledger",
+          "id": "edge:842e8c3709f07e61a6ebb425"
+        },
+        {
+          "source": "demo:deploy-ledger-pool",
+          "kind": "DEPLOYED",
+          "target": "demo:ledger",
+          "source_ref": "fixture://northstar/links/deploy-ledger-pool/DEPLOYED/ledger",
+          "id": "edge:c8d30b75b4883135eeb2a24f"
+        },
+        {
+          "source": "demo:deploy-ledger-pool",
+          "kind": "INCLUDES",
+          "target": "demo:commit-ledger-pool",
+          "source_ref": "fixture://northstar/links/deploy-ledger-pool/INCLUDES/commit-ledger-pool",
+          "id": "edge:323a745b42754b8f2877c724"
+        },
+        {
+          "source": "demo:deploy-ledger-pool",
+          "kind": "INCLUDES",
+          "target": "demo:commit-ledger-pool-test",
+          "source_ref": "fixture://northstar/links/deploy-ledger-pool/INCLUDES/commit-ledger-pool-test",
+          "id": "edge:e6e635bc8d7ea6f64d3e2508"
+        },
+        {
+          "source": "demo:pr-ledger-pool",
+          "kind": "INCLUDES",
+          "target": "demo:commit-ledger-pool",
+          "source_ref": "fixture://northstar/links/pr-ledger-pool/INCLUDES/commit-ledger-pool",
+          "id": "edge:14c8c8b14ce68276c9c605ae"
+        },
+        {
+          "source": "demo:pr-ledger-pool",
+          "kind": "INCLUDES",
+          "target": "demo:commit-ledger-pool-test",
+          "source_ref": "fixture://northstar/links/pr-ledger-pool/INCLUDES/commit-ledger-pool-test",
+          "id": "edge:281741da372f65699688c7a4"
+        },
+        {
+          "source": "demo:bruno",
+          "kind": "AUTHORED",
+          "target": "demo:pr-ledger-pool",
+          "source_ref": "fixture://northstar/links/bruno/AUTHORED/pr-ledger-pool",
+          "id": "edge:6c9f1c0d030a9fa258dc4cb8"
+        },
+        {
+          "source": "demo:bruno",
+          "kind": "AUTHORED",
+          "target": "demo:commit-ledger-pool",
+          "source_ref": "fixture://northstar/links/bruno/AUTHORED/commit-ledger-pool",
+          "id": "edge:0b50f4a329fd93a6991717e3"
+        },
+        {
+          "source": "demo:bruno",
+          "kind": "AUTHORED",
+          "target": "demo:commit-ledger-pool-test",
+          "source_ref": "fixture://northstar/links/bruno/AUTHORED/commit-ledger-pool-test",
+          "id": "edge:da440c2d24db8dba06680056"
+        },
+        {
+          "source": "demo:inc-ledger-old",
+          "kind": "AFFECTS",
+          "target": "demo:ledger",
+          "source_ref": "fixture://northstar/links/inc-ledger-old/AFFECTS/ledger",
+          "id": "edge:f36e6442af78728b862df3d3"
+        },
+        {
+          "source": "demo:bruno",
+          "kind": "RESOLVED",
+          "target": "demo:inc-ledger-old",
+          "source_ref": "fixture://northstar/links/bruno/RESOLVED/inc-ledger-old",
+          "id": "edge:ef106108117a8fe051c0c5d0"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path:f7a3bb09c76eacf002733028",
+          "node_ids": [
+            "demo:inc-payments",
+            "demo:payments"
+          ],
+          "edge_ids": [
+            "edge:240269f6966b037afdd71afe"
+          ]
+        },
+        {
+          "id": "path:14403ea1aa3c4d56d987cd7e",
+          "node_ids": [
+            "demo:inc-payments",
+            "demo:payments",
+            "demo:ledger"
+          ],
+          "edge_ids": [
+            "edge:240269f6966b037afdd71afe",
+            "edge:842e8c3709f07e61a6ebb425"
+          ]
+        },
+        {
+          "id": "path:97560a80b72a81ac22587cc3",
+          "node_ids": [
+            "demo:ledger",
+            "demo:deploy-ledger-pool"
+          ],
+          "edge_ids": [
+            "edge:c8d30b75b4883135eeb2a24f"
+          ]
+        },
+        {
+          "id": "path:5455a509268bb2ebbf5df624",
+          "node_ids": [
+            "demo:deploy-ledger-pool",
+            "demo:commit-ledger-pool"
+          ],
+          "edge_ids": [
+            "edge:323a745b42754b8f2877c724"
+          ]
+        },
+        {
+          "id": "path:9ce5d8ba3dbb8ff6e7265c95",
+          "node_ids": [
+            "demo:deploy-ledger-pool",
+            "demo:commit-ledger-pool-test"
+          ],
+          "edge_ids": [
+            "edge:e6e635bc8d7ea6f64d3e2508"
+          ]
+        },
+        {
+          "id": "path:9d1ed5f48fca2cd121f0b063",
+          "node_ids": [
+            "demo:deploy-ledger-pool",
+            "demo:commit-ledger-pool",
+            "demo:pr-ledger-pool"
+          ],
+          "edge_ids": [
+            "edge:323a745b42754b8f2877c724",
+            "edge:14c8c8b14ce68276c9c605ae"
+          ]
+        },
+        {
+          "id": "path:0ead4455ceb045c89fcbd47c",
+          "node_ids": [
+            "demo:deploy-ledger-pool",
+            "demo:commit-ledger-pool-test",
+            "demo:pr-ledger-pool"
+          ],
+          "edge_ids": [
+            "edge:e6e635bc8d7ea6f64d3e2508",
+            "edge:281741da372f65699688c7a4"
+          ]
+        },
+        {
+          "id": "path:faf56b2858068c0ea9573bcb",
+          "node_ids": [
+            "demo:bruno",
+            "demo:pr-ledger-pool"
+          ],
+          "edge_ids": [
+            "edge:6c9f1c0d030a9fa258dc4cb8"
+          ]
+        },
+        {
+          "id": "path:fe0439b6e12e2af9bf51a665",
+          "node_ids": [
+            "demo:bruno",
+            "demo:commit-ledger-pool"
+          ],
+          "edge_ids": [
+            "edge:0b50f4a329fd93a6991717e3"
+          ]
+        },
+        {
+          "id": "path:22ee31103b9763ed15ec8c42",
+          "node_ids": [
+            "demo:bruno",
+            "demo:commit-ledger-pool-test"
+          ],
+          "edge_ids": [
+            "edge:da440c2d24db8dba06680056"
+          ]
+        },
+        {
+          "id": "path:ba94dbebb29b7e06cac89daa",
+          "node_ids": [
+            "demo:inc-ledger-old",
+            "demo:ledger"
+          ],
+          "edge_ids": [
+            "edge:f36e6442af78728b862df3d3"
+          ]
+        },
+        {
+          "id": "path:4f0a5bd1461e5e032b52edbb",
+          "node_ids": [
+            "demo:bruno",
+            "demo:inc-ledger-old"
+          ],
+          "edge_ids": [
+            "edge:ef106108117a8fe051c0c5d0"
+          ]
+        }
+      ],
+      "truncated": false
+    },
+    "warnings": [
+      "Deployments preceding an incident are candidates; timing alone does not prove causation."
+    ]
+  },
+  "queue": {
+    "incident": {
+      "id": "demo:inc-queue",
+      "kind": "Incident",
+      "title": "Recurring queue lag and duplicate retries",
+      "body": "Queue age exceeded 15 minutes. Similar retry storms occurred in September. No new worker deployment today.",
+      "source_ref": "fixture://northstar/inc-queue",
+      "occurred_at": "2026-10-15T12:00:00Z",
+      "status": "investigating",
+      "environment": "production"
+    },
+    "services": [
+      {
+        "id": "demo:queue-worker",
+        "kind": "Service",
+        "title": "queue-worker",
+        "body": "Queue worker: background jobs, delivery retries and queue lag.",
+        "source_ref": "fixture://northstar/queue-worker",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      }
+    ],
+    "deployments": [],
+    "changes": [],
+    "related_incidents": [
+      {
+        "id": "demo:inc-queue-old",
+        "kind": "Incident",
+        "title": "Queue poison-message retry storm",
+        "body": "Mei isolated a poison message and configured dead-letter routing.",
+        "source_ref": "fixture://northstar/inc-queue-old",
+        "occurred_at": "2026-09-24T08:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      },
+      {
+        "id": "demo:inc-queue-older",
+        "kind": "Incident",
+        "title": "Queue dead-letter routing disabled",
+        "body": "Mei restored dead-letter routing to stop repeated job delivery.",
+        "source_ref": "fixture://northstar/inc-queue-older",
+        "occurred_at": "2026-08-24T08:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      }
+    ],
+    "timeline": [
+      {
+        "id": "demo:inc-queue-older",
+        "kind": "Incident",
+        "title": "Queue dead-letter routing disabled",
+        "body": "Mei restored dead-letter routing to stop repeated job delivery.",
+        "source_ref": "fixture://northstar/inc-queue-older",
+        "occurred_at": "2026-08-24T08:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      },
+      {
+        "id": "demo:inc-queue-old",
+        "kind": "Incident",
+        "title": "Queue poison-message retry storm",
+        "body": "Mei isolated a poison message and configured dead-letter routing.",
+        "source_ref": "fixture://northstar/inc-queue-old",
+        "occurred_at": "2026-09-24T08:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      },
+      {
+        "id": "demo:doc-queue-worker-runbook",
+        "kind": "Document",
+        "title": "queue-worker runbook",
+        "body": "Check queue-worker metrics, identify recent deployments, compare historical incidents, and escalate to @mei. For recurring lag, inspect poison messages and dead-letter routing. Mei handled both previous incidents.",
+        "source_ref": "fixture://northstar/doc-queue-worker-runbook",
+        "occurred_at": "2026-10-02T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:inc-queue",
+        "kind": "Incident",
+        "title": "Recurring queue lag and duplicate retries",
+        "body": "Queue age exceeded 15 minutes. Similar retry storms occurred in September. No new worker deployment today.",
+        "source_ref": "fixture://northstar/inc-queue",
+        "occurred_at": "2026-10-15T12:00:00Z",
+        "status": "investigating",
+        "environment": "production"
+      }
+    ],
+    "evidence": {
+      "nodes": [
+        {
+          "id": "demo:inc-queue",
+          "kind": "Incident",
+          "title": "Recurring queue lag and duplicate retries",
+          "body": "Queue age exceeded 15 minutes. Similar retry storms occurred in September. No new worker deployment today.",
+          "source_ref": "fixture://northstar/inc-queue",
+          "occurred_at": "2026-10-15T12:00:00Z",
+          "status": "investigating",
+          "environment": "production"
+        },
+        {
+          "id": "demo:queue-worker",
+          "kind": "Service",
+          "title": "queue-worker",
+          "body": "Queue worker: background jobs, delivery retries and queue lag.",
+          "source_ref": "fixture://northstar/queue-worker",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:inc-queue-old",
+          "kind": "Incident",
+          "title": "Queue poison-message retry storm",
+          "body": "Mei isolated a poison message and configured dead-letter routing.",
+          "source_ref": "fixture://northstar/inc-queue-old",
+          "occurred_at": "2026-09-24T08:00:00Z",
+          "status": "resolved",
+          "environment": "production"
+        },
+        {
+          "id": "demo:inc-queue-older",
+          "kind": "Incident",
+          "title": "Queue dead-letter routing disabled",
+          "body": "Mei restored dead-letter routing to stop repeated job delivery.",
+          "source_ref": "fixture://northstar/inc-queue-older",
+          "occurred_at": "2026-08-24T08:00:00Z",
+          "status": "resolved",
+          "environment": "production"
+        },
+        {
+          "id": "demo:mei",
+          "kind": "Person",
+          "title": "Mei Tan",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @mei.",
+          "source_ref": "fixture://northstar/mei",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:doc-queue-worker-runbook",
+          "kind": "Document",
+          "title": "queue-worker runbook",
+          "body": "Check queue-worker metrics, identify recent deployments, compare historical incidents, and escalate to @mei. For recurring lag, inspect poison messages and dead-letter routing. Mei handled both previous incidents.",
+          "source_ref": "fixture://northstar/doc-queue-worker-runbook",
+          "occurred_at": "2026-10-02T08:00:00Z",
+          "status": "",
+          "environment": ""
+        }
+      ],
+      "edges": [
+        {
+          "source": "demo:inc-queue",
+          "kind": "AFFECTS",
+          "target": "demo:queue-worker",
+          "source_ref": "fixture://northstar/links/inc-queue/AFFECTS/queue-worker",
+          "id": "edge:409e48f2a609377165dee07e"
+        },
+        {
+          "source": "demo:inc-queue-old",
+          "kind": "AFFECTS",
+          "target": "demo:queue-worker",
+          "source_ref": "fixture://northstar/links/inc-queue-old/AFFECTS/queue-worker",
+          "id": "edge:bdd2f1723bfac5641ab1d862"
+        },
+        {
+          "source": "demo:inc-queue-older",
+          "kind": "AFFECTS",
+          "target": "demo:queue-worker",
+          "source_ref": "fixture://northstar/links/inc-queue-older/AFFECTS/queue-worker",
+          "id": "edge:69c9267c81130311230ae355"
+        },
+        {
+          "source": "demo:mei",
+          "kind": "RESOLVED",
+          "target": "demo:inc-queue-old",
+          "source_ref": "fixture://northstar/links/mei/RESOLVED/inc-queue-old",
+          "id": "edge:e6827c3d310f9970f2448163"
+        },
+        {
+          "source": "demo:mei",
+          "kind": "RESOLVED",
+          "target": "demo:inc-queue-older",
+          "source_ref": "fixture://northstar/links/mei/RESOLVED/inc-queue-older",
+          "id": "edge:d59ac89505abe19bda770089"
+        },
+        {
+          "source": "demo:doc-queue-worker-runbook",
+          "kind": "DESCRIBES",
+          "target": "demo:inc-queue-old",
+          "source_ref": "fixture://northstar/links/doc-queue-worker-runbook/DESCRIBES/inc-queue-old",
+          "id": "edge:e04bdc4ec12e0841d0f968b2"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path:08729e2690fbdf67126ec9dd",
+          "node_ids": [
+            "demo:inc-queue",
+            "demo:queue-worker"
+          ],
+          "edge_ids": [
+            "edge:409e48f2a609377165dee07e"
+          ]
+        },
+        {
+          "id": "path:a5a278e2c24348a625dc77b3",
+          "node_ids": [
+            "demo:inc-queue-old",
+            "demo:queue-worker"
+          ],
+          "edge_ids": [
+            "edge:bdd2f1723bfac5641ab1d862"
+          ]
+        },
+        {
+          "id": "path:6c1b6600ea187fb1f942ea28",
+          "node_ids": [
+            "demo:inc-queue-older",
+            "demo:queue-worker"
+          ],
+          "edge_ids": [
+            "edge:69c9267c81130311230ae355"
+          ]
+        },
+        {
+          "id": "path:f2bb33636595391d12531e57",
+          "node_ids": [
+            "demo:mei",
+            "demo:inc-queue-old"
+          ],
+          "edge_ids": [
+            "edge:e6827c3d310f9970f2448163"
+          ]
+        },
+        {
+          "id": "path:168b39b7c357b4e3d7e5fcbd",
+          "node_ids": [
+            "demo:mei",
+            "demo:inc-queue-older"
+          ],
+          "edge_ids": [
+            "edge:d59ac89505abe19bda770089"
+          ]
+        },
+        {
+          "id": "path:f06cb5576288cc297302fc2f",
+          "node_ids": [
+            "demo:doc-queue-worker-runbook",
+            "demo:inc-queue-old"
+          ],
+          "edge_ids": [
+            "edge:e04bdc4ec12e0841d0f968b2"
+          ]
+        }
+      ],
+      "truncated": false
+    },
+    "warnings": [
+      "Deployments preceding an incident are candidates; timing alone does not prove causation.",
+      "No matching deployment was found in the lookback window and environment."
+    ]
+  },
+  "experts": {
+    "experts": [
+      {
+        "person": {
+          "id": "demo:nina",
+          "kind": "Person",
+          "title": "Nina Patel",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @nina.",
+          "source_ref": "fixture://northstar/nina",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        "score": 13,
+        "reasons": [
+          "3 points: resolved Checkout retry saturation in September (demo:inc-checkout-old)",
+          "3 points: resolved Checkout retry budget exhausted in August (demo:inc-checkout-older)",
+          "2 points: authored Document checkout retry budgets (demo:pr-checkout-old)",
+          "2 points: authored Document checkout retry budgets \u2014 implementation (demo:commit-checkout-old)",
+          "1 points: authored checkout runbook (demo:doc-checkout-runbook)",
+          "1 points: authored checkout architecture guide (demo:doc-checkout-architecture)",
+          "1 points: authored checkout operations checklist (demo:doc-checkout-operations)"
+        ],
+        "evidence_ids": [
+          "demo:nina",
+          "demo:inc-checkout-old",
+          "demo:inc-checkout-older",
+          "demo:pr-checkout-old",
+          "demo:commit-checkout-old",
+          "demo:doc-checkout-runbook",
+          "demo:doc-checkout-architecture",
+          "demo:doc-checkout-operations"
+        ]
+      },
+      {
+        "person": {
+          "id": "demo:ada",
+          "kind": "Person",
+          "title": "Ada Chen",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @ada.",
+          "source_ref": "fixture://northstar/ada",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        "score": 8,
+        "reasons": [
+          "2 points: authored Adjust checkout retry policy (demo:pr-checkout-retry)",
+          "2 points: authored Adjust checkout retry policy \u2014 implementation (demo:commit-checkout-retry)",
+          "2 points: authored Checkout cart validation (demo:pr-checkout-cart)",
+          "2 points: authored Checkout cart validation \u2014 implementation (demo:commit-checkout-cart)"
+        ],
+        "evidence_ids": [
+          "demo:ada",
+          "demo:pr-checkout-retry",
+          "demo:commit-checkout-retry",
+          "demo:pr-checkout-cart",
+          "demo:commit-checkout-cart"
+        ]
+      },
+      {
+        "person": {
+          "id": "demo:sam",
+          "kind": "Person",
+          "title": "Sam Okafor",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @sam.",
+          "source_ref": "fixture://northstar/sam",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        "score": 4,
+        "reasons": [
+          "2 points: authored Checkout response headers (demo:pr-checkout-future)",
+          "2 points: authored Checkout response headers \u2014 implementation (demo:commit-checkout-future)"
+        ],
+        "evidence_ids": [
+          "demo:sam",
+          "demo:pr-checkout-future",
+          "demo:commit-checkout-future"
+        ]
+      },
+      {
+        "person": {
+          "id": "demo:lena",
+          "kind": "Person",
+          "title": "Lena Ortiz",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @lena.",
+          "source_ref": "fixture://northstar/lena",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        "score": 4,
+        "reasons": [
+          "2 points: authored Staging checkout cache experiment (demo:pr-checkout-staging)",
+          "2 points: authored Staging checkout cache experiment \u2014 implementation (demo:commit-checkout-staging)"
+        ],
+        "evidence_ids": [
+          "demo:lena",
+          "demo:pr-checkout-staging",
+          "demo:commit-checkout-staging"
+        ]
+      }
+    ],
+    "evidence": {
+      "nodes": [
+        {
+          "id": "demo:checkout",
+          "kind": "Service",
+          "title": "checkout",
+          "body": "Checkout API: shopping cart, retry policy and order submission.",
+          "source_ref": "fixture://northstar/checkout",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:nina",
+          "kind": "Person",
+          "title": "Nina Patel",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @nina.",
+          "source_ref": "fixture://northstar/nina",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:inc-checkout-old",
+          "kind": "Incident",
+          "title": "Checkout retry saturation in September",
+          "body": "Unbounded retries saturated downstream connections. Nina restored bounded exponential backoff.",
+          "source_ref": "fixture://northstar/inc-checkout-old",
+          "occurred_at": "2026-09-12T09:00:00Z",
+          "status": "resolved",
+          "environment": "production"
+        },
+        {
+          "id": "demo:inc-checkout-older",
+          "kind": "Incident",
+          "title": "Checkout retry budget exhausted in August",
+          "body": "Retry budget and jitter configuration corrected by Nina after investigating checkout overload.",
+          "source_ref": "fixture://northstar/inc-checkout-older",
+          "occurred_at": "2026-08-20T09:00:00Z",
+          "status": "resolved",
+          "environment": "production"
+        },
+        {
+          "id": "demo:ada",
+          "kind": "Person",
+          "title": "Ada Chen",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @ada.",
+          "source_ref": "fixture://northstar/ada",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:pr-checkout-retry",
+          "kind": "PullRequest",
+          "title": "Adjust checkout retry policy",
+          "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+          "source_ref": "fixture://northstar/pr-checkout-retry",
+          "occurred_at": "2026-10-15T09:20:00Z",
+          "status": "merged",
+          "environment": ""
+        },
+        {
+          "id": "demo:commit-checkout-retry",
+          "kind": "Commit",
+          "title": "Adjust checkout retry policy \u2014 implementation",
+          "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+          "source_ref": "fixture://northstar/commit-checkout-retry",
+          "occurred_at": "2026-10-15T09:20:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:sam",
+          "kind": "Person",
+          "title": "Sam Okafor",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @sam.",
+          "source_ref": "fixture://northstar/sam",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:pr-checkout-future",
+          "kind": "PullRequest",
+          "title": "Checkout response headers",
+          "body": "Change in checkout. Checkout response headers. Review deployment lineage before attributing an incident.",
+          "source_ref": "fixture://northstar/pr-checkout-future",
+          "occurred_at": "2026-10-15T10:20:00Z",
+          "status": "merged",
+          "environment": ""
+        },
+        {
+          "id": "demo:commit-checkout-future",
+          "kind": "Commit",
+          "title": "Checkout response headers \u2014 implementation",
+          "body": "Change in checkout. Checkout response headers. Review deployment lineage before attributing an incident.",
+          "source_ref": "fixture://northstar/commit-checkout-future",
+          "occurred_at": "2026-10-15T10:20:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:lena",
+          "kind": "Person",
+          "title": "Lena Ortiz",
+          "body": "Engineer at fictional Northstar Labs. Contact handle: @lena.",
+          "source_ref": "fixture://northstar/lena",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:pr-checkout-staging",
+          "kind": "PullRequest",
+          "title": "Staging checkout cache experiment",
+          "body": "Change in checkout. Staging checkout cache experiment. Review deployment lineage before attributing an incident.",
+          "source_ref": "fixture://northstar/pr-checkout-staging",
+          "occurred_at": "2026-10-15T09:10:00Z",
+          "status": "merged",
+          "environment": ""
+        },
+        {
+          "id": "demo:commit-checkout-staging",
+          "kind": "Commit",
+          "title": "Staging checkout cache experiment \u2014 implementation",
+          "body": "Change in checkout. Staging checkout cache experiment. Review deployment lineage before attributing an incident.",
+          "source_ref": "fixture://northstar/commit-checkout-staging",
+          "occurred_at": "2026-10-15T09:10:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:pr-checkout-old",
+          "kind": "PullRequest",
+          "title": "Document checkout retry budgets",
+          "body": "Change in checkout. Document checkout retry budgets. Review deployment lineage before attributing an incident.",
+          "source_ref": "fixture://northstar/pr-checkout-old",
+          "occurred_at": "2026-10-01T08:00:00Z",
+          "status": "merged",
+          "environment": ""
+        },
+        {
+          "id": "demo:commit-checkout-old",
+          "kind": "Commit",
+          "title": "Document checkout retry budgets \u2014 implementation",
+          "body": "Change in checkout. Document checkout retry budgets. Review deployment lineage before attributing an incident.",
+          "source_ref": "fixture://northstar/commit-checkout-old",
+          "occurred_at": "2026-10-01T08:00:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:pr-checkout-cart",
+          "kind": "PullRequest",
+          "title": "Checkout cart validation",
+          "body": "Change in checkout. Checkout cart validation. Review deployment lineage before attributing an incident.",
+          "source_ref": "fixture://northstar/pr-checkout-cart",
+          "occurred_at": "2026-10-08T08:00:00Z",
+          "status": "merged",
+          "environment": ""
+        },
+        {
+          "id": "demo:commit-checkout-cart",
+          "kind": "Commit",
+          "title": "Checkout cart validation \u2014 implementation",
+          "body": "Change in checkout. Checkout cart validation. Review deployment lineage before attributing an incident.",
+          "source_ref": "fixture://northstar/commit-checkout-cart",
+          "occurred_at": "2026-10-08T08:00:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:doc-checkout-runbook",
+          "kind": "Document",
+          "title": "checkout runbook",
+          "body": "Check checkout metrics, identify recent deployments, compare historical incidents, and escalate to @nina. For retry saturation, inspect retry budget, exponential backoff and jitter before proposing rollback.",
+          "source_ref": "fixture://northstar/doc-checkout-runbook",
+          "occurred_at": "2026-10-02T08:00:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:doc-checkout-architecture",
+          "kind": "Document",
+          "title": "checkout architecture guide",
+          "body": "Checkout API: shopping cart, retry policy and order submission.",
+          "source_ref": "fixture://northstar/doc-checkout-architecture",
+          "occurred_at": "2026-10-02T08:00:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:doc-checkout-operations",
+          "kind": "Document",
+          "title": "checkout operations checklist",
+          "body": "Verify checkout readiness, error rate, retry volume and dependency health.",
+          "source_ref": "fixture://northstar/doc-checkout-operations",
+          "occurred_at": "2026-10-02T08:00:00Z",
+          "status": "",
+          "environment": ""
+        }
+      ],
+      "edges": [
+        {
+          "source": "demo:nina",
+          "kind": "RESOLVED",
+          "target": "demo:inc-checkout-old",
+          "source_ref": "fixture://northstar/links/nina/RESOLVED/inc-checkout-old",
+          "id": "edge:4cf6cf60612bddb89ec292e5"
+        },
+        {
+          "source": "demo:inc-checkout-old",
+          "kind": "AFFECTS",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/inc-checkout-old/AFFECTS/checkout",
+          "id": "edge:9ad94387fbbef70a56e7ae6b"
+        },
+        {
+          "source": "demo:nina",
+          "kind": "RESOLVED",
+          "target": "demo:inc-checkout-older",
+          "source_ref": "fixture://northstar/links/nina/RESOLVED/inc-checkout-older",
+          "id": "edge:815cec9751ebb5b8a4df9c3f"
+        },
+        {
+          "source": "demo:inc-checkout-older",
+          "kind": "AFFECTS",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/inc-checkout-older/AFFECTS/checkout",
+          "id": "edge:848318860c7772d41caff7fe"
+        },
+        {
+          "source": "demo:ada",
+          "kind": "AUTHORED",
+          "target": "demo:pr-checkout-retry",
+          "source_ref": "fixture://northstar/links/ada/AUTHORED/pr-checkout-retry",
+          "id": "edge:833f09f36b33fa8f2c170868"
+        },
+        {
+          "source": "demo:pr-checkout-retry",
+          "kind": "MODIFIES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/pr-checkout-retry/MODIFIES/checkout",
+          "id": "edge:e3d08e4fd5942a5a14cae210"
+        },
+        {
+          "source": "demo:ada",
+          "kind": "AUTHORED",
+          "target": "demo:commit-checkout-retry",
+          "source_ref": "fixture://northstar/links/ada/AUTHORED/commit-checkout-retry",
+          "id": "edge:8531572e4910ff01295500a7"
+        },
+        {
+          "source": "demo:commit-checkout-retry",
+          "kind": "MODIFIES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/commit-checkout-retry/MODIFIES/checkout",
+          "id": "edge:9b6fb589cdc748d008ef5ac5"
+        },
+        {
+          "source": "demo:sam",
+          "kind": "AUTHORED",
+          "target": "demo:pr-checkout-future",
+          "source_ref": "fixture://northstar/links/sam/AUTHORED/pr-checkout-future",
+          "id": "edge:a0f0c2e031d92a665353ec30"
+        },
+        {
+          "source": "demo:pr-checkout-future",
+          "kind": "MODIFIES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/pr-checkout-future/MODIFIES/checkout",
+          "id": "edge:ee6b404fa2197eb465660592"
+        },
+        {
+          "source": "demo:sam",
+          "kind": "AUTHORED",
+          "target": "demo:commit-checkout-future",
+          "source_ref": "fixture://northstar/links/sam/AUTHORED/commit-checkout-future",
+          "id": "edge:35e466558c51b8be89994fdf"
+        },
+        {
+          "source": "demo:commit-checkout-future",
+          "kind": "MODIFIES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/commit-checkout-future/MODIFIES/checkout",
+          "id": "edge:45b6b84f251a3e0b41a5598d"
+        },
+        {
+          "source": "demo:lena",
+          "kind": "AUTHORED",
+          "target": "demo:pr-checkout-staging",
+          "source_ref": "fixture://northstar/links/lena/AUTHORED/pr-checkout-staging",
+          "id": "edge:1243481b40d3b8a03a6248d2"
+        },
+        {
+          "source": "demo:pr-checkout-staging",
+          "kind": "MODIFIES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/pr-checkout-staging/MODIFIES/checkout",
+          "id": "edge:27369b5da90bd484ab0a5534"
+        },
+        {
+          "source": "demo:lena",
+          "kind": "AUTHORED",
+          "target": "demo:commit-checkout-staging",
+          "source_ref": "fixture://northstar/links/lena/AUTHORED/commit-checkout-staging",
+          "id": "edge:f34612040374ba76b3ce401f"
+        },
+        {
+          "source": "demo:commit-checkout-staging",
+          "kind": "MODIFIES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/commit-checkout-staging/MODIFIES/checkout",
+          "id": "edge:a120c59f14756ae64608e9bc"
+        },
+        {
+          "source": "demo:nina",
+          "kind": "AUTHORED",
+          "target": "demo:pr-checkout-old",
+          "source_ref": "fixture://northstar/links/nina/AUTHORED/pr-checkout-old",
+          "id": "edge:714fd9287265a46beb0bf1c2"
+        },
+        {
+          "source": "demo:pr-checkout-old",
+          "kind": "MODIFIES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/pr-checkout-old/MODIFIES/checkout",
+          "id": "edge:8af4e8c50abe911d8c2ba9ea"
+        },
+        {
+          "source": "demo:nina",
+          "kind": "AUTHORED",
+          "target": "demo:commit-checkout-old",
+          "source_ref": "fixture://northstar/links/nina/AUTHORED/commit-checkout-old",
+          "id": "edge:bab5d43f3390e9b20663f819"
+        },
+        {
+          "source": "demo:commit-checkout-old",
+          "kind": "MODIFIES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/commit-checkout-old/MODIFIES/checkout",
+          "id": "edge:264542b458c90b1c105fa7e4"
+        },
+        {
+          "source": "demo:ada",
+          "kind": "AUTHORED",
+          "target": "demo:pr-checkout-cart",
+          "source_ref": "fixture://northstar/links/ada/AUTHORED/pr-checkout-cart",
+          "id": "edge:db7c3505d710770eff91c5af"
+        },
+        {
+          "source": "demo:pr-checkout-cart",
+          "kind": "MODIFIES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/pr-checkout-cart/MODIFIES/checkout",
+          "id": "edge:eaf1d740dfb90bd556e68cbe"
+        },
+        {
+          "source": "demo:ada",
+          "kind": "AUTHORED",
+          "target": "demo:commit-checkout-cart",
+          "source_ref": "fixture://northstar/links/ada/AUTHORED/commit-checkout-cart",
+          "id": "edge:373bdbf7274d5b1ac546baa7"
+        },
+        {
+          "source": "demo:commit-checkout-cart",
+          "kind": "MODIFIES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/commit-checkout-cart/MODIFIES/checkout",
+          "id": "edge:5b341c5e0f89f459e286497a"
+        },
+        {
+          "source": "demo:nina",
+          "kind": "AUTHORED",
+          "target": "demo:doc-checkout-runbook",
+          "source_ref": "fixture://northstar/links/nina/AUTHORED/doc-checkout-runbook",
+          "id": "edge:eafdf4b10594f78a458c9891"
+        },
+        {
+          "source": "demo:doc-checkout-runbook",
+          "kind": "DESCRIBES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/doc-checkout-runbook/DESCRIBES/checkout",
+          "id": "edge:c9fda8bb3da5ef104b3df630"
+        },
+        {
+          "source": "demo:nina",
+          "kind": "AUTHORED",
+          "target": "demo:doc-checkout-architecture",
+          "source_ref": "fixture://northstar/links/nina/AUTHORED/doc-checkout-architecture",
+          "id": "edge:0768b68c42977d17b00d4a82"
+        },
+        {
+          "source": "demo:doc-checkout-architecture",
+          "kind": "DESCRIBES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/doc-checkout-architecture/DESCRIBES/checkout",
+          "id": "edge:1d89c406722c3fb1c335338a"
+        },
+        {
+          "source": "demo:nina",
+          "kind": "AUTHORED",
+          "target": "demo:doc-checkout-operations",
+          "source_ref": "fixture://northstar/links/nina/AUTHORED/doc-checkout-operations",
+          "id": "edge:ec2b157e69b9e8c4e0bfd441"
+        },
+        {
+          "source": "demo:doc-checkout-operations",
+          "kind": "DESCRIBES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/doc-checkout-operations/DESCRIBES/checkout",
+          "id": "edge:0055168e8ff34faaa533c9eb"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path:258a8d522201dc091459ccfd",
+          "node_ids": [
+            "demo:nina",
+            "demo:inc-checkout-old",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:4cf6cf60612bddb89ec292e5",
+            "edge:9ad94387fbbef70a56e7ae6b"
+          ]
+        },
+        {
+          "id": "path:857aebf892d5be5382e33ff1",
+          "node_ids": [
+            "demo:nina",
+            "demo:inc-checkout-older",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:815cec9751ebb5b8a4df9c3f",
+            "edge:848318860c7772d41caff7fe"
+          ]
+        },
+        {
+          "id": "path:57209e3e3804c8b3fb26062e",
+          "node_ids": [
+            "demo:ada",
+            "demo:pr-checkout-retry",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:833f09f36b33fa8f2c170868",
+            "edge:e3d08e4fd5942a5a14cae210"
+          ]
+        },
+        {
+          "id": "path:9189134a41b084b763ccea1a",
+          "node_ids": [
+            "demo:ada",
+            "demo:commit-checkout-retry",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:8531572e4910ff01295500a7",
+            "edge:9b6fb589cdc748d008ef5ac5"
+          ]
+        },
+        {
+          "id": "path:134cf38749a70921b292c9f0",
+          "node_ids": [
+            "demo:sam",
+            "demo:pr-checkout-future",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:a0f0c2e031d92a665353ec30",
+            "edge:ee6b404fa2197eb465660592"
+          ]
+        },
+        {
+          "id": "path:ead1591fb4c3a0259266c190",
+          "node_ids": [
+            "demo:sam",
+            "demo:commit-checkout-future",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:35e466558c51b8be89994fdf",
+            "edge:45b6b84f251a3e0b41a5598d"
+          ]
+        },
+        {
+          "id": "path:ee7d51dbd6a75a537137c6c2",
+          "node_ids": [
+            "demo:lena",
+            "demo:pr-checkout-staging",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:1243481b40d3b8a03a6248d2",
+            "edge:27369b5da90bd484ab0a5534"
+          ]
+        },
+        {
+          "id": "path:75935852258ae71472064288",
+          "node_ids": [
+            "demo:lena",
+            "demo:commit-checkout-staging",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:f34612040374ba76b3ce401f",
+            "edge:a120c59f14756ae64608e9bc"
+          ]
+        },
+        {
+          "id": "path:33176111226602fc540aaeb6",
+          "node_ids": [
+            "demo:nina",
+            "demo:pr-checkout-old",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:714fd9287265a46beb0bf1c2",
+            "edge:8af4e8c50abe911d8c2ba9ea"
+          ]
+        },
+        {
+          "id": "path:23ad36695a173211ef65c9dc",
+          "node_ids": [
+            "demo:nina",
+            "demo:commit-checkout-old",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:bab5d43f3390e9b20663f819",
+            "edge:264542b458c90b1c105fa7e4"
+          ]
+        },
+        {
+          "id": "path:42b42297a75456ae644e8bed",
+          "node_ids": [
+            "demo:ada",
+            "demo:pr-checkout-cart",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:db7c3505d710770eff91c5af",
+            "edge:eaf1d740dfb90bd556e68cbe"
+          ]
+        },
+        {
+          "id": "path:e1a2b89f9d396d46b8e9e84a",
+          "node_ids": [
+            "demo:ada",
+            "demo:commit-checkout-cart",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:373bdbf7274d5b1ac546baa7",
+            "edge:5b341c5e0f89f459e286497a"
+          ]
+        },
+        {
+          "id": "path:5b642af912430418aad603f7",
+          "node_ids": [
+            "demo:nina",
+            "demo:doc-checkout-runbook",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:eafdf4b10594f78a458c9891",
+            "edge:c9fda8bb3da5ef104b3df630"
+          ]
+        },
+        {
+          "id": "path:654adf2da876d200d73f9dab",
+          "node_ids": [
+            "demo:nina",
+            "demo:doc-checkout-architecture",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:0768b68c42977d17b00d4a82",
+            "edge:1d89c406722c3fb1c335338a"
+          ]
+        },
+        {
+          "id": "path:1a5c8d27695731596d0e6aea",
+          "node_ids": [
+            "demo:nina",
+            "demo:doc-checkout-operations",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:ec2b157e69b9e8c4e0bfd441",
+            "edge:0055168e8ff34faaa533c9eb"
+          ]
+        }
+      ],
+      "truncated": false
+    }
+  },
+  "documents": {
+    "documents": [
+      {
+        "id": "demo:doc-checkout-architecture",
+        "kind": "Document",
+        "title": "checkout architecture guide",
+        "body": "Checkout API: shopping cart, retry policy and order submission.",
+        "source_ref": "fixture://northstar/doc-checkout-architecture",
+        "occurred_at": "2026-10-02T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:doc-checkout-operations",
+        "kind": "Document",
+        "title": "checkout operations checklist",
+        "body": "Verify checkout readiness, error rate, retry volume and dependency health.",
+        "source_ref": "fixture://northstar/doc-checkout-operations",
+        "occurred_at": "2026-10-02T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:doc-checkout-runbook",
+        "kind": "Document",
+        "title": "checkout runbook",
+        "body": "Check checkout metrics, identify recent deployments, compare historical incidents, and escalate to @nina. For retry saturation, inspect retry budget, exponential backoff and jitter before proposing rollback.",
+        "source_ref": "fixture://northstar/doc-checkout-runbook",
+        "occurred_at": "2026-10-02T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:ticket-checkout-1",
+        "kind": "Ticket",
+        "title": "checkout: review alerts",
+        "body": "Track checkout reliability and link operational evidence. Owner: @nina.",
+        "source_ref": "fixture://northstar/ticket-checkout-1",
+        "occurred_at": "2026-10-14T08:00:00Z",
+        "status": "open",
+        "environment": ""
+      },
+      {
+        "id": "demo:ticket-checkout-2",
+        "kind": "Ticket",
+        "title": "checkout: operational follow-up",
+        "body": "Track checkout reliability and link operational evidence. Owner: @nina.",
+        "source_ref": "fixture://northstar/ticket-checkout-2",
+        "occurred_at": "2026-10-14T08:00:00Z",
+        "status": "open",
+        "environment": ""
+      },
+      {
+        "id": "demo:ticket-checkout-3",
+        "kind": "Ticket",
+        "title": "checkout: on-call handoff",
+        "body": "Track checkout reliability and link operational evidence. Owner: @nina.",
+        "source_ref": "fixture://northstar/ticket-checkout-3",
+        "occurred_at": "2026-10-14T08:00:00Z",
+        "status": "open",
+        "environment": ""
+      }
+    ],
+    "evidence": {
+      "nodes": [
+        {
+          "id": "demo:checkout",
+          "kind": "Service",
+          "title": "checkout",
+          "body": "Checkout API: shopping cart, retry policy and order submission.",
+          "source_ref": "fixture://northstar/checkout",
+          "occurred_at": null,
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:doc-checkout-architecture",
+          "kind": "Document",
+          "title": "checkout architecture guide",
+          "body": "Checkout API: shopping cart, retry policy and order submission.",
+          "source_ref": "fixture://northstar/doc-checkout-architecture",
+          "occurred_at": "2026-10-02T08:00:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:doc-checkout-operations",
+          "kind": "Document",
+          "title": "checkout operations checklist",
+          "body": "Verify checkout readiness, error rate, retry volume and dependency health.",
+          "source_ref": "fixture://northstar/doc-checkout-operations",
+          "occurred_at": "2026-10-02T08:00:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:doc-checkout-runbook",
+          "kind": "Document",
+          "title": "checkout runbook",
+          "body": "Check checkout metrics, identify recent deployments, compare historical incidents, and escalate to @nina. For retry saturation, inspect retry budget, exponential backoff and jitter before proposing rollback.",
+          "source_ref": "fixture://northstar/doc-checkout-runbook",
+          "occurred_at": "2026-10-02T08:00:00Z",
+          "status": "",
+          "environment": ""
+        },
+        {
+          "id": "demo:ticket-checkout-1",
+          "kind": "Ticket",
+          "title": "checkout: review alerts",
+          "body": "Track checkout reliability and link operational evidence. Owner: @nina.",
+          "source_ref": "fixture://northstar/ticket-checkout-1",
+          "occurred_at": "2026-10-14T08:00:00Z",
+          "status": "open",
+          "environment": ""
+        },
+        {
+          "id": "demo:ticket-checkout-2",
+          "kind": "Ticket",
+          "title": "checkout: operational follow-up",
+          "body": "Track checkout reliability and link operational evidence. Owner: @nina.",
+          "source_ref": "fixture://northstar/ticket-checkout-2",
+          "occurred_at": "2026-10-14T08:00:00Z",
+          "status": "open",
+          "environment": ""
+        },
+        {
+          "id": "demo:ticket-checkout-3",
+          "kind": "Ticket",
+          "title": "checkout: on-call handoff",
+          "body": "Track checkout reliability and link operational evidence. Owner: @nina.",
+          "source_ref": "fixture://northstar/ticket-checkout-3",
+          "occurred_at": "2026-10-14T08:00:00Z",
+          "status": "open",
+          "environment": ""
+        },
+        {
+          "id": "demo:inc-checkout-old",
+          "kind": "Incident",
+          "title": "Checkout retry saturation in September",
+          "body": "Unbounded retries saturated downstream connections. Nina restored bounded exponential backoff.",
+          "source_ref": "fixture://northstar/inc-checkout-old",
+          "occurred_at": "2026-09-12T09:00:00Z",
+          "status": "resolved",
+          "environment": "production"
+        }
+      ],
+      "edges": [
+        {
+          "source": "demo:doc-checkout-runbook",
+          "kind": "DESCRIBES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/doc-checkout-runbook/DESCRIBES/checkout",
+          "id": "edge:c9fda8bb3da5ef104b3df630"
+        },
+        {
+          "source": "demo:doc-checkout-architecture",
+          "kind": "DESCRIBES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/doc-checkout-architecture/DESCRIBES/checkout",
+          "id": "edge:1d89c406722c3fb1c335338a"
+        },
+        {
+          "source": "demo:doc-checkout-operations",
+          "kind": "DESCRIBES",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/doc-checkout-operations/DESCRIBES/checkout",
+          "id": "edge:0055168e8ff34faaa533c9eb"
+        },
+        {
+          "source": "demo:ticket-checkout-1",
+          "kind": "AFFECTS",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/ticket-checkout-1/AFFECTS/checkout",
+          "id": "edge:63285086ca0f5872a92d130f"
+        },
+        {
+          "source": "demo:ticket-checkout-2",
+          "kind": "AFFECTS",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/ticket-checkout-2/AFFECTS/checkout",
+          "id": "edge:d76d0c6de57fd581d01121ce"
+        },
+        {
+          "source": "demo:ticket-checkout-3",
+          "kind": "AFFECTS",
+          "target": "demo:checkout",
+          "source_ref": "fixture://northstar/links/ticket-checkout-3/AFFECTS/checkout",
+          "id": "edge:fea8a983a84eafccb9a3a41d"
+        },
+        {
+          "source": "demo:doc-checkout-runbook",
+          "kind": "DESCRIBES",
+          "target": "demo:inc-checkout-old",
+          "source_ref": "fixture://northstar/links/doc-checkout-runbook/DESCRIBES/inc-checkout-old",
+          "id": "edge:93e5418abfdcaa44be1fcde7"
+        }
+      ],
+      "paths": [
+        {
+          "id": "path:1c9c1227fef8ecf1ce17958e",
+          "node_ids": [
+            "demo:doc-checkout-runbook",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:c9fda8bb3da5ef104b3df630"
+          ]
+        },
+        {
+          "id": "path:bc513517b84263845a991257",
+          "node_ids": [
+            "demo:doc-checkout-architecture",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:1d89c406722c3fb1c335338a"
+          ]
+        },
+        {
+          "id": "path:1cb1530d3137210532bd0940",
+          "node_ids": [
+            "demo:doc-checkout-operations",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:0055168e8ff34faaa533c9eb"
+          ]
+        },
+        {
+          "id": "path:2c6caf603f13aba55e8f03d0",
+          "node_ids": [
+            "demo:ticket-checkout-1",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:63285086ca0f5872a92d130f"
+          ]
+        },
+        {
+          "id": "path:3846d6695b5e002c3205d3f3",
+          "node_ids": [
+            "demo:ticket-checkout-2",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:d76d0c6de57fd581d01121ce"
+          ]
+        },
+        {
+          "id": "path:3bb9db79f3b7de9b74476442",
+          "node_ids": [
+            "demo:ticket-checkout-3",
+            "demo:checkout"
+          ],
+          "edge_ids": [
+            "edge:fea8a983a84eafccb9a3a41d"
+          ]
+        },
+        {
+          "id": "path:7635cc9c5b1b254712d6ec4f",
+          "node_ids": [
+            "demo:doc-checkout-runbook",
+            "demo:inc-checkout-old"
+          ],
+          "edge_ids": [
+            "edge:93e5418abfdcaa44be1fcde7"
+          ]
+        }
+      ],
+      "truncated": false
+    }
+  },
+  "search": [
+    {
+      "id": "demo:checkout",
+      "kind": "Service",
+      "title": "checkout",
+      "body": "Checkout API: shopping cart, retry policy and order submission.",
+      "source_ref": "fixture://northstar/checkout",
+      "occurred_at": null,
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:commit-checkout-cart",
+      "kind": "Commit",
+      "title": "Checkout cart validation \u2014 implementation",
+      "body": "Change in checkout. Checkout cart validation. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-checkout-cart",
+      "occurred_at": "2026-10-08T08:00:00Z",
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:commit-checkout-future",
+      "kind": "Commit",
+      "title": "Checkout response headers \u2014 implementation",
+      "body": "Change in checkout. Checkout response headers. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-checkout-future",
+      "occurred_at": "2026-10-15T10:20:00Z",
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:commit-checkout-future-test",
+      "kind": "Commit",
+      "title": "Tests for Checkout response headers",
+      "body": "Regression tests for checkout.",
+      "source_ref": "fixture://northstar/commit-checkout-future-test",
+      "occurred_at": "2026-10-15T10:20:00Z",
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:commit-checkout-old",
+      "kind": "Commit",
+      "title": "Document checkout retry budgets \u2014 implementation",
+      "body": "Change in checkout. Document checkout retry budgets. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-checkout-old",
+      "occurred_at": "2026-10-01T08:00:00Z",
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:commit-checkout-old-test",
+      "kind": "Commit",
+      "title": "Tests for Document checkout retry budgets",
+      "body": "Regression tests for checkout.",
+      "source_ref": "fixture://northstar/commit-checkout-old-test",
+      "occurred_at": "2026-10-01T08:00:00Z",
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:commit-checkout-retry",
+      "kind": "Commit",
+      "title": "Adjust checkout retry policy \u2014 implementation",
+      "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+      "source_ref": "fixture://northstar/commit-checkout-retry",
+      "occurred_at": "2026-10-15T09:20:00Z",
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:commit-checkout-retry-test",
+      "kind": "Commit",
+      "title": "Tests for Adjust checkout retry policy",
+      "body": "Regression tests for checkout.",
+      "source_ref": "fixture://northstar/commit-checkout-retry-test",
+      "occurred_at": "2026-10-15T09:20:00Z",
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:commit-checkout-staging",
+      "kind": "Commit",
+      "title": "Staging checkout cache experiment \u2014 implementation",
+      "body": "Change in checkout. Staging checkout cache experiment. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-checkout-staging",
+      "occurred_at": "2026-10-15T09:10:00Z",
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:commit-checkout-staging-test",
+      "kind": "Commit",
+      "title": "Tests for Staging checkout cache experiment",
+      "body": "Regression tests for checkout.",
+      "source_ref": "fixture://northstar/commit-checkout-staging-test",
+      "occurred_at": "2026-10-15T09:10:00Z",
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:deploy-checkout-future",
+      "kind": "Deployment",
+      "title": "Deploy checkout-future",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-checkout-future",
+      "occurred_at": "2026-10-15T10:30:00Z",
+      "status": "completed",
+      "environment": "production"
+    },
+    {
+      "id": "demo:deploy-checkout-old",
+      "kind": "Deployment",
+      "title": "Deploy checkout-old",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-checkout-old",
+      "occurred_at": "2026-10-01T09:00:00Z",
+      "status": "completed",
+      "environment": "production"
+    },
+    {
+      "id": "demo:deploy-checkout-retry",
+      "kind": "Deployment",
+      "title": "Deploy checkout-retry",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-checkout-retry",
+      "occurred_at": "2026-10-15T09:50:00Z",
+      "status": "completed",
+      "environment": "production"
+    },
+    {
+      "id": "demo:doc-checkout-architecture",
+      "kind": "Document",
+      "title": "checkout architecture guide",
+      "body": "Checkout API: shopping cart, retry policy and order submission.",
+      "source_ref": "fixture://northstar/doc-checkout-architecture",
+      "occurred_at": "2026-10-02T08:00:00Z",
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:doc-checkout-operations",
+      "kind": "Document",
+      "title": "checkout operations checklist",
+      "body": "Verify checkout readiness, error rate, retry volume and dependency health.",
+      "source_ref": "fixture://northstar/doc-checkout-operations",
+      "occurred_at": "2026-10-02T08:00:00Z",
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:doc-checkout-runbook",
+      "kind": "Document",
+      "title": "checkout runbook",
+      "body": "Check checkout metrics, identify recent deployments, compare historical incidents, and escalate to @nina. For retry saturation, inspect retry budget, exponential backoff and jitter before proposing rollback.",
+      "source_ref": "fixture://northstar/doc-checkout-runbook",
+      "occurred_at": "2026-10-02T08:00:00Z",
+      "status": "",
+      "environment": ""
+    },
+    {
+      "id": "demo:inc-checkout",
+      "kind": "Incident",
+      "title": "Checkout errors after morning release",
+      "body": "HTTP 503 rate rose to 18%. Retry volume increased. Root cause is not yet confirmed.",
+      "source_ref": "fixture://northstar/inc-checkout",
+      "occurred_at": "2026-10-15T10:00:00Z",
+      "status": "investigating",
+      "environment": "production"
+    },
+    {
+      "id": "demo:inc-checkout-older",
+      "kind": "Incident",
+      "title": "Checkout retry budget exhausted in August",
+      "body": "Retry budget and jitter configuration corrected by Nina after investigating checkout overload.",
+      "source_ref": "fixture://northstar/inc-checkout-older",
+      "occurred_at": "2026-08-20T09:00:00Z",
+      "status": "resolved",
+      "environment": "production"
+    },
+    {
+      "id": "demo:pr-checkout-cart",
+      "kind": "PullRequest",
+      "title": "Checkout cart validation",
+      "body": "Change in checkout. Checkout cart validation. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-checkout-cart",
+      "occurred_at": "2026-10-08T08:00:00Z",
+      "status": "merged",
+      "environment": ""
+    },
+    {
+      "id": "demo:pr-checkout-future",
+      "kind": "PullRequest",
+      "title": "Checkout response headers",
+      "body": "Change in checkout. Checkout response headers. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-checkout-future",
+      "occurred_at": "2026-10-15T10:20:00Z",
+      "status": "merged",
+      "environment": ""
+    }
+  ],
+  "neighborhood": {
+    "nodes": [
+      {
+        "id": "demo:checkout",
+        "kind": "Service",
+        "title": "checkout",
+        "body": "Checkout API: shopping cart, retry policy and order submission.",
+        "source_ref": "fixture://northstar/checkout",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:payments",
+        "kind": "Service",
+        "title": "payments",
+        "body": "Payments API: payment authorization and ledger integration.",
+        "source_ref": "fixture://northstar/payments",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:inc-checkout",
+        "kind": "Incident",
+        "title": "Checkout errors after morning release",
+        "body": "HTTP 503 rate rose to 18%. Retry volume increased. Root cause is not yet confirmed.",
+        "source_ref": "fixture://northstar/inc-checkout",
+        "occurred_at": "2026-10-15T10:00:00Z",
+        "status": "investigating",
+        "environment": "production"
+      },
+      {
+        "id": "demo:inc-checkout-old",
+        "kind": "Incident",
+        "title": "Checkout retry saturation in September",
+        "body": "Unbounded retries saturated downstream connections. Nina restored bounded exponential backoff.",
+        "source_ref": "fixture://northstar/inc-checkout-old",
+        "occurred_at": "2026-09-12T09:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      },
+      {
+        "id": "demo:inc-checkout-older",
+        "kind": "Incident",
+        "title": "Checkout retry budget exhausted in August",
+        "body": "Retry budget and jitter configuration corrected by Nina after investigating checkout overload.",
+        "source_ref": "fixture://northstar/inc-checkout-older",
+        "occurred_at": "2026-08-20T09:00:00Z",
+        "status": "resolved",
+        "environment": "production"
+      },
+      {
+        "id": "demo:pr-checkout-retry",
+        "kind": "PullRequest",
+        "title": "Adjust checkout retry policy",
+        "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+        "source_ref": "fixture://northstar/pr-checkout-retry",
+        "occurred_at": "2026-10-15T09:20:00Z",
+        "status": "merged",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-checkout-retry",
+        "kind": "Commit",
+        "title": "Adjust checkout retry policy \u2014 implementation",
+        "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+        "source_ref": "fixture://northstar/commit-checkout-retry",
+        "occurred_at": "2026-10-15T09:20:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:pr-checkout-future",
+        "kind": "PullRequest",
+        "title": "Checkout response headers",
+        "body": "Change in checkout. Checkout response headers. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/pr-checkout-future",
+        "occurred_at": "2026-10-15T10:20:00Z",
+        "status": "merged",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-checkout-future",
+        "kind": "Commit",
+        "title": "Checkout response headers \u2014 implementation",
+        "body": "Change in checkout. Checkout response headers. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/commit-checkout-future",
+        "occurred_at": "2026-10-15T10:20:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:pr-checkout-staging",
+        "kind": "PullRequest",
+        "title": "Staging checkout cache experiment",
+        "body": "Change in checkout. Staging checkout cache experiment. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/pr-checkout-staging",
+        "occurred_at": "2026-10-15T09:10:00Z",
+        "status": "merged",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-checkout-staging",
+        "kind": "Commit",
+        "title": "Staging checkout cache experiment \u2014 implementation",
+        "body": "Change in checkout. Staging checkout cache experiment. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/commit-checkout-staging",
+        "occurred_at": "2026-10-15T09:10:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:pr-checkout-old",
+        "kind": "PullRequest",
+        "title": "Document checkout retry budgets",
+        "body": "Change in checkout. Document checkout retry budgets. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/pr-checkout-old",
+        "occurred_at": "2026-10-01T08:00:00Z",
+        "status": "merged",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-checkout-old",
+        "kind": "Commit",
+        "title": "Document checkout retry budgets \u2014 implementation",
+        "body": "Change in checkout. Document checkout retry budgets. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/commit-checkout-old",
+        "occurred_at": "2026-10-01T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:pr-checkout-cart",
+        "kind": "PullRequest",
+        "title": "Checkout cart validation",
+        "body": "Change in checkout. Checkout cart validation. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/pr-checkout-cart",
+        "occurred_at": "2026-10-08T08:00:00Z",
+        "status": "merged",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-checkout-cart",
+        "kind": "Commit",
+        "title": "Checkout cart validation \u2014 implementation",
+        "body": "Change in checkout. Checkout cart validation. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/commit-checkout-cart",
+        "occurred_at": "2026-10-08T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:deploy-checkout-retry",
+        "kind": "Deployment",
+        "title": "Deploy checkout-retry",
+        "body": "Release to production.",
+        "source_ref": "fixture://northstar/deploy-checkout-retry",
+        "occurred_at": "2026-10-15T09:50:00Z",
+        "status": "completed",
+        "environment": "production"
+      },
+      {
+        "id": "demo:deploy-checkout-future",
+        "kind": "Deployment",
+        "title": "Deploy checkout-future",
+        "body": "Release to production.",
+        "source_ref": "fixture://northstar/deploy-checkout-future",
+        "occurred_at": "2026-10-15T10:30:00Z",
+        "status": "completed",
+        "environment": "production"
+      },
+      {
+        "id": "demo:deploy-checkout-staging",
+        "kind": "Deployment",
+        "title": "Deploy checkout-staging",
+        "body": "Release to staging.",
+        "source_ref": "fixture://northstar/deploy-checkout-staging",
+        "occurred_at": "2026-10-15T09:40:00Z",
+        "status": "completed",
+        "environment": "staging"
+      },
+      {
+        "id": "demo:deploy-checkout-old",
+        "kind": "Deployment",
+        "title": "Deploy checkout-old",
+        "body": "Release to production.",
+        "source_ref": "fixture://northstar/deploy-checkout-old",
+        "occurred_at": "2026-10-01T09:00:00Z",
+        "status": "completed",
+        "environment": "production"
+      },
+      {
+        "id": "demo:doc-checkout-runbook",
+        "kind": "Document",
+        "title": "checkout runbook",
+        "body": "Check checkout metrics, identify recent deployments, compare historical incidents, and escalate to @nina. For retry saturation, inspect retry budget, exponential backoff and jitter before proposing rollback.",
+        "source_ref": "fixture://northstar/doc-checkout-runbook",
+        "occurred_at": "2026-10-02T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:doc-checkout-architecture",
+        "kind": "Document",
+        "title": "checkout architecture guide",
+        "body": "Checkout API: shopping cart, retry policy and order submission.",
+        "source_ref": "fixture://northstar/doc-checkout-architecture",
+        "occurred_at": "2026-10-02T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:doc-checkout-operations",
+        "kind": "Document",
+        "title": "checkout operations checklist",
+        "body": "Verify checkout readiness, error rate, retry volume and dependency health.",
+        "source_ref": "fixture://northstar/doc-checkout-operations",
+        "occurred_at": "2026-10-02T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:ticket-checkout-1",
+        "kind": "Ticket",
+        "title": "checkout: review alerts",
+        "body": "Track checkout reliability and link operational evidence. Owner: @nina.",
+        "source_ref": "fixture://northstar/ticket-checkout-1",
+        "occurred_at": "2026-10-14T08:00:00Z",
+        "status": "open",
+        "environment": ""
+      },
+      {
+        "id": "demo:ticket-checkout-2",
+        "kind": "Ticket",
+        "title": "checkout: operational follow-up",
+        "body": "Track checkout reliability and link operational evidence. Owner: @nina.",
+        "source_ref": "fixture://northstar/ticket-checkout-2",
+        "occurred_at": "2026-10-14T08:00:00Z",
+        "status": "open",
+        "environment": ""
+      },
+      {
+        "id": "demo:ticket-checkout-3",
+        "kind": "Ticket",
+        "title": "checkout: on-call handoff",
+        "body": "Track checkout reliability and link operational evidence. Owner: @nina.",
+        "source_ref": "fixture://northstar/ticket-checkout-3",
+        "occurred_at": "2026-10-14T08:00:00Z",
+        "status": "open",
+        "environment": ""
+      },
+      {
+        "id": "demo:ledger",
+        "kind": "Service",
+        "title": "ledger",
+        "body": "Ledger service: transaction storage and database connection pooling.",
+        "source_ref": "fixture://northstar/ledger",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:inc-payments",
+        "kind": "Incident",
+        "title": "Payment authorization timeouts",
+        "body": "Authorization p99 reached 8 seconds. Ledger connection waits increased. Investigate dependency changes.",
+        "source_ref": "fixture://northstar/inc-payments",
+        "occurred_at": "2026-10-15T11:00:00Z",
+        "status": "investigating",
+        "environment": "production"
+      },
+      {
+        "id": "demo:pr-payments-trace",
+        "kind": "PullRequest",
+        "title": "Add payment trace context",
+        "body": "Change in payments. Add payment trace context. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/pr-payments-trace",
+        "occurred_at": "2026-10-13T08:00:00Z",
+        "status": "merged",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-payments-trace",
+        "kind": "Commit",
+        "title": "Add payment trace context \u2014 implementation",
+        "body": "Change in payments. Add payment trace context. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/commit-payments-trace",
+        "occurred_at": "2026-10-13T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:pr-payments-audit",
+        "kind": "PullRequest",
+        "title": "Payment audit event IDs",
+        "body": "Change in payments. Payment audit event IDs. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/pr-payments-audit",
+        "occurred_at": "2026-10-10T08:00:00Z",
+        "status": "merged",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-payments-audit",
+        "kind": "Commit",
+        "title": "Payment audit event IDs \u2014 implementation",
+        "body": "Change in payments. Payment audit event IDs. Review deployment lineage before attributing an incident.",
+        "source_ref": "fixture://northstar/commit-payments-audit",
+        "occurred_at": "2026-10-10T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:deploy-payments-trace",
+        "kind": "Deployment",
+        "title": "Deploy payments-trace",
+        "body": "Release to production.",
+        "source_ref": "fixture://northstar/deploy-payments-trace",
+        "occurred_at": "2026-10-13T09:00:00Z",
+        "status": "completed",
+        "environment": "production"
+      },
+      {
+        "id": "demo:doc-payments-runbook",
+        "kind": "Document",
+        "title": "payments runbook",
+        "body": "Check payments metrics, identify recent deployments, compare historical incidents, and escalate to @priya.",
+        "source_ref": "fixture://northstar/doc-payments-runbook",
+        "occurred_at": "2026-10-02T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:doc-payments-architecture",
+        "kind": "Document",
+        "title": "payments architecture guide",
+        "body": "Payments API: payment authorization and ledger integration.",
+        "source_ref": "fixture://northstar/doc-payments-architecture",
+        "occurred_at": "2026-10-02T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:doc-payments-operations",
+        "kind": "Document",
+        "title": "payments operations checklist",
+        "body": "Verify payments readiness, error rate, retry volume and dependency health.",
+        "source_ref": "fixture://northstar/doc-payments-operations",
+        "occurred_at": "2026-10-02T08:00:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:ticket-payments-1",
+        "kind": "Ticket",
+        "title": "payments: review alerts",
+        "body": "Track payments reliability and link operational evidence. Owner: @priya.",
+        "source_ref": "fixture://northstar/ticket-payments-1",
+        "occurred_at": "2026-10-14T08:00:00Z",
+        "status": "open",
+        "environment": ""
+      },
+      {
+        "id": "demo:ticket-payments-2",
+        "kind": "Ticket",
+        "title": "payments: operational follow-up",
+        "body": "Track payments reliability and link operational evidence. Owner: @priya.",
+        "source_ref": "fixture://northstar/ticket-payments-2",
+        "occurred_at": "2026-10-14T08:00:00Z",
+        "status": "open",
+        "environment": ""
+      },
+      {
+        "id": "demo:ticket-payments-3",
+        "kind": "Ticket",
+        "title": "payments: on-call handoff",
+        "body": "Track payments reliability and link operational evidence. Owner: @priya.",
+        "source_ref": "fixture://northstar/ticket-payments-3",
+        "occurred_at": "2026-10-14T08:00:00Z",
+        "status": "open",
+        "environment": ""
+      },
+      {
+        "id": "demo:nina",
+        "kind": "Person",
+        "title": "Nina Patel",
+        "body": "Engineer at fictional Northstar Labs. Contact handle: @nina.",
+        "source_ref": "fixture://northstar/nina",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:ada",
+        "kind": "Person",
+        "title": "Ada Chen",
+        "body": "Engineer at fictional Northstar Labs. Contact handle: @ada.",
+        "source_ref": "fixture://northstar/ada",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-checkout-retry-test",
+        "kind": "Commit",
+        "title": "Tests for Adjust checkout retry policy",
+        "body": "Regression tests for checkout.",
+        "source_ref": "fixture://northstar/commit-checkout-retry-test",
+        "occurred_at": "2026-10-15T09:20:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:sam",
+        "kind": "Person",
+        "title": "Sam Okafor",
+        "body": "Engineer at fictional Northstar Labs. Contact handle: @sam.",
+        "source_ref": "fixture://northstar/sam",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-checkout-future-test",
+        "kind": "Commit",
+        "title": "Tests for Checkout response headers",
+        "body": "Regression tests for checkout.",
+        "source_ref": "fixture://northstar/commit-checkout-future-test",
+        "occurred_at": "2026-10-15T10:20:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:lena",
+        "kind": "Person",
+        "title": "Lena Ortiz",
+        "body": "Engineer at fictional Northstar Labs. Contact handle: @lena.",
+        "source_ref": "fixture://northstar/lena",
+        "occurred_at": null,
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-checkout-staging-test",
+        "kind": "Commit",
+        "title": "Tests for Staging checkout cache experiment",
+        "body": "Regression tests for checkout.",
+        "source_ref": "fixture://northstar/commit-checkout-staging-test",
+        "occurred_at": "2026-10-15T09:10:00Z",
+        "status": "",
+        "environment": ""
+      },
+      {
+        "id": "demo:commit-checkout-old-test",
+        "kind": "Commit",
+        "title": "Tests for Document checkout retry budgets",
+        "body": "Regression tests for checkout.",
+        "source_ref": "fixture://northstar/commit-checkout-old-test",
+        "occurred_at": "2026-10-01T08:00:00Z",
+        "status": "",
+        "environment": ""
+      }
+    ],
+    "edges": [
+      {
+        "source": "demo:checkout",
+        "kind": "DEPENDS_ON",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/checkout/DEPENDS_ON/payments",
+        "id": "edge:5ffa24b7925c2ac9f08eab98"
+      },
+      {
+        "source": "demo:inc-checkout",
+        "kind": "AFFECTS",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/inc-checkout/AFFECTS/checkout",
+        "id": "edge:e6765b2943334e4d36f3cdfb"
+      },
+      {
+        "source": "demo:inc-checkout-old",
+        "kind": "AFFECTS",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/inc-checkout-old/AFFECTS/checkout",
+        "id": "edge:9ad94387fbbef70a56e7ae6b"
+      },
+      {
+        "source": "demo:inc-checkout-older",
+        "kind": "AFFECTS",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/inc-checkout-older/AFFECTS/checkout",
+        "id": "edge:848318860c7772d41caff7fe"
+      },
+      {
+        "source": "demo:pr-checkout-retry",
+        "kind": "MODIFIES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/pr-checkout-retry/MODIFIES/checkout",
+        "id": "edge:e3d08e4fd5942a5a14cae210"
+      },
+      {
+        "source": "demo:commit-checkout-retry",
+        "kind": "MODIFIES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/commit-checkout-retry/MODIFIES/checkout",
+        "id": "edge:9b6fb589cdc748d008ef5ac5"
+      },
+      {
+        "source": "demo:pr-checkout-future",
+        "kind": "MODIFIES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/pr-checkout-future/MODIFIES/checkout",
+        "id": "edge:ee6b404fa2197eb465660592"
+      },
+      {
+        "source": "demo:commit-checkout-future",
+        "kind": "MODIFIES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/commit-checkout-future/MODIFIES/checkout",
+        "id": "edge:45b6b84f251a3e0b41a5598d"
+      },
+      {
+        "source": "demo:pr-checkout-staging",
+        "kind": "MODIFIES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/pr-checkout-staging/MODIFIES/checkout",
+        "id": "edge:27369b5da90bd484ab0a5534"
+      },
+      {
+        "source": "demo:commit-checkout-staging",
+        "kind": "MODIFIES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/commit-checkout-staging/MODIFIES/checkout",
+        "id": "edge:a120c59f14756ae64608e9bc"
+      },
+      {
+        "source": "demo:pr-checkout-old",
+        "kind": "MODIFIES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/pr-checkout-old/MODIFIES/checkout",
+        "id": "edge:8af4e8c50abe911d8c2ba9ea"
+      },
+      {
+        "source": "demo:commit-checkout-old",
+        "kind": "MODIFIES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/commit-checkout-old/MODIFIES/checkout",
+        "id": "edge:264542b458c90b1c105fa7e4"
+      },
+      {
+        "source": "demo:pr-checkout-cart",
+        "kind": "MODIFIES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/pr-checkout-cart/MODIFIES/checkout",
+        "id": "edge:eaf1d740dfb90bd556e68cbe"
+      },
+      {
+        "source": "demo:commit-checkout-cart",
+        "kind": "MODIFIES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/commit-checkout-cart/MODIFIES/checkout",
+        "id": "edge:5b341c5e0f89f459e286497a"
+      },
+      {
+        "source": "demo:deploy-checkout-retry",
+        "kind": "DEPLOYED",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/deploy-checkout-retry/DEPLOYED/checkout",
+        "id": "edge:346b6da0a598b3beab260382"
+      },
+      {
+        "source": "demo:deploy-checkout-future",
+        "kind": "DEPLOYED",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/deploy-checkout-future/DEPLOYED/checkout",
+        "id": "edge:b9caa8fb4645810011699faf"
+      },
+      {
+        "source": "demo:deploy-checkout-staging",
+        "kind": "DEPLOYED",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/deploy-checkout-staging/DEPLOYED/checkout",
+        "id": "edge:3a6024bcc72c23748915d1da"
+      },
+      {
+        "source": "demo:deploy-checkout-old",
+        "kind": "DEPLOYED",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/deploy-checkout-old/DEPLOYED/checkout",
+        "id": "edge:42e36ff2a80f053161033ac3"
+      },
+      {
+        "source": "demo:doc-checkout-runbook",
+        "kind": "DESCRIBES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/doc-checkout-runbook/DESCRIBES/checkout",
+        "id": "edge:c9fda8bb3da5ef104b3df630"
+      },
+      {
+        "source": "demo:doc-checkout-architecture",
+        "kind": "DESCRIBES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/doc-checkout-architecture/DESCRIBES/checkout",
+        "id": "edge:1d89c406722c3fb1c335338a"
+      },
+      {
+        "source": "demo:doc-checkout-operations",
+        "kind": "DESCRIBES",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/doc-checkout-operations/DESCRIBES/checkout",
+        "id": "edge:0055168e8ff34faaa533c9eb"
+      },
+      {
+        "source": "demo:ticket-checkout-1",
+        "kind": "AFFECTS",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/ticket-checkout-1/AFFECTS/checkout",
+        "id": "edge:63285086ca0f5872a92d130f"
+      },
+      {
+        "source": "demo:ticket-checkout-2",
+        "kind": "AFFECTS",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/ticket-checkout-2/AFFECTS/checkout",
+        "id": "edge:d76d0c6de57fd581d01121ce"
+      },
+      {
+        "source": "demo:ticket-checkout-3",
+        "kind": "AFFECTS",
+        "target": "demo:checkout",
+        "source_ref": "fixture://northstar/links/ticket-checkout-3/AFFECTS/checkout",
+        "id": "edge:fea8a983a84eafccb9a3a41d"
+      },
+      {
+        "source": "demo:payments",
+        "kind": "DEPENDS_ON",
+        "target": "demo:ledger",
+        "source_ref": "fixture://northstar/links/payments/DEPENDS_ON/ledger",
+        "id": "edge:842e8c3709f07e61a6ebb425"
+      },
+      {
+        "source": "demo:inc-payments",
+        "kind": "AFFECTS",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/inc-payments/AFFECTS/payments",
+        "id": "edge:240269f6966b037afdd71afe"
+      },
+      {
+        "source": "demo:pr-payments-trace",
+        "kind": "MODIFIES",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/pr-payments-trace/MODIFIES/payments",
+        "id": "edge:2459de3e6ae18254f93fe0cf"
+      },
+      {
+        "source": "demo:commit-payments-trace",
+        "kind": "MODIFIES",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/commit-payments-trace/MODIFIES/payments",
+        "id": "edge:9f73e8fabcf7e11fb322caa5"
+      },
+      {
+        "source": "demo:pr-payments-audit",
+        "kind": "MODIFIES",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/pr-payments-audit/MODIFIES/payments",
+        "id": "edge:d57705fe02bb96e74ab203c7"
+      },
+      {
+        "source": "demo:commit-payments-audit",
+        "kind": "MODIFIES",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/commit-payments-audit/MODIFIES/payments",
+        "id": "edge:8e39a03bedba0ed6555d6d43"
+      },
+      {
+        "source": "demo:deploy-payments-trace",
+        "kind": "DEPLOYED",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/deploy-payments-trace/DEPLOYED/payments",
+        "id": "edge:5c480f8b8af7ac4729fa86c2"
+      },
+      {
+        "source": "demo:doc-payments-runbook",
+        "kind": "DESCRIBES",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/doc-payments-runbook/DESCRIBES/payments",
+        "id": "edge:c7d23931e91d344713d5321b"
+      },
+      {
+        "source": "demo:doc-payments-architecture",
+        "kind": "DESCRIBES",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/doc-payments-architecture/DESCRIBES/payments",
+        "id": "edge:a2326e0113e8cd299aa8b289"
+      },
+      {
+        "source": "demo:doc-payments-operations",
+        "kind": "DESCRIBES",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/doc-payments-operations/DESCRIBES/payments",
+        "id": "edge:baabade579b8fc289b88aff2"
+      },
+      {
+        "source": "demo:ticket-payments-1",
+        "kind": "AFFECTS",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/ticket-payments-1/AFFECTS/payments",
+        "id": "edge:273727ead566486660b68369"
+      },
+      {
+        "source": "demo:ticket-payments-2",
+        "kind": "AFFECTS",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/ticket-payments-2/AFFECTS/payments",
+        "id": "edge:ec97e9fa8128a614c362d296"
+      },
+      {
+        "source": "demo:ticket-payments-3",
+        "kind": "AFFECTS",
+        "target": "demo:payments",
+        "source_ref": "fixture://northstar/links/ticket-payments-3/AFFECTS/payments",
+        "id": "edge:b895a462a209d253d7dc05de"
+      },
+      {
+        "source": "demo:ticket-checkout-1",
+        "kind": "LINKED_TO",
+        "target": "demo:inc-checkout",
+        "source_ref": "fixture://northstar/links/ticket-checkout-1/LINKED_TO/inc-checkout",
+        "id": "edge:b1961637fd22d07b3ac40b30"
+      },
+      {
+        "source": "demo:nina",
+        "kind": "RESOLVED",
+        "target": "demo:inc-checkout-old",
+        "source_ref": "fixture://northstar/links/nina/RESOLVED/inc-checkout-old",
+        "id": "edge:4cf6cf60612bddb89ec292e5"
+      },
+      {
+        "source": "demo:doc-checkout-runbook",
+        "kind": "DESCRIBES",
+        "target": "demo:inc-checkout-old",
+        "source_ref": "fixture://northstar/links/doc-checkout-runbook/DESCRIBES/inc-checkout-old",
+        "id": "edge:93e5418abfdcaa44be1fcde7"
+      },
+      {
+        "source": "demo:nina",
+        "kind": "RESOLVED",
+        "target": "demo:inc-checkout-older",
+        "source_ref": "fixture://northstar/links/nina/RESOLVED/inc-checkout-older",
+        "id": "edge:815cec9751ebb5b8a4df9c3f"
+      },
+      {
+        "source": "demo:ada",
+        "kind": "AUTHORED",
+        "target": "demo:pr-checkout-retry",
+        "source_ref": "fixture://northstar/links/ada/AUTHORED/pr-checkout-retry",
+        "id": "edge:833f09f36b33fa8f2c170868"
+      },
+      {
+        "source": "demo:pr-checkout-retry",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-retry",
+        "source_ref": "fixture://northstar/links/pr-checkout-retry/INCLUDES/commit-checkout-retry",
+        "id": "edge:70d2269efed054bf4c416d35"
+      },
+      {
+        "source": "demo:pr-checkout-retry",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-retry-test",
+        "source_ref": "fixture://northstar/links/pr-checkout-retry/INCLUDES/commit-checkout-retry-test",
+        "id": "edge:0f112d45f922a6b57e9648af"
+      },
+      {
+        "source": "demo:ada",
+        "kind": "AUTHORED",
+        "target": "demo:commit-checkout-retry",
+        "source_ref": "fixture://northstar/links/ada/AUTHORED/commit-checkout-retry",
+        "id": "edge:8531572e4910ff01295500a7"
+      },
+      {
+        "source": "demo:deploy-checkout-retry",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-retry",
+        "source_ref": "fixture://northstar/links/deploy-checkout-retry/INCLUDES/commit-checkout-retry",
+        "id": "edge:add4c4a558c2be232eca1148"
+      },
+      {
+        "source": "demo:sam",
+        "kind": "AUTHORED",
+        "target": "demo:pr-checkout-future",
+        "source_ref": "fixture://northstar/links/sam/AUTHORED/pr-checkout-future",
+        "id": "edge:a0f0c2e031d92a665353ec30"
+      },
+      {
+        "source": "demo:pr-checkout-future",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-future",
+        "source_ref": "fixture://northstar/links/pr-checkout-future/INCLUDES/commit-checkout-future",
+        "id": "edge:7e15034d1d427bfc8c67a38e"
+      },
+      {
+        "source": "demo:pr-checkout-future",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-future-test",
+        "source_ref": "fixture://northstar/links/pr-checkout-future/INCLUDES/commit-checkout-future-test",
+        "id": "edge:5a1167c7bbe9d7ea83de13d0"
+      },
+      {
+        "source": "demo:sam",
+        "kind": "AUTHORED",
+        "target": "demo:commit-checkout-future",
+        "source_ref": "fixture://northstar/links/sam/AUTHORED/commit-checkout-future",
+        "id": "edge:35e466558c51b8be89994fdf"
+      },
+      {
+        "source": "demo:deploy-checkout-future",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-future",
+        "source_ref": "fixture://northstar/links/deploy-checkout-future/INCLUDES/commit-checkout-future",
+        "id": "edge:80969534aca7bfdfd1a30d94"
+      },
+      {
+        "source": "demo:lena",
+        "kind": "AUTHORED",
+        "target": "demo:pr-checkout-staging",
+        "source_ref": "fixture://northstar/links/lena/AUTHORED/pr-checkout-staging",
+        "id": "edge:1243481b40d3b8a03a6248d2"
+      },
+      {
+        "source": "demo:pr-checkout-staging",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-staging",
+        "source_ref": "fixture://northstar/links/pr-checkout-staging/INCLUDES/commit-checkout-staging",
+        "id": "edge:5729085384575236579a986a"
+      },
+      {
+        "source": "demo:pr-checkout-staging",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-staging-test",
+        "source_ref": "fixture://northstar/links/pr-checkout-staging/INCLUDES/commit-checkout-staging-test",
+        "id": "edge:d9d5b1b35d6f822cffabe10e"
+      },
+      {
+        "source": "demo:lena",
+        "kind": "AUTHORED",
+        "target": "demo:commit-checkout-staging",
+        "source_ref": "fixture://northstar/links/lena/AUTHORED/commit-checkout-staging",
+        "id": "edge:f34612040374ba76b3ce401f"
+      },
+      {
+        "source": "demo:deploy-checkout-staging",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-staging",
+        "source_ref": "fixture://northstar/links/deploy-checkout-staging/INCLUDES/commit-checkout-staging",
+        "id": "edge:45b6bad1aeb3ba7d0bb99491"
+      },
+      {
+        "source": "demo:nina",
+        "kind": "AUTHORED",
+        "target": "demo:pr-checkout-old",
+        "source_ref": "fixture://northstar/links/nina/AUTHORED/pr-checkout-old",
+        "id": "edge:714fd9287265a46beb0bf1c2"
+      },
+      {
+        "source": "demo:pr-checkout-old",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-old",
+        "source_ref": "fixture://northstar/links/pr-checkout-old/INCLUDES/commit-checkout-old",
+        "id": "edge:b287a0b85c248416bf8bf7b4"
+      },
+      {
+        "source": "demo:pr-checkout-old",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-old-test",
+        "source_ref": "fixture://northstar/links/pr-checkout-old/INCLUDES/commit-checkout-old-test",
+        "id": "edge:6416efde067f2f32d8683408"
+      },
+      {
+        "source": "demo:nina",
+        "kind": "AUTHORED",
+        "target": "demo:commit-checkout-old",
+        "source_ref": "fixture://northstar/links/nina/AUTHORED/commit-checkout-old",
+        "id": "edge:bab5d43f3390e9b20663f819"
+      },
+      {
+        "source": "demo:deploy-checkout-old",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-old",
+        "source_ref": "fixture://northstar/links/deploy-checkout-old/INCLUDES/commit-checkout-old",
+        "id": "edge:733653655519613745b308f8"
+      },
+      {
+        "source": "demo:ada",
+        "kind": "AUTHORED",
+        "target": "demo:pr-checkout-cart",
+        "source_ref": "fixture://northstar/links/ada/AUTHORED/pr-checkout-cart",
+        "id": "edge:db7c3505d710770eff91c5af"
+      },
+      {
+        "source": "demo:pr-checkout-cart",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-cart",
+        "source_ref": "fixture://northstar/links/pr-checkout-cart/INCLUDES/commit-checkout-cart",
+        "id": "edge:a57521ce258b4dab35a8d6b5"
+      },
+      {
+        "source": "demo:ada",
+        "kind": "AUTHORED",
+        "target": "demo:commit-checkout-cart",
+        "source_ref": "fixture://northstar/links/ada/AUTHORED/commit-checkout-cart",
+        "id": "edge:373bdbf7274d5b1ac546baa7"
+      },
+      {
+        "source": "demo:deploy-checkout-retry",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-retry-test",
+        "source_ref": "fixture://northstar/links/deploy-checkout-retry/INCLUDES/commit-checkout-retry-test",
+        "id": "edge:391d89d8d07d7d36e34f176d"
+      },
+      {
+        "source": "demo:deploy-checkout-future",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-future-test",
+        "source_ref": "fixture://northstar/links/deploy-checkout-future/INCLUDES/commit-checkout-future-test",
+        "id": "edge:3f39e8a5ff2f22defa90685d"
+      },
+      {
+        "source": "demo:deploy-checkout-staging",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-staging-test",
+        "source_ref": "fixture://northstar/links/deploy-checkout-staging/INCLUDES/commit-checkout-staging-test",
+        "id": "edge:93d6e846a936ca5f20758cc1"
+      },
+      {
+        "source": "demo:deploy-checkout-old",
+        "kind": "INCLUDES",
+        "target": "demo:commit-checkout-old-test",
+        "source_ref": "fixture://northstar/links/deploy-checkout-old/INCLUDES/commit-checkout-old-test",
+        "id": "edge:d6654076f63c81720d1edbea"
+      },
+      {
+        "source": "demo:nina",
+        "kind": "AUTHORED",
+        "target": "demo:doc-checkout-runbook",
+        "source_ref": "fixture://northstar/links/nina/AUTHORED/doc-checkout-runbook",
+        "id": "edge:eafdf4b10594f78a458c9891"
+      },
+      {
+        "source": "demo:nina",
+        "kind": "AUTHORED",
+        "target": "demo:doc-checkout-architecture",
+        "source_ref": "fixture://northstar/links/nina/AUTHORED/doc-checkout-architecture",
+        "id": "edge:0768b68c42977d17b00d4a82"
+      },
+      {
+        "source": "demo:nina",
+        "kind": "AUTHORED",
+        "target": "demo:doc-checkout-operations",
+        "source_ref": "fixture://northstar/links/nina/AUTHORED/doc-checkout-operations",
+        "id": "edge:ec2b157e69b9e8c4e0bfd441"
+      }
+    ],
+    "paths": [
+      {
+        "id": "path:cf7115557f63bf1085d7f4bc",
+        "node_ids": [
+          "demo:checkout",
+          "demo:payments"
+        ],
+        "edge_ids": [
+          "edge:5ffa24b7925c2ac9f08eab98"
+        ]
+      },
+      {
+        "id": "path:d17be0af96a6f2a595a621e4",
+        "node_ids": [
+          "demo:checkout",
+          "demo:inc-checkout"
+        ],
+        "edge_ids": [
+          "edge:e6765b2943334e4d36f3cdfb"
+        ]
+      },
+      {
+        "id": "path:798beeab23561ae7730e69ca",
+        "node_ids": [
+          "demo:checkout",
+          "demo:inc-checkout-old"
+        ],
+        "edge_ids": [
+          "edge:9ad94387fbbef70a56e7ae6b"
+        ]
+      },
+      {
+        "id": "path:5d83669b1ee69f6737ba8d2b",
+        "node_ids": [
+          "demo:checkout",
+          "demo:inc-checkout-older"
+        ],
+        "edge_ids": [
+          "edge:848318860c7772d41caff7fe"
+        ]
+      },
+      {
+        "id": "path:7ed79b241539137993b0037e",
+        "node_ids": [
+          "demo:checkout",
+          "demo:pr-checkout-retry"
+        ],
+        "edge_ids": [
+          "edge:e3d08e4fd5942a5a14cae210"
+        ]
+      },
+      {
+        "id": "path:ad9992f9befb77c73c853d62",
+        "node_ids": [
+          "demo:checkout",
+          "demo:commit-checkout-retry"
+        ],
+        "edge_ids": [
+          "edge:9b6fb589cdc748d008ef5ac5"
+        ]
+      },
+      {
+        "id": "path:64b5638e4e616112924d308c",
+        "node_ids": [
+          "demo:checkout",
+          "demo:pr-checkout-future"
+        ],
+        "edge_ids": [
+          "edge:ee6b404fa2197eb465660592"
+        ]
+      },
+      {
+        "id": "path:9ad0e8bdec089dcdb6a1062a",
+        "node_ids": [
+          "demo:checkout",
+          "demo:commit-checkout-future"
+        ],
+        "edge_ids": [
+          "edge:45b6b84f251a3e0b41a5598d"
+        ]
+      },
+      {
+        "id": "path:c222aca6fcecd01a06a90e35",
+        "node_ids": [
+          "demo:checkout",
+          "demo:pr-checkout-staging"
+        ],
+        "edge_ids": [
+          "edge:27369b5da90bd484ab0a5534"
+        ]
+      },
+      {
+        "id": "path:a1fce578c2d5c5bfcd959934",
+        "node_ids": [
+          "demo:checkout",
+          "demo:commit-checkout-staging"
+        ],
+        "edge_ids": [
+          "edge:a120c59f14756ae64608e9bc"
+        ]
+      },
+      {
+        "id": "path:aa3bb3a80b74fe446d708e5b",
+        "node_ids": [
+          "demo:checkout",
+          "demo:pr-checkout-old"
+        ],
+        "edge_ids": [
+          "edge:8af4e8c50abe911d8c2ba9ea"
+        ]
+      },
+      {
+        "id": "path:7163dd589c1697aa00fab350",
+        "node_ids": [
+          "demo:checkout",
+          "demo:commit-checkout-old"
+        ],
+        "edge_ids": [
+          "edge:264542b458c90b1c105fa7e4"
+        ]
+      },
+      {
+        "id": "path:1737f233a5921b3f961a338b",
+        "node_ids": [
+          "demo:checkout",
+          "demo:pr-checkout-cart"
+        ],
+        "edge_ids": [
+          "edge:eaf1d740dfb90bd556e68cbe"
+        ]
+      },
+      {
+        "id": "path:7b5a475d5f1646ee9d586148",
+        "node_ids": [
+          "demo:checkout",
+          "demo:commit-checkout-cart"
+        ],
+        "edge_ids": [
+          "edge:5b341c5e0f89f459e286497a"
+        ]
+      },
+      {
+        "id": "path:de23f144478d480339416398",
+        "node_ids": [
+          "demo:checkout",
+          "demo:deploy-checkout-retry"
+        ],
+        "edge_ids": [
+          "edge:346b6da0a598b3beab260382"
+        ]
+      },
+      {
+        "id": "path:af7f5927af2d35dc301269c7",
+        "node_ids": [
+          "demo:checkout",
+          "demo:deploy-checkout-future"
+        ],
+        "edge_ids": [
+          "edge:b9caa8fb4645810011699faf"
+        ]
+      },
+      {
+        "id": "path:be5aef760783bcac2dc3ba40",
+        "node_ids": [
+          "demo:checkout",
+          "demo:deploy-checkout-staging"
+        ],
+        "edge_ids": [
+          "edge:3a6024bcc72c23748915d1da"
+        ]
+      },
+      {
+        "id": "path:52190bf5d5945e2a75623256",
+        "node_ids": [
+          "demo:checkout",
+          "demo:deploy-checkout-old"
+        ],
+        "edge_ids": [
+          "edge:42e36ff2a80f053161033ac3"
+        ]
+      },
+      {
+        "id": "path:b2e21494eea064c59f599655",
+        "node_ids": [
+          "demo:checkout",
+          "demo:doc-checkout-runbook"
+        ],
+        "edge_ids": [
+          "edge:c9fda8bb3da5ef104b3df630"
+        ]
+      },
+      {
+        "id": "path:cfe1d337bba29e1583ccfabf",
+        "node_ids": [
+          "demo:checkout",
+          "demo:doc-checkout-architecture"
+        ],
+        "edge_ids": [
+          "edge:1d89c406722c3fb1c335338a"
+        ]
+      },
+      {
+        "id": "path:235cdfbf9245bf9fa82a56d0",
+        "node_ids": [
+          "demo:checkout",
+          "demo:doc-checkout-operations"
+        ],
+        "edge_ids": [
+          "edge:0055168e8ff34faaa533c9eb"
+        ]
+      },
+      {
+        "id": "path:996726fab9a5dabd7998c24f",
+        "node_ids": [
+          "demo:checkout",
+          "demo:ticket-checkout-1"
+        ],
+        "edge_ids": [
+          "edge:63285086ca0f5872a92d130f"
+        ]
+      },
+      {
+        "id": "path:88d6b94156c66f2f6f0832d8",
+        "node_ids": [
+          "demo:checkout",
+          "demo:ticket-checkout-2"
+        ],
+        "edge_ids": [
+          "edge:d76d0c6de57fd581d01121ce"
+        ]
+      },
+      {
+        "id": "path:1110fd3a5ea56d643086eb7d",
+        "node_ids": [
+          "demo:checkout",
+          "demo:ticket-checkout-3"
+        ],
+        "edge_ids": [
+          "edge:fea8a983a84eafccb9a3a41d"
+        ]
+      },
+      {
+        "id": "path:47a2660c3eea14fe3f07ef3c",
+        "node_ids": [
+          "demo:payments",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:5ffa24b7925c2ac9f08eab98"
+        ]
+      },
+      {
+        "id": "path:4dcb9eead0473c04bdfebddf",
+        "node_ids": [
+          "demo:payments",
+          "demo:ledger"
+        ],
+        "edge_ids": [
+          "edge:842e8c3709f07e61a6ebb425"
+        ]
+      },
+      {
+        "id": "path:536e5e917de33275900246de",
+        "node_ids": [
+          "demo:payments",
+          "demo:inc-payments"
+        ],
+        "edge_ids": [
+          "edge:240269f6966b037afdd71afe"
+        ]
+      },
+      {
+        "id": "path:0a48c4ccb406f713b3697606",
+        "node_ids": [
+          "demo:payments",
+          "demo:pr-payments-trace"
+        ],
+        "edge_ids": [
+          "edge:2459de3e6ae18254f93fe0cf"
+        ]
+      },
+      {
+        "id": "path:d925bddca5d7a5d5560b9258",
+        "node_ids": [
+          "demo:payments",
+          "demo:commit-payments-trace"
+        ],
+        "edge_ids": [
+          "edge:9f73e8fabcf7e11fb322caa5"
+        ]
+      },
+      {
+        "id": "path:cdc788a335dec3cbd9c1323d",
+        "node_ids": [
+          "demo:payments",
+          "demo:pr-payments-audit"
+        ],
+        "edge_ids": [
+          "edge:d57705fe02bb96e74ab203c7"
+        ]
+      },
+      {
+        "id": "path:0ab8f5af36c571299ac0bc08",
+        "node_ids": [
+          "demo:payments",
+          "demo:commit-payments-audit"
+        ],
+        "edge_ids": [
+          "edge:8e39a03bedba0ed6555d6d43"
+        ]
+      },
+      {
+        "id": "path:8eccf3441b386d135c5c4342",
+        "node_ids": [
+          "demo:payments",
+          "demo:deploy-payments-trace"
+        ],
+        "edge_ids": [
+          "edge:5c480f8b8af7ac4729fa86c2"
+        ]
+      },
+      {
+        "id": "path:51b02e57bc0465812fc56644",
+        "node_ids": [
+          "demo:payments",
+          "demo:doc-payments-runbook"
+        ],
+        "edge_ids": [
+          "edge:c7d23931e91d344713d5321b"
+        ]
+      },
+      {
+        "id": "path:08c94959c3b579113ef59e89",
+        "node_ids": [
+          "demo:payments",
+          "demo:doc-payments-architecture"
+        ],
+        "edge_ids": [
+          "edge:a2326e0113e8cd299aa8b289"
+        ]
+      },
+      {
+        "id": "path:303180adb30b7d9ea072c2af",
+        "node_ids": [
+          "demo:payments",
+          "demo:doc-payments-operations"
+        ],
+        "edge_ids": [
+          "edge:baabade579b8fc289b88aff2"
+        ]
+      },
+      {
+        "id": "path:d86a38f9cfcfbd54fdd3d10e",
+        "node_ids": [
+          "demo:payments",
+          "demo:ticket-payments-1"
+        ],
+        "edge_ids": [
+          "edge:273727ead566486660b68369"
+        ]
+      },
+      {
+        "id": "path:b8acd1209b46dcdb62114f97",
+        "node_ids": [
+          "demo:payments",
+          "demo:ticket-payments-2"
+        ],
+        "edge_ids": [
+          "edge:ec97e9fa8128a614c362d296"
+        ]
+      },
+      {
+        "id": "path:6d1d7b343656a8696969f7d4",
+        "node_ids": [
+          "demo:payments",
+          "demo:ticket-payments-3"
+        ],
+        "edge_ids": [
+          "edge:b895a462a209d253d7dc05de"
+        ]
+      },
+      {
+        "id": "path:8c67642e09936a64b4689221",
+        "node_ids": [
+          "demo:inc-checkout",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:e6765b2943334e4d36f3cdfb"
+        ]
+      },
+      {
+        "id": "path:3e61472f9489b42779bc7500",
+        "node_ids": [
+          "demo:inc-checkout",
+          "demo:ticket-checkout-1"
+        ],
+        "edge_ids": [
+          "edge:b1961637fd22d07b3ac40b30"
+        ]
+      },
+      {
+        "id": "path:09b838fcc9d732291d97de36",
+        "node_ids": [
+          "demo:inc-checkout-old",
+          "demo:nina"
+        ],
+        "edge_ids": [
+          "edge:4cf6cf60612bddb89ec292e5"
+        ]
+      },
+      {
+        "id": "path:62e53bf8c80baa759e322a9e",
+        "node_ids": [
+          "demo:inc-checkout-old",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:9ad94387fbbef70a56e7ae6b"
+        ]
+      },
+      {
+        "id": "path:431d08019212a074ac50db94",
+        "node_ids": [
+          "demo:inc-checkout-old",
+          "demo:doc-checkout-runbook"
+        ],
+        "edge_ids": [
+          "edge:93e5418abfdcaa44be1fcde7"
+        ]
+      },
+      {
+        "id": "path:fed4f3d616ce45594af2bd1f",
+        "node_ids": [
+          "demo:inc-checkout-older",
+          "demo:nina"
+        ],
+        "edge_ids": [
+          "edge:815cec9751ebb5b8a4df9c3f"
+        ]
+      },
+      {
+        "id": "path:8922c0f0e8b817a2914a5ef7",
+        "node_ids": [
+          "demo:inc-checkout-older",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:848318860c7772d41caff7fe"
+        ]
+      },
+      {
+        "id": "path:3d58d54e6a61a81c829716d4",
+        "node_ids": [
+          "demo:pr-checkout-retry",
+          "demo:ada"
+        ],
+        "edge_ids": [
+          "edge:833f09f36b33fa8f2c170868"
+        ]
+      },
+      {
+        "id": "path:723ff771a1272e2562e4841f",
+        "node_ids": [
+          "demo:pr-checkout-retry",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:e3d08e4fd5942a5a14cae210"
+        ]
+      },
+      {
+        "id": "path:2febe6c922c1fdb8ae6b198f",
+        "node_ids": [
+          "demo:pr-checkout-retry",
+          "demo:commit-checkout-retry"
+        ],
+        "edge_ids": [
+          "edge:70d2269efed054bf4c416d35"
+        ]
+      },
+      {
+        "id": "path:85aa161b00b9c6d965e8d997",
+        "node_ids": [
+          "demo:pr-checkout-retry",
+          "demo:commit-checkout-retry-test"
+        ],
+        "edge_ids": [
+          "edge:0f112d45f922a6b57e9648af"
+        ]
+      },
+      {
+        "id": "path:ee8c8d8f723965e6d00c1e89",
+        "node_ids": [
+          "demo:commit-checkout-retry",
+          "demo:ada"
+        ],
+        "edge_ids": [
+          "edge:8531572e4910ff01295500a7"
+        ]
+      },
+      {
+        "id": "path:b49ba12b71a69a6df381b2eb",
+        "node_ids": [
+          "demo:commit-checkout-retry",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:9b6fb589cdc748d008ef5ac5"
+        ]
+      },
+      {
+        "id": "path:c98c249fb715c168c976d284",
+        "node_ids": [
+          "demo:commit-checkout-retry",
+          "demo:pr-checkout-retry"
+        ],
+        "edge_ids": [
+          "edge:70d2269efed054bf4c416d35"
+        ]
+      },
+      {
+        "id": "path:444778c2c4dcabadd8cd3fbd",
+        "node_ids": [
+          "demo:commit-checkout-retry",
+          "demo:deploy-checkout-retry"
+        ],
+        "edge_ids": [
+          "edge:add4c4a558c2be232eca1148"
+        ]
+      },
+      {
+        "id": "path:75da3850fbf51826684c1dc3",
+        "node_ids": [
+          "demo:pr-checkout-future",
+          "demo:sam"
+        ],
+        "edge_ids": [
+          "edge:a0f0c2e031d92a665353ec30"
+        ]
+      },
+      {
+        "id": "path:30bef9c934d7d37ece6a2b20",
+        "node_ids": [
+          "demo:pr-checkout-future",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:ee6b404fa2197eb465660592"
+        ]
+      },
+      {
+        "id": "path:b230fd3d6a79e09e08aa34e6",
+        "node_ids": [
+          "demo:pr-checkout-future",
+          "demo:commit-checkout-future"
+        ],
+        "edge_ids": [
+          "edge:7e15034d1d427bfc8c67a38e"
+        ]
+      },
+      {
+        "id": "path:5e73abd8cbc6c953e4225e7e",
+        "node_ids": [
+          "demo:pr-checkout-future",
+          "demo:commit-checkout-future-test"
+        ],
+        "edge_ids": [
+          "edge:5a1167c7bbe9d7ea83de13d0"
+        ]
+      },
+      {
+        "id": "path:8cabf23f6f9deb3397f0fb52",
+        "node_ids": [
+          "demo:commit-checkout-future",
+          "demo:sam"
+        ],
+        "edge_ids": [
+          "edge:35e466558c51b8be89994fdf"
+        ]
+      },
+      {
+        "id": "path:76f3414c9c25c3512eb5bf17",
+        "node_ids": [
+          "demo:commit-checkout-future",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:45b6b84f251a3e0b41a5598d"
+        ]
+      },
+      {
+        "id": "path:77c86edbfdf1a6ac573010e2",
+        "node_ids": [
+          "demo:commit-checkout-future",
+          "demo:pr-checkout-future"
+        ],
+        "edge_ids": [
+          "edge:7e15034d1d427bfc8c67a38e"
+        ]
+      },
+      {
+        "id": "path:9151f10840a35388a9304a9e",
+        "node_ids": [
+          "demo:commit-checkout-future",
+          "demo:deploy-checkout-future"
+        ],
+        "edge_ids": [
+          "edge:80969534aca7bfdfd1a30d94"
+        ]
+      },
+      {
+        "id": "path:34c2684577d5b9540887767e",
+        "node_ids": [
+          "demo:pr-checkout-staging",
+          "demo:lena"
+        ],
+        "edge_ids": [
+          "edge:1243481b40d3b8a03a6248d2"
+        ]
+      },
+      {
+        "id": "path:b941817cf1e8b42a182c62e5",
+        "node_ids": [
+          "demo:pr-checkout-staging",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:27369b5da90bd484ab0a5534"
+        ]
+      },
+      {
+        "id": "path:c107d0fc708dd7c988c00602",
+        "node_ids": [
+          "demo:pr-checkout-staging",
+          "demo:commit-checkout-staging"
+        ],
+        "edge_ids": [
+          "edge:5729085384575236579a986a"
+        ]
+      },
+      {
+        "id": "path:5dcc211dd1c5e1036be895d6",
+        "node_ids": [
+          "demo:pr-checkout-staging",
+          "demo:commit-checkout-staging-test"
+        ],
+        "edge_ids": [
+          "edge:d9d5b1b35d6f822cffabe10e"
+        ]
+      },
+      {
+        "id": "path:af0251ebc1af6024b85901b0",
+        "node_ids": [
+          "demo:commit-checkout-staging",
+          "demo:lena"
+        ],
+        "edge_ids": [
+          "edge:f34612040374ba76b3ce401f"
+        ]
+      },
+      {
+        "id": "path:2fa01a2d9a6195f4553f0eda",
+        "node_ids": [
+          "demo:commit-checkout-staging",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:a120c59f14756ae64608e9bc"
+        ]
+      },
+      {
+        "id": "path:04f438bd577e84c82a1eceb1",
+        "node_ids": [
+          "demo:commit-checkout-staging",
+          "demo:pr-checkout-staging"
+        ],
+        "edge_ids": [
+          "edge:5729085384575236579a986a"
+        ]
+      },
+      {
+        "id": "path:bd6441cc1489b284732bfb27",
+        "node_ids": [
+          "demo:commit-checkout-staging",
+          "demo:deploy-checkout-staging"
+        ],
+        "edge_ids": [
+          "edge:45b6bad1aeb3ba7d0bb99491"
+        ]
+      },
+      {
+        "id": "path:9854cc2e5b0daee1ff8ea327",
+        "node_ids": [
+          "demo:pr-checkout-old",
+          "demo:nina"
+        ],
+        "edge_ids": [
+          "edge:714fd9287265a46beb0bf1c2"
+        ]
+      },
+      {
+        "id": "path:3d6965056131d90d1c498ee5",
+        "node_ids": [
+          "demo:pr-checkout-old",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:8af4e8c50abe911d8c2ba9ea"
+        ]
+      },
+      {
+        "id": "path:cf8af79d438d653c0e03393d",
+        "node_ids": [
+          "demo:pr-checkout-old",
+          "demo:commit-checkout-old"
+        ],
+        "edge_ids": [
+          "edge:b287a0b85c248416bf8bf7b4"
+        ]
+      },
+      {
+        "id": "path:cfcc3603d162ed53e906f030",
+        "node_ids": [
+          "demo:pr-checkout-old",
+          "demo:commit-checkout-old-test"
+        ],
+        "edge_ids": [
+          "edge:6416efde067f2f32d8683408"
+        ]
+      },
+      {
+        "id": "path:2d6bb9ee1ff4cc499711c886",
+        "node_ids": [
+          "demo:commit-checkout-old",
+          "demo:nina"
+        ],
+        "edge_ids": [
+          "edge:bab5d43f3390e9b20663f819"
+        ]
+      },
+      {
+        "id": "path:6cbbb788da6923924601f35f",
+        "node_ids": [
+          "demo:commit-checkout-old",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:264542b458c90b1c105fa7e4"
+        ]
+      },
+      {
+        "id": "path:17c77cfd83f49c66e3df938a",
+        "node_ids": [
+          "demo:commit-checkout-old",
+          "demo:pr-checkout-old"
+        ],
+        "edge_ids": [
+          "edge:b287a0b85c248416bf8bf7b4"
+        ]
+      },
+      {
+        "id": "path:76c9c7d66be7a040b46efd1a",
+        "node_ids": [
+          "demo:commit-checkout-old",
+          "demo:deploy-checkout-old"
+        ],
+        "edge_ids": [
+          "edge:733653655519613745b308f8"
+        ]
+      },
+      {
+        "id": "path:9e20a48c7214fe260427cf6d",
+        "node_ids": [
+          "demo:pr-checkout-cart",
+          "demo:ada"
+        ],
+        "edge_ids": [
+          "edge:db7c3505d710770eff91c5af"
+        ]
+      },
+      {
+        "id": "path:588516a9953a60436ca5005b",
+        "node_ids": [
+          "demo:pr-checkout-cart",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:eaf1d740dfb90bd556e68cbe"
+        ]
+      },
+      {
+        "id": "path:5d9dbc3a31571da2007cc408",
+        "node_ids": [
+          "demo:pr-checkout-cart",
+          "demo:commit-checkout-cart"
+        ],
+        "edge_ids": [
+          "edge:a57521ce258b4dab35a8d6b5"
+        ]
+      },
+      {
+        "id": "path:50280ecb5846823295cd323a",
+        "node_ids": [
+          "demo:commit-checkout-cart",
+          "demo:ada"
+        ],
+        "edge_ids": [
+          "edge:373bdbf7274d5b1ac546baa7"
+        ]
+      },
+      {
+        "id": "path:73c39a50504a56ae2196b81b",
+        "node_ids": [
+          "demo:commit-checkout-cart",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:5b341c5e0f89f459e286497a"
+        ]
+      },
+      {
+        "id": "path:0e3ede31b7c68072cfcc69dd",
+        "node_ids": [
+          "demo:commit-checkout-cart",
+          "demo:pr-checkout-cart"
+        ],
+        "edge_ids": [
+          "edge:a57521ce258b4dab35a8d6b5"
+        ]
+      },
+      {
+        "id": "path:472942ecf922206d10c65002",
+        "node_ids": [
+          "demo:deploy-checkout-retry",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:346b6da0a598b3beab260382"
+        ]
+      },
+      {
+        "id": "path:2d490d16a1887be697c9e734",
+        "node_ids": [
+          "demo:deploy-checkout-retry",
+          "demo:commit-checkout-retry"
+        ],
+        "edge_ids": [
+          "edge:add4c4a558c2be232eca1148"
+        ]
+      },
+      {
+        "id": "path:5d280d70d77768f1319e7e0f",
+        "node_ids": [
+          "demo:deploy-checkout-retry",
+          "demo:commit-checkout-retry-test"
+        ],
+        "edge_ids": [
+          "edge:391d89d8d07d7d36e34f176d"
+        ]
+      },
+      {
+        "id": "path:eade11755195cbeca25afa9f",
+        "node_ids": [
+          "demo:deploy-checkout-future",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:b9caa8fb4645810011699faf"
+        ]
+      },
+      {
+        "id": "path:e842429d8e10975a289a4e9a",
+        "node_ids": [
+          "demo:deploy-checkout-future",
+          "demo:commit-checkout-future"
+        ],
+        "edge_ids": [
+          "edge:80969534aca7bfdfd1a30d94"
+        ]
+      },
+      {
+        "id": "path:be75f19621d31532e737b501",
+        "node_ids": [
+          "demo:deploy-checkout-future",
+          "demo:commit-checkout-future-test"
+        ],
+        "edge_ids": [
+          "edge:3f39e8a5ff2f22defa90685d"
+        ]
+      },
+      {
+        "id": "path:1164bf83cc69dfb3fc6658f3",
+        "node_ids": [
+          "demo:deploy-checkout-staging",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:3a6024bcc72c23748915d1da"
+        ]
+      },
+      {
+        "id": "path:f6dc42c0cb475cb269fcbc0f",
+        "node_ids": [
+          "demo:deploy-checkout-staging",
+          "demo:commit-checkout-staging"
+        ],
+        "edge_ids": [
+          "edge:45b6bad1aeb3ba7d0bb99491"
+        ]
+      },
+      {
+        "id": "path:dbe2008c34db250e7538ffe2",
+        "node_ids": [
+          "demo:deploy-checkout-staging",
+          "demo:commit-checkout-staging-test"
+        ],
+        "edge_ids": [
+          "edge:93d6e846a936ca5f20758cc1"
+        ]
+      },
+      {
+        "id": "path:3cd7f817199e117e661687d8",
+        "node_ids": [
+          "demo:deploy-checkout-old",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:42e36ff2a80f053161033ac3"
+        ]
+      },
+      {
+        "id": "path:b110d5da4fa325de6d163331",
+        "node_ids": [
+          "demo:deploy-checkout-old",
+          "demo:commit-checkout-old"
+        ],
+        "edge_ids": [
+          "edge:733653655519613745b308f8"
+        ]
+      },
+      {
+        "id": "path:0f9339278426d83c7c03a21d",
+        "node_ids": [
+          "demo:deploy-checkout-old",
+          "demo:commit-checkout-old-test"
+        ],
+        "edge_ids": [
+          "edge:d6654076f63c81720d1edbea"
+        ]
+      },
+      {
+        "id": "path:a6d946ded7e7618f74577abc",
+        "node_ids": [
+          "demo:doc-checkout-runbook",
+          "demo:nina"
+        ],
+        "edge_ids": [
+          "edge:eafdf4b10594f78a458c9891"
+        ]
+      },
+      {
+        "id": "path:1c9c1227fef8ecf1ce17958e",
+        "node_ids": [
+          "demo:doc-checkout-runbook",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:c9fda8bb3da5ef104b3df630"
+        ]
+      },
+      {
+        "id": "path:7635cc9c5b1b254712d6ec4f",
+        "node_ids": [
+          "demo:doc-checkout-runbook",
+          "demo:inc-checkout-old"
+        ],
+        "edge_ids": [
+          "edge:93e5418abfdcaa44be1fcde7"
+        ]
+      },
+      {
+        "id": "path:e5fe2c10fe81e95dab2296e6",
+        "node_ids": [
+          "demo:doc-checkout-architecture",
+          "demo:nina"
+        ],
+        "edge_ids": [
+          "edge:0768b68c42977d17b00d4a82"
+        ]
+      },
+      {
+        "id": "path:bc513517b84263845a991257",
+        "node_ids": [
+          "demo:doc-checkout-architecture",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:1d89c406722c3fb1c335338a"
+        ]
+      },
+      {
+        "id": "path:4e46c07b6239ebf892cb4a6f",
+        "node_ids": [
+          "demo:doc-checkout-operations",
+          "demo:nina"
+        ],
+        "edge_ids": [
+          "edge:ec2b157e69b9e8c4e0bfd441"
+        ]
+      },
+      {
+        "id": "path:1cb1530d3137210532bd0940",
+        "node_ids": [
+          "demo:doc-checkout-operations",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:0055168e8ff34faaa533c9eb"
+        ]
+      },
+      {
+        "id": "path:2c6caf603f13aba55e8f03d0",
+        "node_ids": [
+          "demo:ticket-checkout-1",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:63285086ca0f5872a92d130f"
+        ]
+      },
+      {
+        "id": "path:7ff98a906084034cd390fddf",
+        "node_ids": [
+          "demo:ticket-checkout-1",
+          "demo:inc-checkout"
+        ],
+        "edge_ids": [
+          "edge:b1961637fd22d07b3ac40b30"
+        ]
+      },
+      {
+        "id": "path:3846d6695b5e002c3205d3f3",
+        "node_ids": [
+          "demo:ticket-checkout-2",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:d76d0c6de57fd581d01121ce"
+        ]
+      },
+      {
+        "id": "path:3bb9db79f3b7de9b74476442",
+        "node_ids": [
+          "demo:ticket-checkout-3",
+          "demo:checkout"
+        ],
+        "edge_ids": [
+          "edge:fea8a983a84eafccb9a3a41d"
+        ]
+      }
+    ],
+    "truncated": false
+  }
+}

@@ -5,3 +5,10 @@ __pycache__
 .pytest_cache
 .ruff_cache
 artifacts
+**/node_modules
+**/.next
+**/*.tsbuildinfo
+**/playwright-report
+**/test-results
+web/public/samples
+web/.env.local
