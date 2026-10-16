@@ -102,7 +102,7 @@ def test_resolution_update_changes_retrieval_and_preserves_identity(store):
 
 
 def test_api_contracts_and_validation(store):
-    agent = Agent(Retrieval(store), Settings(openai_api_key=""))
+    agent = Agent(Retrieval(store), Settings(llm_provider="openai", openai_api_key=""))
     with TestClient(create_app(store, agent)) as client:
         assert client.get("/health").json()["nodes"] == 113
         assert len(client.get("/entities", params={"kind": "Service"}).json()) == 6
@@ -132,7 +132,7 @@ def test_api_contracts_and_validation(store):
 
 
 def test_csv_import_and_source_qualified_incident_paths(store):
-    agent = Agent(Retrieval(store), Settings(openai_api_key=""))
+    agent = Agent(Retrieval(store), Settings(llm_provider="openai", openai_api_key=""))
     with TestClient(create_app(store, agent)) as client:
         result = client.post(
             "/ingest",

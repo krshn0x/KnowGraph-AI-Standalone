@@ -3,7 +3,7 @@
 import { useDeferredValue, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Activity, ArrowUpRight, BookOpen, Check, ChevronRight, CircleDot, Command, Database, ExternalLink, FileText, LayoutDashboard, Menu, MessageSquare, Network, RefreshCw, Search, Users, X } from "lucide-react";
+import { Activity, ArrowUpRight, BookOpen, Check, ChevronRight, CircleDot, Command, Database, ExternalLink, FileText, LayoutDashboard, Menu, MessageSquare, Network, RefreshCw, Search, Settings2, Users, X } from "lucide-react";
 import type { Entity, Evidence, Health, Investigation, ChatEntry, View } from "@/lib/types";
 import { useResource } from "@/lib/use-resource";
 import { emptyEvidence } from "@/lib/api";
@@ -12,6 +12,7 @@ import { Empty, ErrorNotice, Loading, Modal, SourceModal, SourceRow } from "./ui
 import { Overview, Investigations } from "./investigations";
 import { Experts, Documents, GraphExplorer, Sources } from "./knowledge";
 import { Ask } from "./ask";
+import { AISettingsModal } from "./ai-settings";
 
 const navigation = [
   { id: "overview", label: "Overview", icon: LayoutDashboard, section: "WORKSPACE" },
@@ -33,6 +34,7 @@ export function Console({ children }: { children: React.ReactNode }) {
   const [mobile, setMobile] = useState(false);
   const [search, setSearch] = useState(false);
   const [system, setSystem] = useState(false);
+  const [aiSettings, setAISettings] = useState(false);
   const [source, setSource] = useState<Entity | null>(null);
   const [latestEvidence, setLatestEvidence] = useState<Evidence>(emptyEvidence);
   const [toast, setToast] = useState("");
@@ -66,7 +68,7 @@ export function Console({ children }: { children: React.ReactNode }) {
   return <WorkspaceContext.Provider value={{ health, incidents, services, investigation, selectedId, selectIncident, lookback, setLookback,
     revision, refresh, imported: () => { refresh(); setLatestEvidence(emptyEvidence); setToast("Knowledge updated. New queries will use the latest evidence."); },
     inspect: setSource, navigate, latestEvidence, setLatestEvidence, notify: setToast,
-    chat, setChat, askPending, setAskPending, chatError, setChatError }}>
+    chat, setChat, askPending, setAskPending, chatError, setChatError, configureAI: () => setAISettings(true) }}>
     <a className="skip-link" href="#main-content">Skip to content</a>
     {mobile && <button className="sidebar-scrim" aria-label="Close navigation" onClick={() => setMobile(false)} />}
     <aside className={`sidebar ${mobile ? "mobile-open" : ""}`} aria-label="Main navigation">
@@ -84,7 +86,7 @@ export function Console({ children }: { children: React.ReactNode }) {
         <div className="sidebar-note">Northstar Labs is a fictional demo workspace.</div><a href="https://github.com/krshn0x/KnowGraph-AI#readme" className="help-link" target="_blank" rel="noreferrer"><BookOpen size={14} />Documentation<ArrowUpRight size={12} /></a></div>
     </aside>
     <div className="main-shell"><header className="topbar"><div className="breadcrumb"><button className="icon-button mobile-menu" aria-label="Open navigation" onClick={() => setMobile(true)}><Menu size={19} /></button><span>Workspace</span><ChevronRight size={12} /><strong>{title}</strong></div>
-      <div className="topbar-actions"><span className="workspace-mode">DEMO WORKSPACE</span><span className="topbar-divider" /><button className="system-button" onClick={() => setSystem(true)}><CircleDot size={14} /><span>System status</span></button><span className="profile-avatar" title="Northstar Labs demo workspace">N</span></div></header>
+      <div className="topbar-actions"><span className="workspace-mode">DEMO WORKSPACE</span><span className="topbar-divider" /><button className="system-button" aria-label="AI settings" onClick={() => setAISettings(true)}><Settings2 size={14} /><span>AI settings</span></button><button className="system-button" onClick={() => setSystem(true)}><CircleDot size={14} /><span>System status</span></button><span className="profile-avatar" title="Northstar Labs demo workspace">N</span></div></header>
       <main id="main-content" className={`page-content view-${view}`}>
         {children}
         {health.error && <ErrorNotice message={health.error} onRetry={refresh} />}
@@ -100,9 +102,11 @@ export function Console({ children }: { children: React.ReactNode }) {
     {search && <SearchPalette onClose={() => setSearch(false)} onInspect={entity => { setSearch(false); setSource(entity); }} />}
     {source && <SourceModal key={source.id} entity={source} onClose={() => setSource(null)} />}
     {system && <Modal title="System status" onClose={() => setSystem(false)}><div className="system-intro"><span className={`connection-dot ${health.data ? "connected" : "disconnected"}`} /><h3>{health.data ? "Knowledge service is connected" : "Knowledge service is unavailable"}</h3></div>
-      <div className="system-row"><span>Graph database</span><strong>FalkorDB</strong></div><div className="system-row"><span>Knowledge records</span><strong>{health.data?.nodes ?? "—"}</strong></div><div className="system-row"><span>Relationships</span><strong>{health.data?.edges ?? "—"}</strong></div><div className="system-row"><span>AI model</span><code>{health.data?.model || "Unavailable"}</code></div><div className="system-row"><span>AI configuration</span><strong>{health.data?.ai_configured ? "Key configured" : "Key not configured"}</strong></div>
-      <p className="helper-text">{health.data?.ai_configured ? "Model access is checked when you ask a question." : "Add OPENAI_API_KEY to the backend environment to enable AI answers. All structured graph tools work without it."}</p>
+      <div className="system-row"><span>Graph database</span><strong>FalkorDB</strong></div><div className="system-row"><span>Knowledge records</span><strong>{health.data?.nodes ?? "—"}</strong></div><div className="system-row"><span>Relationships</span><strong>{health.data?.edges ?? "—"}</strong></div><div className="system-row"><span>AI provider</span><strong>{health.data?.provider === "agentrouter" ? "Agent Router" : "OpenAI"}</strong></div><div className="system-row"><span>AI model</span><code>{health.data?.model || "Unavailable"}</code></div><div className="system-row"><span>AI configuration</span><strong>{health.data?.ai_configured ? "Key configured" : "Key not configured"}</strong></div>
+      <p className="helper-text">{health.data?.ai_configured ? "Model access is checked when you ask a question." : "Connect a provider in AI settings to enable answers. All structured graph tools work without it."}</p>
+      <button className="button primary full-width" onClick={() => { setSystem(false); setAISettings(true); }}>Configure AI provider<ArrowUpRight size={14} /></button>
       <button className="button secondary full-width" onClick={() => { refresh(); setToast("Workspace status refreshed."); }}><RefreshCw size={14} />Refresh status</button></Modal>}
+    {aiSettings && <AISettingsModal onClose={() => setAISettings(false)} onSaved={() => { setAISettings(false); refresh(); setChatError(""); setToast("AI settings saved for this backend session."); }} />}
     {toast && <div className="toast" role="status"><Check size={16} />{toast}</div>}
   </WorkspaceContext.Provider>;
 }

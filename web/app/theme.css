@@ -3715,3 +3715,15 @@ tbody tr {
 .table-scroll {
   position: relative;
 }
+
+.ai-settings-form { display: flex; flex-direction: column; gap: 20px; }
+.ai-settings-form > label { display: flex; flex-direction: column; gap: 9px; color: #c8c8d2; font-size: 12px; }
+.ai-settings-form > label > span { display: flex; gap: 7px; align-items: center; }
+.ai-settings-form input, .ai-settings-form select { width: 100%; min-height: 41px; padding: 10px 12px; }
+.ai-settings-form small { color: var(--muted); font-size: 11px; line-height: 1.6; }
+.settings-key-saved { color: var(--green); margin-left: auto; font-size: 10px; }
+.settings-storage-note { display: flex; gap: 10px; background: #22271f; border: 1px solid #35402f; padding: 13px; border-radius: 6px; color: #b4c6a7; font-size: 11px; line-height: 1.8; }
+.settings-storage-note > svg { margin-top: 2px; }
+.settings-form-actions { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+.settings-form-actions > .button { margin-left: auto; }
+.modal-content > .full-width + .full-width { margin-top: 12px; }

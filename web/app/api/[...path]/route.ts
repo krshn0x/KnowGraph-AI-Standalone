@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const maxDuration = 90;
 
-const allowed = new Set(["health", "entities", "incidents", "experts", "documents", "graph", "ask", "ingest"]);
+const allowed = new Set(["health", "entities", "incidents", "experts", "documents", "graph", "ask", "ingest", "settings"]);
 
 async function proxy(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const { path } = await context.params;

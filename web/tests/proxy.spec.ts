@@ -6,6 +6,11 @@ test("same-origin proxy forwards health, encoded IDs, query strings and multipar
   const health = await request.get("/api/health");
   expect(health.ok()).toBeTruthy();
   expect(await health.json()).toMatchObject({ database: "ready" });
+  const settings = await request.get("/api/settings/ai");
+  expect(settings.ok()).toBeTruthy();
+  const configuration = await settings.json();
+  expect(configuration.providers.agentrouter).toHaveProperty("has_api_key");
+  expect(configuration.providers.agentrouter).not.toHaveProperty("api_key");
   const investigation = await request.get("/api/incidents/demo%3Ainc-payments/investigation?lookback_hours=24");
   expect(investigation.ok()).toBeTruthy();
   expect((await investigation.json()).incident.id).toBe("demo:inc-payments");

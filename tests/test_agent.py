@@ -82,7 +82,11 @@ def make_agent(outputs, **settings):
         max_retries=0,
         http_client=httpx.Client(transport=httpx.MockTransport(handler)),
     )
-    agent = Agent(StubRetrieval(), Settings(openai_api_key="", **settings), client=client)
+    agent = Agent(
+        StubRetrieval(),
+        Settings(llm_provider="openai", openai_api_key="", **settings),
+        client=client,
+    )
     return agent, requests
 
 
@@ -123,7 +127,7 @@ def test_no_matching_evidence_does_not_accept_an_uncited_summary():
 
 
 def test_missing_key_still_returns_deterministic_source_records():
-    agent = Agent(StubRetrieval(), Settings(openai_api_key=""))
+    agent = Agent(StubRetrieval(), Settings(llm_provider="openai", openai_api_key=""))
     answer = agent.ask(AskRequest(question="checkout"))
     assert answer.status == "provider_error"
     assert answer.sources and not answer.claims and not answer.tool_calls
@@ -191,6 +195,6 @@ def test_deadline_is_checked_before_accepting_a_late_response(monkeypatch):
     [("delete_graph", {}), ("get_evidence_paths", {"node_id": "demo:checkout", "hops": 4})],
 )
 def test_unapproved_tools_and_unbounded_traversals_are_rejected(name, arguments):
-    agent = Agent(StubRetrieval(), Settings(openai_api_key=""))
+    agent = Agent(StubRetrieval(), Settings(llm_provider="openai", openai_api_key=""))
     with pytest.raises(ValueError):
         agent.execute(name, json.dumps(arguments))

@@ -12,6 +12,7 @@ export interface Workspace {
   inspect: (entity: Entity) => void; navigate: (view: View) => void;
   latestEvidence: Evidence; setLatestEvidence: (evidence: Evidence) => void;
   notify: (message: string) => void;
+  configureAI: () => void;
   chat: ChatEntry[]; setChat: Dispatch<SetStateAction<ChatEntry[]>>;
   askPending: boolean; setAskPending: (pending: boolean) => void;
   chatError: string; setChatError: (error: string) => void;

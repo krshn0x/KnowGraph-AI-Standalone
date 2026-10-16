@@ -1,13 +1,16 @@
 import logging
 from contextlib import asynccontextmanager
+from threading import Lock
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from redis.exceptions import RedisError
 
 from knowgraph.agent import Agent
-from knowgraph.config import get_settings
+from knowgraph.config import AISettingsInput, Settings, get_settings
 from knowgraph.graph import GraphStore
 from knowgraph.ingestion import ingest, parse_csv, parse_json
 from knowgraph.models import (
@@ -31,7 +34,9 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
     settings = get_settings()
     database = store or GraphStore(settings)
     retrieval = Retrieval(database)
-    investigator = agent or Agent(retrieval, settings)
+    active_settings = agent.settings if agent else settings
+    configuration_lock = Lock()
+    session_configuration = False
 
     @asynccontextmanager
     async def lifespan(app):
@@ -50,6 +55,56 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
         description="Evidence-backed engineering knowledge on FalkorDB",
     )
 
+    @app.exception_handler(RequestValidationError)
+    async def invalid_request(request: Request, exc: RequestValidationError):
+        if request.url.path == "/settings/ai":
+            # Pydantic's normal validation response includes raw input; credentials
+            # must never be echoed, even when another field is invalid.
+            return JSONResponse(
+                status_code=422,
+                content={
+                    "detail": "Check the provider, HTTPS API base URL, model ID, and key length."
+                },
+            )
+        return await request_validation_exception_handler(request, exc)
+
+    def public_ai_settings():
+        current = active_settings
+        return {
+            "provider": current.llm_provider,
+            "configured": current.configuration_message is None,
+            "storage": "session" if session_configuration else "environment",
+            "providers": {
+                "openai": {
+                    "model": current.openai_model,
+                    "base_url": "https://api.openai.com/v1",
+                    "has_api_key": bool(current.openai_api_key.get_secret_value().strip()),
+                },
+                "agentrouter": {
+                    "model": current.agentrouter_model,
+                    "base_url": current.agentrouter_base_url,
+                    "has_api_key": bool(current.agentrouter_api_key.get_secret_value().strip()),
+                },
+            },
+        }
+
+    @app.get("/settings/ai")
+    def ai_settings():
+        return public_ai_settings()
+
+    @app.post("/settings/ai")
+    def configure_ai(payload: AISettingsInput):
+        nonlocal active_settings, session_configuration
+        with configuration_lock:
+            updates = {"llm_provider": payload.provider, f"{payload.provider}_model": payload.model}
+            if payload.provider == "agentrouter":
+                updates["agentrouter_base_url"] = payload.base_url
+            if payload.api_key is not None:
+                updates[f"{payload.provider}_api_key"] = payload.api_key.get_secret_value().strip()
+            active_settings = Settings(_env_file=None, **(active_settings.model_dump() | updates))
+            session_configuration = True
+            return public_ai_settings()
+
     @app.exception_handler(RedisError)
     async def database_error(request: Request, exc: RedisError):
         logger.warning("Database request failed (%s)", type(exc).__name__)
@@ -66,11 +121,16 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
     def health():
         database.ping()
         counts = database.counts()
+        current = active_settings
         return {
             "status": "ok",
             "database": "ready",
-            "ai_configured": investigator.client is not None,
-            "model": settings.openai_model,
+            "ai_configured": agent.client is not None
+            if agent
+            else current.configuration_message is None,
+            "model": current.active_model,
+            "provider": current.llm_provider,
+            "configuration_message": current.configuration_message,
             **counts,
         }
 
@@ -89,7 +149,14 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
     @app.post("/chat", response_model=Answer, include_in_schema=False, deprecated=True)
     def ask(request: AskRequest):
         database.ping()
-        return investigator.ask(request)
+        # Each request takes a configuration snapshot. Changing settings cannot
+        # swap credentials mid-conversation or interrupt an in-flight request.
+        investigator = agent or Agent(retrieval, active_settings)
+        try:
+            return investigator.ask(request)
+        finally:
+            if agent is None and investigator.client is not None:
+                investigator.client.close()
 
     @app.get("/incidents/{incident_id:path}/investigation", response_model=Investigation)
     def incident(incident_id: str, lookback_hours: int = Query(default=24, ge=1, le=168)):

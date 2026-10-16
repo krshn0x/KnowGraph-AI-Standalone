@@ -5,7 +5,7 @@ flowchart LR
     UI[Next.js / React console] --> Proxy[Same-origin server API proxy]
     Proxy --> API[FastAPI and Pydantic]
     API --> Agent[Bounded tool-calling agent]
-    Agent <--> LLM[OpenAI Responses API]
+    Agent <--> LLM[OpenAI Responses / Agent Router Chat Completions]
     Agent --> Tools[Typed read-only graph tools]
     API --> Tools
     Tools --> DB[(FalkorDB)]
@@ -17,6 +17,12 @@ flowchart LR
 ```
 
 The API owns all business logic. The TypeScript console consumes typed JSON through a server-only Next.js route handler. React Flow and Dagre display actual evidence nodes, directed relationships, and selectable paths. The persistent workspace layout retains chat and selected incident state across navigation; a full reload clears browser memory. The proxy forwards JSON and multipart requests to a runtime API_BASE_URL, with no public provider credentials. The model selects tools and composes claims; the server validates citations and constructs the evidence graph from actual retrieved records. Cited evidence is returned separately from the complete retrieval context.
+
+## Model providers and credentials
+
+`ModelSession` adapts the existing bounded agent to OpenAI Responses or Agent Router’s OpenAI-compatible Chat Completions. The router adapter uses JSON-object output plus server-side Pydantic validation and replays DeepSeek `reasoning_content` with tool calls when present. Reasoning is never exposed as evidence. Both providers use the same five read-only tools, citation allowlist, deadline, and tool-call budget; there is no automatic cross-provider fallback.
+
+The settings API accepts credentials as write-only fields and returns only whether a key exists. Invalid settings requests receive sanitized errors without raw request values. UI changes live in backend process memory and affect new questions; each question uses an immutable configuration snapshot and closes its provider client afterward. A restart restores environment settings. This prototype uses one backend process and loopback-only ports, with no multi-user authentication.
 
 ## Graph schema
 

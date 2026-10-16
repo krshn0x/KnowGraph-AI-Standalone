@@ -18,7 +18,7 @@ class OfflineStore:
 
 def test_database_outage_has_a_sanitized_503_response():
     store = OfflineStore()
-    agent = Agent(SimpleNamespace(store=store), Settings(openai_api_key=""))
+    agent = Agent(SimpleNamespace(store=store), Settings(llm_provider="openai", openai_api_key=""))
     with TestClient(create_app(store, agent)) as client:
         for response in [client.get("/health"), client.post("/ask", json={"question": "checkout"})]:
             assert response.status_code == 503
@@ -28,7 +28,7 @@ def test_database_outage_has_a_sanitized_503_response():
 
 def test_request_validation_happens_before_investigation():
     store = OfflineStore()
-    agent = Agent(SimpleNamespace(store=store), Settings(openai_api_key=""))
+    agent = Agent(SimpleNamespace(store=store), Settings(llm_provider="openai", openai_api_key=""))
     with TestClient(create_app(store, agent)) as client:
         for body in [
             {},

@@ -12,10 +12,12 @@ pytestmark = pytest.mark.live
 
 def test_live_model_investigates_with_retrieved_citations(store):
     if os.environ.get("RUN_LIVE_MODEL") != "1":
-        pytest.skip("Set RUN_LIVE_MODEL=1, RUN_INTEGRATION=1 and OPENAI_API_KEY; incurs API usage")
+        pytest.skip(
+            "Set RUN_LIVE_MODEL=1, RUN_INTEGRATION=1 and provider credentials; incurs usage"
+        )
     settings = Settings()
-    if not settings.openai_api_key.get_secret_value():
-        pytest.fail("Live evaluation requested but OPENAI_API_KEY is missing")
+    if settings.configuration_message:
+        pytest.fail(settings.configuration_message)
     answer = Agent(Retrieval(store), settings).ask(
         AskRequest(
             question="Investigate demo:inc-checkout. Find the relevant deployment, expert and runbook."

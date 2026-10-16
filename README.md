@@ -4,7 +4,7 @@ An engineering company brain powered by **FalkorDB**. Investigate incidents, fin
 
 The **Next.js + React + TypeScript** frontend is a dark engineering console: charcoal panels, restrained green accents, dense incident context, and an interactive React Flow evidence graph. FastAPI owns the graph and agent logic.
 
-The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI chat uses OpenAI's Responses API with configurable `gpt-6.1-sol`. All structured investigation, expert, document, graph, and ingestion views work without an API key.
+The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI chat supports **Agent Router / DeepSeek** through OpenAI-compatible Chat Completions, or OpenAI’s Responses API with configurable `gpt-6.1-sol`. All structured investigation, expert, document, graph, and ingestion views work without an API key.
 
 ## Start with Docker
 
@@ -12,7 +12,7 @@ Install Docker Desktop/Engine with Compose, start Docker, and run from this repo
 
 ```bash
 cp .env.example .env
-# Optional: put your OPENAI_API_KEY in .env to enable AI chat.
+# Optional: configure provider credentials in .env, or use AI settings in the app.
 docker compose up -d --build
 ```
 
@@ -20,7 +20,31 @@ Open **http://localhost:8501** for the dashboard and **http://localhost:8000/doc
 
 A named volume persists FalkorDB's actual data directory (`/var/lib/falkordb/data`); append-only persistence is enabled. Normal startup skips seeding an existing graph, preserving imported updates. `docker compose down` retains the volume. Services are published on loopback for this local single-user prototype.
 
-If port 6379 is already occupied, set `FALKORDB_PORT=6380` in `.env`. Container-to-container connections still use 6379. After changing the model or API key, run `docker compose up -d api`. Credentials stay in the backend; never commit `.env`.
+If port 6379 is already occupied, set `FALKORDB_PORT=6380` in `.env`. Container-to-container connections still use 6379. After changing provider settings in .env, run `docker compose up -d api`. Credentials stay in the backend; never commit `.env`.
+
+## Connect Agent Router / DeepSeek
+
+Open **AI settings** in the top bar (also available from Ask KnowGraph and System status):
+
+1. Choose **Agent Router / DeepSeek**.
+2. Enter your router’s OpenAI-compatible **API base URL** and the **exact model ID** shown in its dashboard for DeepSeek V4.
+3. Paste the API key into the password field and select **Save AI settings**.
+4. Open **Ask KnowGraph** and ask a question. Saving configures the provider; actual model access is checked when you send a question.
+
+The URL is configurable because several services use the Agent Router name. For example, the `agentrouter.org` service [documents](https://github.com/agentrouter-org/docs/blob/main/qwencode.md) `https://agentrouter.org/v1`; use that only if it matches your provider. The adapter requires Chat Completions, function tools, and JSON-object output. Model IDs are passed through unchanged.
+
+Keys entered in the app are held in **backend memory for that server session**. They are never returned by the settings API, placed in browser storage, or written to source files. Leave a saved key blank to keep it; **Disconnect provider** clears it for the session. Restarting the backend restores environment configuration. These settings belong to the local, single-user workspace.
+
+For configuration that survives a restart, put these values in the gitignored root `.env`:
+
+```dotenv
+LLM_PROVIDER=agentrouter
+AGENTROUTER_API_KEY=your-key
+AGENTROUTER_BASE_URL=https://your-router.example/v1
+AGENTROUTER_MODEL=exact-model-id-from-your-dashboard
+```
+
+Then run `docker compose up -d api`. For OpenAI, select it in AI settings or use `LLM_PROVIDER=openai`, `OPENAI_API_KEY`, and `OPENAI_MODEL`. Provider keys remain separate; an Agent Router configuration never falls back to an OpenAI key.
 
 ## What you can do
 
@@ -92,11 +116,13 @@ curl -F bundle_file=@data/resolution_update.json http://localhost:8000/ingest
 | `GET /entities?kind=Incident&q=checkout` | Record selection/search; `q` is optional. |
 | `GET /entities/{id}` | Source body and metadata. |
 | `POST /ingest` | Import summary or validation errors. |
-| `GET /health` | Database readiness, record counts, model setting, and whether a key is configured. |
+| `GET /health` | Database readiness, record counts, selected provider/model, and configuration status. |
+| `GET /settings/ai` | Selected provider and configuration metadata; keys are never returned. |
+| `POST /settings/ai` | `{provider, model, base_url?, api_key?}` → update the backend session. Omit the key to preserve it; an empty key disconnects it. |
 
 History accepts up to 12 `{role: "user" | "assistant", content: "..."}` messages. Questions are limited to 4,000 characters. Chat history lives in browser memory across console navigation and resets on reload, while company knowledge persists in FalkorDB.
 
-The old `/chat` URL remains an alias for `/ask`, with the **new response schema**. The initial Ollama settings are replaced by `OPENAI_API_KEY` and `OPENAI_MODEL`. This version uses canonical `:Entity` nodes and source-qualified IDs; old demo records are not migrated or deleted. Select a fresh `FALKORDB_GRAPH` name if you want an entirely separate workspace.
+The old `/chat` URL remains an alias for `/ask`, with the **new response schema**. AI provider configuration uses `LLM_PROVIDER` and the corresponding provider variables documented above; the original Ollama integration is not included. This version uses canonical `:Entity` nodes and source-qualified IDs; old demo records are not migrated or deleted. Select a fresh `FALKORDB_GRAPH` name if you want an entirely separate workspace.
 
 ## Local development and tests
 
@@ -130,7 +156,7 @@ ruff check .
 ruff format --check .
 ```
 
-Integration tests create unique temporary graphs and delete those graphs afterward. They exercise actual Cypher, ingestion retries/concurrency, the three scenarios, document search, evidence consistency, and API contracts. Unit tests exercise the OpenAI SDK through a mock HTTP transport, citation rejection, limits, missing credentials, outages, and provider failures.
+Integration tests create unique temporary graphs and delete those graphs afterward. They exercise actual Cypher, ingestion retries/concurrency, the three scenarios, document search, evidence consistency, and API contracts. Unit tests exercise both provider protocols through the OpenAI SDK with mock HTTP transports, including DeepSeek reasoning replay, citation rejection, limits, missing credentials, outages, and provider failures. Settings tests verify write-only credentials, sanitized validation, configuration switching, client cleanup, and session reset.
 
 The browser suite covers source inspection, graph paths/export, incident controls, expert/document search, uploads, citations, conversation continuity, errors, and mobile navigation. Fixture responses are fictional seed data and are intercepted only inside tests. CI builds both Docker images and also tests the real same-origin API proxy and multipart validation.
 
@@ -153,7 +179,7 @@ Optional live-model evaluation incurs API usage:
 RUN_LIVE_MODEL=1 RUN_INTEGRATION=1 pytest -q -m live
 ```
 
-It requires a key with access to the configured model. CI runs without paid credentials. A configured key in `/health` indicates configuration only; it does not prove model access or provider availability.
+It requires credentials and model access for the selected provider (Agent Router or OpenAI). CI runs without paid credentials. A configured key in `/health` indicates configuration only; it does not prove model access or provider availability.
 
 ## Limits and failure behavior
 

@@ -7,7 +7,12 @@ export interface Entity {
 export interface GraphEdge { id: string; source: string; target: string; kind: string; source_ref: string }
 export interface EvidencePath { id: string; node_ids: string[]; edge_ids: string[] }
 export interface Evidence { nodes: Entity[]; edges: GraphEdge[]; paths: EvidencePath[]; truncated: boolean }
-export interface Health { status: string; database: string; ai_configured: boolean; model: string; nodes: number; edges: number }
+export type Provider = "openai" | "agentrouter";
+export interface Health { status: string; database: string; ai_configured: boolean; model: string; nodes: number; edges: number; provider?: Provider; configuration_message?: string | null }
+export interface AISettings {
+  provider: Provider; configured: boolean; storage: "environment" | "session";
+  providers: Record<Provider, { model: string; base_url: string; has_api_key: boolean }>;
+}
 export interface Investigation {
   incident: Entity; services: Entity[]; deployments: Entity[]; changes: Entity[];
   related_incidents: Entity[]; timeline: Entity[]; evidence: Evidence; warnings: string[];

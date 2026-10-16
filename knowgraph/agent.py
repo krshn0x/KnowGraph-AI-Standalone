@@ -1,6 +1,5 @@
-"""A bounded Responses API tool loop; evidence is assembled by the server."""
+"""A bounded model tool loop; evidence is assembled by the server."""
 
-import json
 import logging
 import time
 from typing import Literal
@@ -19,6 +18,7 @@ from knowgraph.models import (
     Kind,
     StrictModel,
 )
+from knowgraph.providers import ModelSession
 from knowgraph.retrieval import Retrieval
 
 logger = logging.getLogger(__name__)
@@ -95,8 +95,17 @@ Never use evidence IDs from earlier turns without retrieving them again.
 class Agent:
     def __init__(self, retrieval: Retrieval, settings: Settings, client=None):
         self.retrieval, self.settings = retrieval, settings
-        key = settings.openai_api_key.get_secret_value()
-        self.client = client or (OpenAI(api_key=key, max_retries=0) if key else None)
+        key = settings.active_api_key.get_secret_value().strip()
+        base_url = (
+            settings.agentrouter_base_url
+            if settings.llm_provider == "agentrouter"
+            else "https://api.openai.com/v1"
+        )
+        self.client = client or (
+            OpenAI(api_key=key, base_url=base_url, max_retries=0)
+            if not settings.configuration_message
+            else None
+        )
 
     def execute(self, name: str, raw_arguments: str):
         if name not in TOOL_ARGS:
@@ -157,10 +166,13 @@ class Agent:
         calls, warnings = [], []
         if not self.client:
             return self.fallback(
-                request, "Set OPENAI_API_KEY to enable AI answers.", evidence, [], []
+                request,
+                self.settings.configuration_message or "Configure an AI provider.",
+                evidence,
+                [],
+                [],
             )
-        messages = [{"role": m.role, "content": m.content} for m in request.history]
-        messages.append({"role": "user", "content": request.question})
+        session = ModelSession(self.client, self.settings, SYSTEM, request)
         tools = [
             {
                 "type": "function",
@@ -172,12 +184,6 @@ class Agent:
             for name, (model, description) in TOOL_ARGS.items()
         ]
         deadline = time.monotonic() + self.settings.agent_deadline_seconds
-        schema = {
-            "type": "json_schema",
-            "name": "knowgraph_answer",
-            "strict": True,
-            "schema": DraftAnswer.model_json_schema(),
-        }
         try:
             # One response per tool call, followed by a final no-tools response at the cap.
             for _ in range(self.settings.agent_max_tool_calls + 1):
@@ -185,24 +191,12 @@ class Agent:
                 if remaining <= 0:
                     raise TimeoutError("Investigation deadline reached")
                 at_limit = len(calls) >= self.settings.agent_max_tool_calls
-                response = self.client.responses.create(
-                    model=self.settings.openai_model,
-                    instructions=SYSTEM,
-                    input=messages,
-                    tools=tools,
-                    tool_choice="none" if at_limit else "auto",
-                    parallel_tool_calls=False,
-                    text={"format": schema},
-                    max_output_tokens=3000,
-                    timeout=remaining,
-                    store=False,
-                )
+                turn = session.next_turn(tools, at_limit, remaining)
                 if time.monotonic() >= deadline:
                     raise TimeoutError("Investigation deadline reached")
-                messages.extend(response.output)
-                function_calls = [o for o in response.output if o.type == "function_call"]
+                function_calls = turn.calls
                 if not function_calls:
-                    draft = DraftAnswer.model_validate_json(response.output_text)
+                    draft = DraftAnswer.model_validate_json(turn.text)
                     valid = (
                         {n.id for n in evidence.nodes}
                         | {e.id for e in evidence.edges}
@@ -243,13 +237,7 @@ class Agent:
                         experts.update({p.person.id: p for p in people})
                     except (ValueError, KeyError) as exc:
                         payload = {"error": str(exc)[:500]}
-                    messages.append(
-                        {
-                            "type": "function_call_output",
-                            "call_id": call.call_id,
-                            "output": json.dumps(payload),
-                        }
-                    )
+                    session.append_tool_result(call, payload)
             raise TimeoutError("Tool-call limit reached")
         except Exception as exc:
             logger.warning("Agent failed (%s)", type(exc).__name__)

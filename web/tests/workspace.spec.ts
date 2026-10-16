@@ -169,3 +169,37 @@ test("mobile navigation and import controls fit the viewport", async ({ page }) 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: "test-results/sources-mobile.png", fullPage: true });
 });
+
+test("Agent Router settings save a write-only key and show the selected model", async ({ page }) => {
+  let saved = false;
+  const settings = () => ({ provider: saved ? "agentrouter" : "openai", configured: saved, storage: saved ? "session" : "environment", providers: {
+    openai: { model: "gpt-6.1-sol", base_url: "https://api.openai.com/v1", has_api_key: false },
+    agentrouter: { model: saved ? "my-deepseek-v4" : "", base_url: saved ? "https://router.example.test/v1" : "", has_api_key: saved },
+  } });
+  await page.route("**/api/settings/ai", async route => {
+    if (route.request().method() === "POST") {
+      expect(route.request().postDataJSON()).toEqual({ provider: "agentrouter", model: "my-deepseek-v4", base_url: "https://router.example.test/v1", api_key: "fake-router-key-for-ui-test" });
+      saved = true;
+    }
+    await route.fulfill({ json: settings() });
+  });
+  await page.route("**/api/health", route => route.fulfill({ json: { ...fixtures.health, provider: saved ? "agentrouter" : "openai", model: saved ? "my-deepseek-v4" : "gpt-6.1-sol", ai_configured: saved } }));
+  await page.goto("/ask");
+  await page.getByRole("button", { name: "AI settings", exact: true }).click();
+  await page.getByLabel("AI provider", { exact: true }).selectOption("agentrouter");
+  await page.getByLabel("Agent Router API base URL").fill("https://router.example.test/v1");
+  await page.getByLabel("AI model ID").fill("my-deepseek-v4");
+  await page.getByLabel("Provider API key").fill("fake-router-key-for-ui-test");
+  await expect(page.getByLabel("Provider API key")).toHaveAttribute("type", "password");
+  await page.getByRole("button", { name: "Save AI settings" }).click();
+  await expect(page.locator(".model-tag")).toContainText("my-deepseek-v4");
+  await expect(page.getByText("AI answers aren’t configured")).toHaveCount(0);
+  await page.getByRole("button", { name: "System status", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText("Agent Router");
+  await page.getByRole("button", { name: "Configure AI provider", exact: true }).click();
+  await expect(page.getByLabel("Provider API key")).toHaveValue("");
+  await expect(page.getByText("Saved on backend")).toBeVisible();
+  expect(await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }))).not.toContain("fake-router-key-for-ui-test");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: "test-results/ai-settings-mobile.png" });
+});

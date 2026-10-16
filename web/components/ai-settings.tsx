@@ -1,0 +1,43 @@
+"use client";
+
+import { useState } from "react";
+import { KeyRound, Save, ShieldCheck, Unplug } from "lucide-react";
+import { api } from "@/lib/api";
+import type { AISettings, Provider } from "@/lib/types";
+import { useResource } from "@/lib/use-resource";
+import { ErrorNotice, Loading, Modal } from "./ui";
+
+export function AISettingsModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
+  const settings = useResource<AISettings>("/settings/ai");
+  return <Modal title="AI settings" onClose={onClose}>
+    {settings.loading ? <Loading label="Loading provider settings…" /> : settings.error ? <ErrorNotice message={settings.error} /> : settings.data && <AISettingsForm initial={settings.data} onSaved={onSaved} />}
+  </Modal>;
+}
+
+function AISettingsForm({ initial, onSaved }: { initial: AISettings; onSaved: () => void }) {
+  const [provider, setProvider] = useState<Provider>(initial.provider);
+  const [values, setValues] = useState(initial.providers);
+  const [key, setKey] = useState("");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
+  const current = values[provider];
+  const update = (field: "model" | "base_url", value: string) => setValues(all => ({ ...all, [provider]: { ...all[provider], [field]: value } }));
+  const save = async (disconnect = false) => {
+    setPending(true); setError("");
+    try {
+      await api<AISettings>("/settings/ai", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ provider, model: current.model.trim(), base_url: current.base_url.trim(), api_key: disconnect ? "" : key || undefined }) });
+      setKey(""); onSaved();
+    } catch (problem) { setError(problem instanceof Error ? problem.message : "Could not save provider settings."); }
+    finally { setPending(false); }
+  };
+  return <form className="ai-settings-form" onSubmit={event => { event.preventDefault(); void save(); }}>
+    <p className="helper-text">Connect your model to KnowGraph’s evidence tools. Your API key is sent to the backend and is never returned to the browser.</p>
+    <label>AI provider<select aria-label="AI provider" value={provider} disabled={pending} onChange={event => { setProvider(event.target.value as Provider); setKey(""); setError(""); }}><option value="openai">OpenAI</option><option value="agentrouter">Agent Router / DeepSeek</option></select></label>
+    {provider === "agentrouter" && <label>API base URL<input type="url" aria-label="Agent Router API base URL" placeholder="https://your-router.example/v1" value={current.base_url} onChange={event => update("base_url", event.target.value)} required maxLength={2048} disabled={pending} /><small>Copy the OpenAI-compatible API base URL from your Agent Router dashboard.</small></label>}
+    <label>Model ID<input aria-label="AI model ID" placeholder={provider === "agentrouter" ? "Exact DeepSeek V4 model ID from your dashboard" : "gpt-6.1-sol"} value={current.model} onChange={event => update("model", event.target.value)} required maxLength={200} disabled={pending} /></label>
+    <label><span><KeyRound size={13} />API key{current.has_api_key && <span className="settings-key-saved">Saved on backend</span>}</span><input type="password" aria-label="Provider API key" autoComplete="off" autoCapitalize="none" spellCheck={false} placeholder={current.has_api_key ? "Leave blank to keep the saved key" : "Paste your provider API key"} value={key} onChange={event => setKey(event.target.value)} maxLength={4096} disabled={pending} required={!current.has_api_key} /></label>
+    <div className="settings-storage-note"><ShieldCheck size={16} /><p>Saved for this backend session. A backend restart restores the configuration from .env. Saving does not test model access or send an AI question.</p></div>
+    {error && <ErrorNotice message={error} />}
+    <div className="settings-form-actions">{current.has_api_key && <button className="text-button" type="button" disabled={pending} onClick={() => void save(true)}><Unplug size={13} />Disconnect provider</button>}<button className="button primary" type="submit" disabled={pending}><Save size={14} />{pending ? "Saving…" : "Save AI settings"}</button></div>
+  </form>;
+}
