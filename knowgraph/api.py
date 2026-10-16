@@ -57,7 +57,7 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
 
     @app.exception_handler(RequestValidationError)
     async def invalid_request(request: Request, exc: RequestValidationError):
-        if request.url.path == "/settings/ai":
+        if request.url.path.startswith("/settings/ai"):
             # Pydantic's normal validation response includes raw input; credentials
             # must never be echoed, even when another field is invalid.
             return JSONResponse(
@@ -118,6 +118,51 @@ def create_app(store: GraphStore | None = None, agent: Agent | None = None) -> F
             active_settings = Settings(_env_file=None, **(active_settings.model_dump() | updates))
             session_configuration = True
             return public_ai_settings()
+
+    @app.post("/settings/ai/test")
+    def test_ai(payload: AISettingsInput):
+        # Test the form values without changing the selected provider or keys.
+        with configuration_lock:
+            updates = {"llm_provider": payload.provider, f"{payload.provider}_model": payload.model}
+            if payload.provider in {"agentrouter", "ollama"}:
+                updates[f"{payload.provider}_base_url"] = payload.base_url
+            updates["agent_deadline_seconds"] = min(active_settings.agent_deadline_seconds, 90)
+            if payload.provider == "ollama":
+                updates["ollama_deadline_seconds"] = min(
+                    payload.deadline_seconds or active_settings.ollama_deadline_seconds or 300, 90
+                )
+            if payload.api_key is not None and payload.provider != "ollama":
+                updates[f"{payload.provider}_api_key"] = payload.api_key.get_secret_value().strip()
+            configuration = Settings(_env_file=None, **(active_settings.model_dump() | updates))
+        database.ping()
+        investigator = Agent(retrieval, configuration)
+        try:
+            result = investigator.ask(
+                AskRequest(
+                    question="Find the service demo:checkout. Return one observed finding citing its freshly retrieved source ID."
+                )
+            )
+            verified = (
+                result.status == "ok"
+                and bool(result.claims)
+                and bool(result.sources)
+                and not result.insufficient_evidence
+            )
+            return {
+                "ok": verified,
+                "provider": configuration.llm_provider,
+                "model": configuration.active_model,
+                "message": "Model access, graph tool calling, and a cited answer were verified. These settings have not been saved."
+                if verified
+                else (
+                    result.warnings[0]
+                    if result.warnings
+                    else "The model did not complete a cited graph answer. Check model tool support and try again."
+                ),
+            }
+        finally:
+            if investigator.client is not None:
+                investigator.client.close()
 
     @app.exception_handler(RedisError)
     async def database_error(request: Request, exc: RedisError):

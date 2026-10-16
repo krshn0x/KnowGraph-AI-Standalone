@@ -175,7 +175,7 @@ test("Agent Router settings save a write-only key and show the selected model", 
   const settings = () => ({ provider: saved ? "agentrouter" : "openai", configured: saved, storage: saved ? "session" : "environment", providers: {
     openai: { model: "gpt-6.1-sol", base_url: "https://api.openai.com/v1", has_api_key: false },
     agentrouter: { model: saved ? "my-deepseek-v4" : "", base_url: saved ? "https://router.example.test/v1" : "", has_api_key: saved },
-    gemini: { model: "gemini-3.8-flash", base_url: "https://generativelanguage.googleapis.com/v1beta/openai", has_api_key: false },
+    gemini: { model: "gemini-3.8-flash", base_url: "https://generativelanguage.googleapis.com/v1beta", has_api_key: false },
     ollama: { model: "qwen3:4b", base_url: "http://host.docker.internal:11434/v1", has_api_key: false },
   } });
   await page.route("**/api/settings/ai", async route => {
@@ -208,7 +208,7 @@ test("Agent Router settings save a write-only key and show the selected model", 
 
 test("Gemini settings offer the free-tier starter model and need only a key", async ({ page }) => {
   let saved = false;
-  const endpoint = "https://generativelanguage.googleapis.com/v1beta/openai";
+  const endpoint = "https://generativelanguage.googleapis.com/v1beta";
   await page.route("**/api/settings/ai", async route => {
     if (route.request().method() === "POST") {
       expect(route.request().postDataJSON()).toEqual({ provider: "gemini", model: "gemini-3.8-flash", base_url: endpoint, api_key: "fake-gemini-ui-key" });
@@ -229,7 +229,14 @@ test("Gemini settings offer the free-tier starter model and need only a key", as
   await expect(page.getByLabel("Agent Router API base URL")).toHaveCount(0);
   await expect(page.getByRole("dialog")).toContainText("has a free tier");
   await expect(page.getByRole("link", { name: "Get a Gemini API key" })).toHaveAttribute("href", "https://aistudio.google.com/apikey");
+  await page.route("**/api/settings/ai/test", async route => {
+    expect(route.request().postDataJSON()).toEqual({ provider: "gemini", model: "gemini-3.8-flash", base_url: endpoint, api_key: "fake-gemini-ui-key" });
+    expect(saved).toBe(false);
+    await route.fulfill({ json: { ok: true, provider: "gemini", model: "gemini-3.8-flash", message: "Model access, graph tool calling, and a cited answer were verified. These settings have not been saved." } });
+  });
   await page.getByLabel("Provider API key").fill("fake-gemini-ui-key");
+  await page.getByRole("button", { name: "Test connection", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("have not been saved");
   await page.getByRole("button", { name: "Save AI settings" }).click();
   await expect(page.locator(".model-tag")).toContainText("gemini-3.8-flash");
   await page.getByRole("button", { name: "System status", exact: true }).click();
@@ -254,7 +261,7 @@ test("local Ollama can be selected and saved without any API key", async ({ page
     await route.fulfill({ json: { provider: saved ? "ollama" : "openai", configured: saved, storage: saved ? "session" : "environment", providers: {
       openai: { model: "gpt-6.1-sol", base_url: "https://api.openai.com/v1", has_api_key: false },
       agentrouter: { model: "", base_url: "", has_api_key: false },
-      gemini: { model: "gemini-3.8-flash", base_url: "https://generativelanguage.googleapis.com/v1beta/openai", has_api_key: false },
+      gemini: { model: "gemini-3.8-flash", base_url: "https://generativelanguage.googleapis.com/v1beta", has_api_key: false },
       ollama: { model: "qwen3:4b", base_url: baseURL, has_api_key: false, deadline_seconds: saved ? 450 : 300 },
     } } });
   });

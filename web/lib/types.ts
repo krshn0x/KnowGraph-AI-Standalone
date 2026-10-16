@@ -13,6 +13,7 @@ export interface AISettings {
   provider: Provider; configured: boolean; storage: "environment" | "session";
   providers: Record<Provider, { model: string; base_url: string; has_api_key: boolean; deadline_seconds?: number }>;
 }
+export interface AIConnectionTest { ok: boolean; provider: Provider; model: string; message: string }
 export interface Investigation {
   incident: Entity; services: Entity[]; deployments: Entity[]; changes: Entity[];
   related_incidents: Entity[]; timeline: Entity[]; evidence: Evidence; warnings: string[];

@@ -15,6 +15,7 @@ from openai import (
 from pydantic import Field
 
 from knowgraph.config import Settings
+from knowgraph.gemini import GeminiClient, GeminiError
 from knowgraph.graph import combine, select_evidence
 from knowgraph.models import (
     Answer,
@@ -107,11 +108,13 @@ class Agent:
     def __init__(self, retrieval: Retrieval, settings: Settings, client=None):
         self.retrieval, self.settings = retrieval, settings
         key = settings.active_api_key.get_secret_value().strip()
-        self.client = client or (
-            OpenAI(api_key=key, base_url=settings.active_base_url, max_retries=0)
-            if not settings.configuration_message
-            else None
-        )
+        self.client = client
+        if self.client is None and not settings.configuration_message:
+            self.client = (
+                GeminiClient(key)
+                if settings.llm_provider == "gemini"
+                else OpenAI(api_key=key, base_url=settings.active_base_url, max_retries=0)
+            )
 
     def execute(self, name: str, raw_arguments: str):
         if name not in TOOL_ARGS:
@@ -270,6 +273,30 @@ class Agent:
                     "Gemini quota or rate limit reached. Check your Google project's free-tier "
                     "limits or wait and retry. No other provider was used."
                 )
+            if isinstance(exc, GeminiError):
+                logger.warning(
+                    "Gemini response: HTTP %s reason=%s", exc.status, exc.reason or "unspecified"
+                )
+                if exc.reason in {"API_KEY_INVALID", "API_KEY_EXPIRED"} or exc.status == 401:
+                    warning = "Google rejected the Gemini API key. Replace it with an active key from Google AI Studio, then test the connection."
+                elif exc.status == 429:
+                    warning = "Gemini quota or rate limit reached. Check your Google project's free-tier limits or wait and retry. No other provider was used."
+                elif exc.status == 403 or exc.reason in {
+                    "API_KEY_SERVICE_BLOCKED",
+                    "BILLING_DISABLED",
+                    "SERVICE_DISABLED",
+                }:
+                    warning = "Google denied this Gemini request. Check the key's API restrictions, Gemini API access, and the project's billing or regional eligibility."
+                elif exc.status == 404:
+                    warning = "Google could not find this Gemini model for your project. Choose an available model ID in AI settings and test the connection."
+                elif exc.status >= 500:
+                    warning = f"Google's Gemini service returned HTTP {exc.status}. Retry the connection test or choose another Gemini model. No other provider was used."
+                else:
+                    warning = f"Google rejected the Gemini request (HTTP {exc.status}). Check the selected model's tool support and test the connection in AI settings."
+            elif self.settings.llm_provider == "gemini" and isinstance(exc, APIConnectionError):
+                warning = "Cannot reach Google's Gemini API. Check the backend's internet connection and test the connection again."
+            elif isinstance(exc, ValueError) and not isinstance(exc, TimeoutError):
+                warning = "The model returned an incomplete, invalid, or unsupported answer. Retrieved graph evidence is preserved; test the selected model in AI settings."
             if self.settings.llm_provider == "ollama":
                 if isinstance(exc, (APITimeoutError, TimeoutError)):
                     limit = True

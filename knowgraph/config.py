@@ -6,7 +6,7 @@ from urllib.parse import urlsplit
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
 DEFAULT_GEMINI_MODEL = "gemini-3.8-flash"
 DEFAULT_OLLAMA_MODEL = "qwen3:4b"
 DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434/v1"

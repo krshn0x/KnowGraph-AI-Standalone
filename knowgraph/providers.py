@@ -28,7 +28,16 @@ class ModelSession:
         self.messages = [{"role": m.role, "content": m.content} for m in request.history]
         self.messages.append({"role": "user", "content": request.question})
         self.schema = DraftAnswer.model_json_schema()
-        if settings.llm_provider != "openai":
+        self.native_call_ids: set[str] = set()
+        if settings.llm_provider == "gemini":
+            self.messages = [
+                {
+                    "role": "model" if m["role"] == "assistant" else "user",
+                    "parts": [{"text": m["content"]}],
+                }
+                for m in self.messages
+            ]
+        elif settings.llm_provider != "openai":
             # Chat Completions providers use the same server-validated answer schema.
             self.messages.insert(
                 0,
@@ -41,6 +50,8 @@ class ModelSession:
             )
 
     def next_turn(self, tools: list[dict], at_limit: bool, timeout: float) -> ModelTurn:
+        if self.settings.llm_provider == "gemini":
+            return self._gemini_turn(tools, at_limit, timeout)
         if self.settings.llm_provider != "openai":
             return self._chat_turn(tools, at_limit, timeout)
         response = self.client.responses.create(
@@ -88,12 +99,9 @@ class ModelSession:
             "max_tokens": 6000,
             "timeout": timeout,
         }
-        if self.settings.llm_provider in {"gemini", "ollama"}:
-            if self.settings.llm_provider == "ollama":
-                parameters["max_tokens"] = self.settings.ollama_max_output_tokens
-            parameters["reasoning_effort"] = (
-                "none" if self.settings.llm_provider == "ollama" else "low"
-            )
+        if self.settings.llm_provider == "ollama":
+            parameters["max_tokens"] = self.settings.ollama_max_output_tokens
+            parameters["reasoning_effort"] = "none"
             if at_limit:
                 # Keep the final JSON-only request separate from function calling.
                 parameters.pop("tools")
@@ -119,13 +127,6 @@ class ModelSession:
                 }
                 for call in calls
             ]
-            if self.settings.llm_provider == "gemini":
-                for original, replay in zip(calls, serialized["tool_calls"], strict=True):
-                    # Google's opaque thought signatures must survive every tool turn.
-                    # This metadata stays inside the backend provider conversation.
-                    extra = getattr(original, "extra_content", None)
-                    if extra is not None:
-                        replay["extra_content"] = extra
             # DeepSeek thinking models require the reasoning content to be replayed
             # with tool calls. It remains server-side and is never shown as evidence.
             reasoning = getattr(message, "reasoning_content", None)
@@ -138,7 +139,18 @@ class ModelSession:
         )
 
     def append_tool_result(self, call: FunctionCall, payload: dict) -> None:
-        if self.settings.llm_provider != "openai":
+        if self.settings.llm_provider == "gemini":
+            response = {"name": call.name, "response": payload}
+            if call.call_id in self.native_call_ids:
+                response["id"] = call.call_id
+            part = {"functionResponse": response}
+            if self.messages[-1]["role"] == "user" and any(
+                "functionResponse" in p for p in self.messages[-1]["parts"]
+            ):
+                self.messages[-1]["parts"].append(part)
+            else:
+                self.messages.append({"role": "user", "parts": [part]})
+        elif self.settings.llm_provider != "openai":
             self.messages.append(
                 {"role": "tool", "tool_call_id": call.call_id, "content": json.dumps(payload)}
             )
@@ -150,3 +162,59 @@ class ModelSession:
                     "output": json.dumps(payload),
                 }
             )
+
+    def _gemini_turn(self, tools: list[dict], at_limit: bool, timeout: float) -> ModelTurn:
+        config = {"maxOutputTokens": 4096}
+        if self.settings.active_model.startswith(("gemini-3", "gemini-4")):
+            config["thinkingConfig"] = {"thinkingLevel": "LOW"}
+        payload = {
+            "systemInstruction": {
+                "parts": [
+                    {
+                        "text": self.instructions
+                        + "\nReturn final answers as JSON matching this schema:\n"
+                        + json.dumps(self.schema)
+                    }
+                ]
+            },
+            "contents": self.messages,
+            "generationConfig": config,
+        }
+        if at_limit:
+            config["responseMimeType"] = "application/json"
+            config["responseJsonSchema"] = self.schema
+        else:
+            payload["tools"] = [
+                {
+                    "functionDeclarations": [
+                        {
+                            "name": tool["name"],
+                            "description": tool["description"],
+                            "parametersJsonSchema": tool["parameters"],
+                        }
+                        for tool in tools
+                    ]
+                }
+            ]
+        response = self.client.generate(self.settings.active_model, payload, timeout)
+        candidates = response.get("candidates", [])
+        if not candidates or candidates[0].get("finishReason") != "STOP":
+            raise ValueError("Gemini did not complete a usable answer")
+        content = candidates[0]["content"]
+        # Replay Google's entire content verbatim, including opaque signatures.
+        self.messages.append(content)
+        calls, texts = [], []
+        for index, part in enumerate(content.get("parts", [])):
+            if part.get("thought"):
+                continue
+            if "functionCall" in part:
+                call = part["functionCall"]
+                identifier = call.get("id") or f"gemini_{len(self.messages)}_{index}"
+                if call.get("id"):
+                    self.native_call_ids.add(identifier)
+                calls.append(
+                    FunctionCall(call["name"], json.dumps(call.get("args", {})), identifier)
+                )
+            elif "text" in part:
+                texts.append(part["text"])
+        return ModelTurn(text="".join(texts), calls=calls)

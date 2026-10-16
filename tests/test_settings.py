@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 from knowgraph.api import create_app
 from knowgraph.config import Settings
-from knowgraph.models import Answer
+from knowgraph.models import Answer, Entity
 
 
 @pytest.fixture
@@ -73,8 +73,9 @@ def test_settings_key_is_write_only_and_can_be_preserved_or_disconnected(
         {"unexpected": "private-extra-value"},
     ],
 )
-def test_invalid_configuration_never_echoes_credentials(configuration_client, updates):
-    response = configuration_client.post("/settings/ai", json=payload(**updates))
+@pytest.mark.parametrize("path", ["/settings/ai", "/settings/ai/test"])
+def test_invalid_configuration_never_echoes_credentials(configuration_client, updates, path):
+    response = configuration_client.post(path, json=payload(**updates))
     assert response.status_code == 422
     assert "private-" not in response.text
     assert configuration_client.get("/settings/ai").json()["provider"] == "openai"
@@ -158,3 +159,69 @@ def test_invalid_local_deadline_does_not_change_saved_settings(configuration_cli
         )
         assert response.status_code == 422
     assert configuration_client.get("/settings/ai").json()["provider"] == "openai"
+
+
+def test_connection_test_uses_staged_credentials_without_saving_them(
+    configuration_client, monkeypatch
+):
+    captured = []
+    closed = []
+
+    class TestAgent:
+        def __init__(self, retrieval, settings):
+            captured.append(settings)
+            self.client = SimpleNamespace(close=lambda: closed.append(True))
+
+        def ask(self, request):
+            return Answer(
+                summary="Test completed",
+                claims=[
+                    {
+                        "text": "A test source exists",
+                        "certainty": "observed",
+                        "evidence_ids": ["test:source"],
+                    }
+                ],
+                sources=[Entity(id="test:source", kind="Service", title="Test source")],
+                insufficient_evidence=False,
+                status="ok",
+            )
+
+    monkeypatch.setattr("knowgraph.api.Agent", TestAgent)
+    result = configuration_client.post("/settings/ai/test", json=payload(provider="gemini"))
+    assert result.status_code == 200 and result.json()["ok"] is True
+    assert captured[0].gemini_api_key.get_secret_value() == "private-router-test-key"
+    assert "private-" not in result.text and closed == [True]
+    saved = configuration_client.get("/settings/ai").json()
+    assert saved["provider"] == "openai" and not saved["providers"]["gemini"]["has_api_key"]
+
+
+def test_connection_test_limits_local_probe_time_without_changing_the_saved_deadline(
+    configuration_client, monkeypatch
+):
+    captured = []
+
+    class TestAgent:
+        def __init__(self, retrieval, settings):
+            captured.append(settings)
+            self.client = None
+
+        def ask(self, request):
+            return Answer(
+                summary="Unavailable",
+                claims=[],
+                insufficient_evidence=True,
+                warnings=["Cannot reach Ollama"],
+            )
+
+    monkeypatch.setattr("knowgraph.api.Agent", TestAgent)
+    response = configuration_client.post(
+        "/settings/ai/test",
+        json=payload(provider="ollama", base_url="http://localhost:11434/v1", deadline_seconds=600),
+    )
+    assert response.status_code == 200 and response.json()["ok"] is False
+    assert captured[0].active_deadline_seconds == 90
+    assert (
+        configuration_client.get("/settings/ai").json()["providers"]["ollama"]["deadline_seconds"]
+        == 300
+    )

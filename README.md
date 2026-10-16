@@ -67,8 +67,8 @@ For slow local models, run `ollama ps` to check whether inference uses CPU or GP
 
 1. Create a Gemini API key in [Google AI Studio](https://aistudio.google.com/apikey).
 2. Open **AI settings** in KnowGraph and choose **Google Gemini**.
-3. Keep the prefilled **gemini-3.8-flash** model, paste the key, and save. No custom API URL or OpenAI key is needed.
-4. Ask a question in **Ask KnowGraph**.
+3. Keep the prefilled **gemini-3.8-flash** model and paste the key. No custom API URL or OpenAI key is needed.
+4. Select **Test connection** to verify model access, graph tool calling, and a cited answer using the entered key. This does not save the form; after a successful test, save the settings and ask a question in **Ask KnowGraph**.
 
 Google currently lists this model with free-tier input/output usage; [project eligibility, quotas, and billing settings apply](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.8-flash). This app does not change your Google billing tier or guarantee unlimited free usage. A quota error preserves available graph evidence and does not retry automatically or switch providers. To retain the key across backend restarts, set the following in the gitignored root `.env`, then run `docker compose up -d api`:
 
@@ -78,7 +78,7 @@ GEMINI_API_KEY=your-google-ai-studio-key
 GEMINI_MODEL=gemini-3.8-flash
 ```
 
-Gemini uses Google's fixed OpenAI-compatible endpoint, with thought signatures preserved between tool calls and the same server-side citation validation. UI-entered keys follow the session-only storage behavior described below.
+Gemini uses Google's native `generateContent` API, with the complete model parts and thought signatures preserved between tool calls and the same server-side citation validation. The OpenAI compatibility layer is not used for Gemini. UI-entered keys follow the session-only storage behavior described below.
 
 ## Connect Agent Router / DeepSeek
 
@@ -176,6 +176,7 @@ curl -F bundle_file=@data/resolution_update.json http://localhost:8000/ingest
 | `POST /ingest` | Import summary or validation errors. |
 | `GET /health` | Database readiness, record counts, selected provider/model, and configuration status. |
 | `GET /settings/ai` | Selected provider and configuration metadata; keys are never returned. |
+| `POST /settings/ai/test` | Test entered settings with a small graph question (up to 90 seconds), without saving them. Returns sanitized provider-specific errors. |
 | `POST /settings/ai` | `{provider, model, base_url?, api_key?}` → update the backend session. Omit the key to preserve it; an empty key disconnects it. |
 
 History accepts up to 12 `{role: "user" | "assistant", content: "..."}` messages. Questions are limited to 4,000 characters. Chat history lives in browser memory across console navigation and resets on reload, while company knowledge persists in FalkorDB.
@@ -214,7 +215,7 @@ ruff check .
 ruff format --check .
 ```
 
-Integration tests create unique temporary graphs and delete those graphs afterward. They exercise actual Cypher, ingestion retries/concurrency, the three scenarios, document search, evidence consistency, and API contracts. Unit tests exercise all four providers through the OpenAI SDK with mock HTTP transports, including DeepSeek reasoning replay, citation rejection, limits, missing credentials, outages, and provider failures. Settings tests verify write-only credentials, sanitized validation, configuration switching, client cleanup, and session reset.
+Integration tests create unique temporary graphs and delete those graphs afterward. They exercise actual Cypher, ingestion retries/concurrency, the three scenarios, document search, evidence consistency, and API contracts. Unit tests exercise native Gemini HTTP and the other three providers through the OpenAI SDK with mock HTTP transports, including DeepSeek reasoning replay, citation rejection, limits, missing credentials, outages, and provider failures. Settings tests verify write-only credentials, sanitized validation, configuration switching, client cleanup, and session reset.
 
 The browser suite covers source inspection, graph paths/export, incident controls, expert/document search, uploads, citations, conversation continuity, errors, and mobile navigation. Fixture responses are fictional seed data and are intercepted only inside tests. CI builds both Docker images and also tests the real same-origin API proxy and multipart validation.
 
