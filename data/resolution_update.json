@@ -1,0 +1,45 @@
+{
+  "nodes": [
+    {
+      "id": "demo:inc-checkout",
+      "kind": "Incident",
+      "status": "resolved",
+      "body": "Resolved after rollback. Investigation confirmed the retry-policy change removed the retry budget and exhausted downstream connections. See the resolution note."
+    },
+    {
+      "id": "demo:doc-checkout-resolution",
+      "kind": "Document",
+      "title": "Checkout incident resolution \u2014 retry budget regression",
+      "source_ref": "fixture://northstar/doc-checkout-resolution",
+      "occurred_at": "2026-10-15T13:00:00Z",
+      "body": "Nina confirmed deploy-checkout-retry introduced commit-checkout-retry from pr-checkout-retry. The retry budget was removed, causing downstream connection exhaustion. Rollback restored the 503 rate from 18% to below 0.1%. Restore bounded backoff and add a retry-budget regression test."
+    }
+  ],
+  "edges": [
+    {
+      "source": "demo:nina",
+      "kind": "RESOLVED",
+      "target": "demo:inc-checkout"
+    },
+    {
+      "source": "demo:nina",
+      "kind": "AUTHORED",
+      "target": "demo:doc-checkout-resolution"
+    },
+    {
+      "source": "demo:doc-checkout-resolution",
+      "kind": "DESCRIBES",
+      "target": "demo:inc-checkout"
+    },
+    {
+      "source": "demo:doc-checkout-resolution",
+      "kind": "DESCRIBES",
+      "target": "demo:checkout"
+    },
+    {
+      "source": "demo:doc-checkout-resolution",
+      "kind": "LINKED_TO",
+      "target": "demo:pr-checkout-retry"
+    }
+  ]
+}

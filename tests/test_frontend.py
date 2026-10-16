@@ -1,62 +1,95 @@
-from frontend.presentation import build_graphviz, expert_reasons, source_catalog
+from unittest.mock import patch
+
+import httpx
+from conftest import ROOT
+from streamlit.testing.v1 import AppTest
+
+from frontend.render import graph_html
+from knowgraph.models import Entity
+
+SERVICE = Entity(
+    id="demo:checkout", kind="Service", title="Checkout", source_ref="fixture://checkout"
+).model_dump(mode="json")
+EVIDENCE = {"nodes": [SERVICE], "edges": [], "paths": [], "truncated": False}
 
 
-def response_fixture():
-    return {
-        "graph_paths": [
-            {
-                "id": "incident-change",
-                "nodes": [
-                    {"id": "inc-1", "label": "Incident", "properties": {"id": "inc-1", "title": "Checkout errors"}},
-                    {"id": "dep-1", "label": "Deployment", "properties": {"id": "dep-1", "version": "v1"}},
-                    {"id": "svc-1", "label": "Service", "properties": {"id": "svc-1", "name": "checkout"}},
-                    {"id": "pr-1", "label": "PullRequest", "properties": {"id": "pr-1", "title": "Retry change"}},
-                    {"id": "person-1", "label": "Person", "properties": {"id": "person-1", "name": "Maya Chen"}},
-                ],
-                "relationships": [
-                    {"type": "TRIGGERED", "start_id": "dep-1", "end_id": "inc-1", "source_id": "inc-1", "evidence_kind": "synthetic_record", "evidence_excerpt": "Started after release"},
-                    {"type": "DEPLOYED", "start_id": "dep-1", "end_id": "svc-1", "source_id": "dep-1", "evidence_kind": "synthetic_record", "evidence_excerpt": "Release v1"},
-                    {"type": "CHANGED", "start_id": "pr-1", "end_id": "svc-1", "source_id": "pr-1", "evidence_kind": "synthetic_record", "evidence_excerpt": "Changed checkout"},
-                    {"type": "AUTHORED", "start_id": "person-1", "end_id": "pr-1", "source_id": "pr-1", "evidence_kind": "synthetic_record", "evidence_excerpt": "PR author"},
-                ],
-            }
-        ],
-        "supporting_facts": [
-            {"source_id": "inc-1", "evidence_excerpt": "Started after release", "statement": "Deployment linked to incident"},
-            {"source_id": "pr-1", "evidence_excerpt": "Changed checkout", "statement": "PR changed service"},
-        ],
-        "relevant_people": [
-            {"id": "person-1", "label": "Person", "properties": {"id": "person-1", "name": "Maya Chen", "role": "Engineer"}}
-        ],
+def response(method, url, **kwargs):
+    request = httpx.Request(method, url)
+    if url.endswith("/health"):
+        payload = {"nodes": 113, "edges": 209, "ai_configured": False, "model": "gpt-6.1-sol"}
+    elif "/entities?" in url:
+        payload = []
+    elif url.endswith("/ask"):
+        payload = {
+            "summary": "AI answer unavailable. Review the retrieved records below.",
+            "claims": [],
+            "sources": [SERVICE],
+            "evidence": EVIDENCE,
+            "experts": [],
+            "warnings": ["Set OPENAI_API_KEY to enable AI answers."],
+            "tool_calls": [],
+            "status": "provider_error",
+            "insufficient_evidence": True,
+        }
+    elif url.endswith("/experts"):
+        payload = {"experts": [], "evidence": EVIDENCE}
+    elif url.endswith("/documents"):
+        payload = {
+            "documents": [SERVICE | {"kind": "Document", "body": "Inspect retry budget."}],
+            "evidence": EVIDENCE,
+        }
+    else:
+        raise AssertionError(url)
+    return httpx.Response(200, json=payload, request=request)
+
+
+def test_all_feature_tabs_render_without_records_or_credentials():
+    with patch("httpx.get", side_effect=lambda url, **kw: response("GET", url, **kw)):
+        app = AppTest.from_file(str(ROOT / "frontend/app.py")).run(timeout=15)
+        assert not app.exception
+        assert [t.label for t in app.tabs] == [
+            "Ask KnowGraph",
+            "Incidents",
+            "Experts",
+            "Documents",
+            "Evidence Graph",
+            "Knowledge Update",
+        ]
+
+
+def test_question_and_expert_search_render_their_api_results():
+    with (
+        patch("httpx.get", side_effect=lambda url, **kw: response("GET", url, **kw)),
+        patch("httpx.request", side_effect=response),
+    ):
+        app = AppTest.from_file(str(ROOT / "frontend/app.py")).run(timeout=15)
+        app.chat_input[0].set_value("What changed in checkout?").run(timeout=15)
+        assert not app.exception
+        assert len(app.chat_message) == 2
+        assert any("AI answer unavailable" in item.value for item in app.markdown)
+        next(b for b in app.button if b.label == "Find experts").click().run(timeout=15)
+        assert not app.exception
+        assert any("No supported expert matches" in item.value for item in app.info)
+
+
+def test_outage_does_not_crash_the_dashboard():
+    with patch("httpx.get", side_effect=httpx.ConnectError("offline")):
+        import streamlit as st
+
+        st.cache_data.clear()
+        app = AppTest.from_file(str(ROOT / "frontend/app.py")).run(timeout=15)
+        assert not app.exception
+        assert any("unavailable" in item.value for item in app.warning)
+        st.cache_data.clear()
+
+
+def test_graph_is_self_contained_and_escapes_source_titles():
+    evidence = {
+        "nodes": [SERVICE | {"title": '<img src=x onerror="alert(1)">'}],
+        "edges": [],
+        "paths": [],
     }
-
-
-def test_graphviz_contains_only_returned_nodes_and_directed_edges():
-    dot = build_graphviz(response_fixture()["graph_paths"])
-    assert dot
-    assert "TRIGGERED" in dot and 'n1 -> n0' in dot
-    assert 'n3 -> n2' in dot  # CHANGED is PullRequest -> Service, as returned.
-    assert 'n4 -> n3' in dot  # AUTHORED is Person -> PullRequest, as returned.
-    assert "DEPENDS_ON" not in dot
-    assert "MISSING_NODE" not in dot
-    assert build_graphviz([]) is None
-
-
-def test_sources_use_returned_ids_types_and_excerpts():
-    sources = source_catalog(response_fixture())
-    assert {item["source_id"] for item in sources} == {"inc-1", "pr-1"}
-    assert next(item for item in sources if item["source_id"] == "inc-1")["record_type"] == "Incident"
-    assert next(item for item in sources if item["source_id"] == "pr-1")["title"] == "Retry change"
-    assert all(item["evidence_kind"] == "synthetic_record" for item in sources)
-
-
-def test_expert_explanation_uses_authored_relationship_from_path():
-    experts = expert_reasons(response_fixture())
-    assert experts[0]["person"]["properties"]["name"] == "Maya Chen"
-    assert experts[0]["reason"] == "AUTHORED to PullRequest Retry change"
-
-
-def test_missing_paths_do_not_create_placeholder_sources_or_edges():
-    assert build_graphviz([]) is None
-    assert source_catalog({"supporting_facts": [], "graph_paths": []}) == []
-    assert expert_reasons({"relevant_people": [], "graph_paths": []}) == []
+    rendered = graph_html(evidence)
+    assert "<img src=x" not in rendered
+    assert 'src="https://' not in rendered and 'href="https://' not in rendered
+    assert "new vis.DataSet" in rendered

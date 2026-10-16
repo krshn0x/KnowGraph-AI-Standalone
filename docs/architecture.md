@@ -1,30 +1,46 @@
-# KnowGraph AI architecture
-
-All AcmePay records shown below are synthetic demo fixtures. Arrows are seeded relationship directions; the evidence graph view renders API-returned paths only.
+# Architecture
 
 ```mermaid
 flowchart LR
-    U[Engineer question] --> UI[Streamlit dashboard]
-    UI -->|local HTTP| API[FastAPI · Pydantic]
-    API --> Q[Approved graph tools · Cypher]
-    Q -->|evidence facts · paths| DB[(FalkorDB · knowgraph)]
-    API -->|question + retrieved fact IDs| LLM[Ollama · local model]
-    LLM -->|selected fact IDs · hypotheses| API
-    API -->|grounded response · limitations| UI
-
-    D[Deployment] -->|TRIGGERED| I[Incident]
-    D -->|DEPLOYED| S[Service]
-    P[Person] -->|AUTHORED| PR[PullRequest]
-    PR -->|CHANGED| S
-    PR -->|CONTAINS| C[Commit]
-    I -->|TRACKED_BY| T[Ticket]
-    S -->|DOCUMENTED_IN| DOC[Document]
-    T -->|REFERENCES| PR
-
-    DB --- D
-    DB --- I
-    DB --- S
-    DB --- P
+    UI[Streamlit: chat and five feature views] --> API[FastAPI and Pydantic]
+    API --> Agent[Bounded tool-calling agent]
+    Agent <--> LLM[OpenAI Responses API]
+    Agent --> Tools[Typed read-only graph tools]
+    API --> Tools
+    Tools --> DB[(FalkorDB)]
+    Upload[CSV / JSON uploads] --> Validate[Validate whole upload]
+    Validate --> Lock[Serialized idempotent upserts]
+    Lock --> DB
+    DB --> Evidence[Nodes, edges, paths and source bodies]
+    Evidence --> API
 ```
 
-The deployment/incident/change chain is the fixture's central scenario. The current fixture has no service-to-service dependency edge. Model-selected hypotheses, if returned, must cite evidence IDs and are displayed separately from graph-supported facts.
+The API owns all business logic. Streamlit consumes typed JSON. The model selects tools and composes claims; the server validates citations and constructs the evidence graph from actual retrieved records. Cited evidence is returned separately from the complete retrieval context.
+
+## Graph schema
+
+Every record has `:Entity` plus its kind label: Person, Service, PullRequest, Commit, Incident, Ticket, Document, or Deployment. IDs are source-qualified. Record fields are flat FalkorDB properties; timestamps are normalized to UTC with an internal numeric field for time filtering. Indexes support entity IDs and full-text title/body search.
+
+| Edge | Direction |
+|---|---|
+| AUTHORED | Person → PullRequest, Commit, Document |
+| MODIFIES | PullRequest or Commit → Service |
+| AFFECTS | Incident or Ticket → Service |
+| RESOLVED | Person → Incident or Ticket |
+| DEPENDS_ON | Service → Service |
+| DESCRIBES | Document → Service, Incident, Ticket |
+| DEPLOYED | Deployment → Service |
+| INCLUDES | Deployment or PullRequest → Commit |
+| LINKED_TO | Explicit record → record cross-reference |
+
+An investigation starts from an incident's AFFECTS edges, follows at most two DEPENDS_ON hops, then finds deployments in the chosen time window/environment. Only commits explicitly included by those deployments are candidates; PRs connect through those exact commits. Previous incidents, resolvers, authors, and resolution documents provide additional context.
+
+## Agent boundaries
+
+Tools: `search_entities`, `investigate_incident`, `find_experts`, `find_documents`, `get_evidence_paths`. Their arguments are Pydantic validated. Database reads use `GRAPH.RO_QUERY` and predefined parameterized Cypher; the agent cannot write the graph. Model tool execution is sequential with eight-call and 60-second default limits. SDK retries are disabled so repeated requests cannot silently expand the budget.
+
+Responses contain observed findings and hypotheses with evidence IDs. Unknown IDs invalidate the generated answer. Relationship claims should cite path IDs for exact visual inspection. Source text is treated as data, and history cannot authorize citations that were not retrieved again.
+
+## Persistence and updates
+
+Compose uses the pinned FalkorDB image digest and mounts `/var/lib/falkordb/data`, with AOF persistence enabled. Automatic seeding runs only on an empty canonical graph. The API and CLI share a renewable Redis import lock. Validation completes before writes; each node/edge upsert is retry-safe. Interrupted valid imports may be partially applied and are repaired by retrying. The prototype has no deletion API or background synchronization.

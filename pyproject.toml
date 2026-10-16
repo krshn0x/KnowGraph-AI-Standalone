@@ -1,20 +1,35 @@
 [build-system]
-requires = ["setuptools>=69"]
+requires = ["setuptools>=75"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "knowgraph-ai"
 version = "0.1.0"
-description = "Evidence-grounded local engineering investigator"
-requires-python = ">=3.12"
-dependencies = ["falkordb>=1.0.0", "fastapi>=0.115", "pydantic>=2.7", "pydantic-settings>=2.2", "streamlit>=1.36", "uvicorn>=0.30"]
+description = "An evidence-backed engineering company brain powered by FalkorDB"
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi==0.143.2", "uvicorn==0.54.0", "pydantic==2.14.1",
+  "pydantic-settings==2.16.0", "falkordb==1.8.0", "openai==2.54.0",
+  "streamlit==1.66.0", "pyvis==0.3.2", "httpx==0.28.1",
+  "python-multipart==0.0.32",
+]
 
 [project.optional-dependencies]
-dev = ["httpx>=0.27", "pytest>=8.0"]
+dev = ["pytest==9.1.1", "ruff==0.17.1"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "-ra"
+[project.scripts]
+knowgraph = "knowgraph.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["knowgraph*", "frontend*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: requires a running FalkorDB instance", "live: requires an OpenAI key and incurs API usage"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

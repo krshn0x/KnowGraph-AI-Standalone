@@ -1,1 +1,1 @@
-"""KnowGraph AI graph foundation."""
+"""KnowGraph AI."""

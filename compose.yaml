@@ -1,0 +1,68 @@
+name: knowgraph-ai
+
+services:
+  falkordb:
+    image: falkordb/falkordb@sha256:b0bdcac2cbaff989e77cb0610439b7a9289e86de033ccbbd4368b66fb680ae7a
+    ports:
+      - "127.0.0.1:${FALKORDB_PORT:-6379}:6379"
+    volumes:
+      - graph-data:/var/lib/falkordb/data
+    environment:
+      REDIS_ARGS: "--appendonly yes --save 60 1"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 2s
+      retries: 30
+
+  seed:
+    build: .
+    command: ["knowgraph", "seed", "--only-if-empty"]
+    environment:
+      FALKORDB_HOST: falkordb
+      FALKORDB_PORT: 6379
+      FALKORDB_GRAPH: ${FALKORDB_GRAPH:-knowgraph}
+    depends_on:
+      falkordb:
+        condition: service_healthy
+
+  api:
+    build: .
+    command: ["uvicorn", "knowgraph.api:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      FALKORDB_HOST: falkordb
+      FALKORDB_PORT: 6379
+      FALKORDB_GRAPH: ${FALKORDB_GRAPH:-knowgraph}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6.1-sol}
+      AGENT_DEADLINE_SECONDS: ${AGENT_DEADLINE_SECONDS:-60}
+      AGENT_MAX_TOOL_CALLS: ${AGENT_MAX_TOOL_CALLS:-8}
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  frontend:
+    build: .
+    command: ["streamlit", "run", "frontend/app.py", "--server.address=0.0.0.0", "--server.port=8501", "--browser.gatherUsageStats=false"]
+    ports:
+      - "127.0.0.1:8501:8501"
+    environment:
+      API_BASE_URL: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  graph-data:

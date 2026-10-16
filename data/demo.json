@@ -1,0 +1,2228 @@
+{
+  "nodes": [
+    {
+      "id": "demo:ada",
+      "kind": "Person",
+      "title": "Ada Chen",
+      "body": "Engineer at fictional Northstar Labs. Contact handle: @ada.",
+      "source_ref": "fixture://northstar/ada"
+    },
+    {
+      "id": "demo:nina",
+      "kind": "Person",
+      "title": "Nina Patel",
+      "body": "Engineer at fictional Northstar Labs. Contact handle: @nina.",
+      "source_ref": "fixture://northstar/nina"
+    },
+    {
+      "id": "demo:bruno",
+      "kind": "Person",
+      "title": "Bruno Silva",
+      "body": "Engineer at fictional Northstar Labs. Contact handle: @bruno.",
+      "source_ref": "fixture://northstar/bruno"
+    },
+    {
+      "id": "demo:mei",
+      "kind": "Person",
+      "title": "Mei Tan",
+      "body": "Engineer at fictional Northstar Labs. Contact handle: @mei.",
+      "source_ref": "fixture://northstar/mei"
+    },
+    {
+      "id": "demo:omar",
+      "kind": "Person",
+      "title": "Omar Khan",
+      "body": "Engineer at fictional Northstar Labs. Contact handle: @omar.",
+      "source_ref": "fixture://northstar/omar"
+    },
+    {
+      "id": "demo:lena",
+      "kind": "Person",
+      "title": "Lena Ortiz",
+      "body": "Engineer at fictional Northstar Labs. Contact handle: @lena.",
+      "source_ref": "fixture://northstar/lena"
+    },
+    {
+      "id": "demo:sam",
+      "kind": "Person",
+      "title": "Sam Okafor",
+      "body": "Engineer at fictional Northstar Labs. Contact handle: @sam.",
+      "source_ref": "fixture://northstar/sam"
+    },
+    {
+      "id": "demo:priya",
+      "kind": "Person",
+      "title": "Priya Rao",
+      "body": "Engineer at fictional Northstar Labs. Contact handle: @priya.",
+      "source_ref": "fixture://northstar/priya"
+    },
+    {
+      "id": "demo:checkout",
+      "kind": "Service",
+      "title": "checkout",
+      "body": "Checkout API: shopping cart, retry policy and order submission.",
+      "source_ref": "fixture://northstar/checkout"
+    },
+    {
+      "id": "demo:payments",
+      "kind": "Service",
+      "title": "payments",
+      "body": "Payments API: payment authorization and ledger integration.",
+      "source_ref": "fixture://northstar/payments"
+    },
+    {
+      "id": "demo:ledger",
+      "kind": "Service",
+      "title": "ledger",
+      "body": "Ledger service: transaction storage and database connection pooling.",
+      "source_ref": "fixture://northstar/ledger"
+    },
+    {
+      "id": "demo:queue-worker",
+      "kind": "Service",
+      "title": "queue-worker",
+      "body": "Queue worker: background jobs, delivery retries and queue lag.",
+      "source_ref": "fixture://northstar/queue-worker"
+    },
+    {
+      "id": "demo:notifications",
+      "kind": "Service",
+      "title": "notifications",
+      "body": "Notifications service: email and message delivery.",
+      "source_ref": "fixture://northstar/notifications"
+    },
+    {
+      "id": "demo:analytics",
+      "kind": "Service",
+      "title": "analytics",
+      "body": "Analytics service: event aggregation and reporting.",
+      "source_ref": "fixture://northstar/analytics"
+    },
+    {
+      "id": "demo:inc-checkout",
+      "kind": "Incident",
+      "title": "Checkout errors after morning release",
+      "body": "HTTP 503 rate rose to 18%. Retry volume increased. Root cause is not yet confirmed.",
+      "source_ref": "fixture://northstar/inc-checkout",
+      "status": "investigating",
+      "environment": "production",
+      "occurred_at": "2026-10-15T10:00:00Z"
+    },
+    {
+      "id": "demo:inc-payments",
+      "kind": "Incident",
+      "title": "Payment authorization timeouts",
+      "body": "Authorization p99 reached 8 seconds. Ledger connection waits increased. Investigate dependency changes.",
+      "source_ref": "fixture://northstar/inc-payments",
+      "status": "investigating",
+      "environment": "production",
+      "occurred_at": "2026-10-15T11:00:00Z"
+    },
+    {
+      "id": "demo:inc-queue",
+      "kind": "Incident",
+      "title": "Recurring queue lag and duplicate retries",
+      "body": "Queue age exceeded 15 minutes. Similar retry storms occurred in September. No new worker deployment today.",
+      "source_ref": "fixture://northstar/inc-queue",
+      "status": "investigating",
+      "environment": "production",
+      "occurred_at": "2026-10-15T12:00:00Z"
+    },
+    {
+      "id": "demo:inc-checkout-old",
+      "kind": "Incident",
+      "title": "Checkout retry saturation in September",
+      "body": "Unbounded retries saturated downstream connections. Nina restored bounded exponential backoff.",
+      "source_ref": "fixture://northstar/inc-checkout-old",
+      "status": "resolved",
+      "environment": "production",
+      "occurred_at": "2026-09-12T09:00:00Z"
+    },
+    {
+      "id": "demo:inc-checkout-older",
+      "kind": "Incident",
+      "title": "Checkout retry budget exhausted in August",
+      "body": "Retry budget and jitter configuration corrected by Nina after investigating checkout overload.",
+      "source_ref": "fixture://northstar/inc-checkout-older",
+      "status": "resolved",
+      "environment": "production",
+      "occurred_at": "2026-08-20T09:00:00Z"
+    },
+    {
+      "id": "demo:inc-ledger-old",
+      "kind": "Incident",
+      "title": "Ledger database pool saturation",
+      "body": "Bruno restored pool limits after identifying idle transaction growth.",
+      "source_ref": "fixture://northstar/inc-ledger-old",
+      "status": "resolved",
+      "environment": "production",
+      "occurred_at": "2026-09-20T08:00:00Z"
+    },
+    {
+      "id": "demo:inc-queue-old",
+      "kind": "Incident",
+      "title": "Queue poison-message retry storm",
+      "body": "Mei isolated a poison message and configured dead-letter routing.",
+      "source_ref": "fixture://northstar/inc-queue-old",
+      "status": "resolved",
+      "environment": "production",
+      "occurred_at": "2026-09-24T08:00:00Z"
+    },
+    {
+      "id": "demo:inc-queue-older",
+      "kind": "Incident",
+      "title": "Queue dead-letter routing disabled",
+      "body": "Mei restored dead-letter routing to stop repeated job delivery.",
+      "source_ref": "fixture://northstar/inc-queue-older",
+      "status": "resolved",
+      "environment": "production",
+      "occurred_at": "2026-08-24T08:00:00Z"
+    },
+    {
+      "id": "demo:inc-analytics",
+      "kind": "Incident",
+      "title": "Analytics report delay",
+      "body": "Slow report job. Unrelated to checkout, payments and queue incidents.",
+      "source_ref": "fixture://northstar/inc-analytics",
+      "status": "resolved",
+      "environment": "production",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:pr-checkout-retry",
+      "kind": "PullRequest",
+      "title": "Adjust checkout retry policy",
+      "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+      "source_ref": "fixture://northstar/pr-checkout-retry",
+      "status": "merged",
+      "occurred_at": "2026-10-15T09:20:00Z"
+    },
+    {
+      "id": "demo:commit-checkout-retry",
+      "kind": "Commit",
+      "title": "Adjust checkout retry policy \u2014 implementation",
+      "body": "Changes retry configuration and timeout handling in checkout/client.py. Reviewed and merged; impact under investigation.",
+      "source_ref": "fixture://northstar/commit-checkout-retry",
+      "occurred_at": "2026-10-15T09:20:00Z"
+    },
+    {
+      "id": "demo:commit-checkout-retry-test",
+      "kind": "Commit",
+      "title": "Tests for Adjust checkout retry policy",
+      "body": "Regression tests for checkout.",
+      "source_ref": "fixture://northstar/commit-checkout-retry-test",
+      "occurred_at": "2026-10-15T09:20:00Z"
+    },
+    {
+      "id": "demo:pr-ledger-pool",
+      "kind": "PullRequest",
+      "title": "Reduce ledger connection pool size",
+      "body": "Change in ledger. Reduce ledger connection pool size. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-ledger-pool",
+      "status": "merged",
+      "occurred_at": "2026-10-15T10:10:00Z"
+    },
+    {
+      "id": "demo:commit-ledger-pool",
+      "kind": "Commit",
+      "title": "Reduce ledger connection pool size \u2014 implementation",
+      "body": "Change in ledger. Reduce ledger connection pool size. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-ledger-pool",
+      "occurred_at": "2026-10-15T10:10:00Z"
+    },
+    {
+      "id": "demo:commit-ledger-pool-test",
+      "kind": "Commit",
+      "title": "Tests for Reduce ledger connection pool size",
+      "body": "Regression tests for ledger.",
+      "source_ref": "fixture://northstar/commit-ledger-pool-test",
+      "occurred_at": "2026-10-15T10:10:00Z"
+    },
+    {
+      "id": "demo:pr-analytics-chart",
+      "kind": "PullRequest",
+      "title": "Add analytics report chart",
+      "body": "Change in analytics. Add analytics report chart. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-analytics-chart",
+      "status": "merged",
+      "occurred_at": "2026-10-15T09:30:00Z"
+    },
+    {
+      "id": "demo:commit-analytics-chart",
+      "kind": "Commit",
+      "title": "Add analytics report chart \u2014 implementation",
+      "body": "Change in analytics. Add analytics report chart. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-analytics-chart",
+      "occurred_at": "2026-10-15T09:30:00Z"
+    },
+    {
+      "id": "demo:commit-analytics-chart-test",
+      "kind": "Commit",
+      "title": "Tests for Add analytics report chart",
+      "body": "Regression tests for analytics.",
+      "source_ref": "fixture://northstar/commit-analytics-chart-test",
+      "occurred_at": "2026-10-15T09:30:00Z"
+    },
+    {
+      "id": "demo:pr-checkout-future",
+      "kind": "PullRequest",
+      "title": "Checkout response headers",
+      "body": "Change in checkout. Checkout response headers. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-checkout-future",
+      "status": "merged",
+      "occurred_at": "2026-10-15T10:20:00Z"
+    },
+    {
+      "id": "demo:commit-checkout-future",
+      "kind": "Commit",
+      "title": "Checkout response headers \u2014 implementation",
+      "body": "Change in checkout. Checkout response headers. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-checkout-future",
+      "occurred_at": "2026-10-15T10:20:00Z"
+    },
+    {
+      "id": "demo:commit-checkout-future-test",
+      "kind": "Commit",
+      "title": "Tests for Checkout response headers",
+      "body": "Regression tests for checkout.",
+      "source_ref": "fixture://northstar/commit-checkout-future-test",
+      "occurred_at": "2026-10-15T10:20:00Z"
+    },
+    {
+      "id": "demo:pr-checkout-staging",
+      "kind": "PullRequest",
+      "title": "Staging checkout cache experiment",
+      "body": "Change in checkout. Staging checkout cache experiment. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-checkout-staging",
+      "status": "merged",
+      "occurred_at": "2026-10-15T09:10:00Z"
+    },
+    {
+      "id": "demo:commit-checkout-staging",
+      "kind": "Commit",
+      "title": "Staging checkout cache experiment \u2014 implementation",
+      "body": "Change in checkout. Staging checkout cache experiment. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-checkout-staging",
+      "occurred_at": "2026-10-15T09:10:00Z"
+    },
+    {
+      "id": "demo:commit-checkout-staging-test",
+      "kind": "Commit",
+      "title": "Tests for Staging checkout cache experiment",
+      "body": "Regression tests for checkout.",
+      "source_ref": "fixture://northstar/commit-checkout-staging-test",
+      "occurred_at": "2026-10-15T09:10:00Z"
+    },
+    {
+      "id": "demo:pr-checkout-old",
+      "kind": "PullRequest",
+      "title": "Document checkout retry budgets",
+      "body": "Change in checkout. Document checkout retry budgets. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-checkout-old",
+      "status": "merged",
+      "occurred_at": "2026-10-01T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-checkout-old",
+      "kind": "Commit",
+      "title": "Document checkout retry budgets \u2014 implementation",
+      "body": "Change in checkout. Document checkout retry budgets. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-checkout-old",
+      "occurred_at": "2026-10-01T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-checkout-old-test",
+      "kind": "Commit",
+      "title": "Tests for Document checkout retry budgets",
+      "body": "Regression tests for checkout.",
+      "source_ref": "fixture://northstar/commit-checkout-old-test",
+      "occurred_at": "2026-10-01T08:00:00Z"
+    },
+    {
+      "id": "demo:pr-queue-routing",
+      "kind": "PullRequest",
+      "title": "Enable queue dead-letter routing",
+      "body": "Change in queue-worker. Enable queue dead-letter routing. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-queue-routing",
+      "status": "merged",
+      "occurred_at": "2026-09-24T10:00:00Z"
+    },
+    {
+      "id": "demo:commit-queue-routing",
+      "kind": "Commit",
+      "title": "Enable queue dead-letter routing \u2014 implementation",
+      "body": "Change in queue-worker. Enable queue dead-letter routing. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-queue-routing",
+      "occurred_at": "2026-09-24T10:00:00Z"
+    },
+    {
+      "id": "demo:pr-payments-trace",
+      "kind": "PullRequest",
+      "title": "Add payment trace context",
+      "body": "Change in payments. Add payment trace context. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-payments-trace",
+      "status": "merged",
+      "occurred_at": "2026-10-13T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-payments-trace",
+      "kind": "Commit",
+      "title": "Add payment trace context \u2014 implementation",
+      "body": "Change in payments. Add payment trace context. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-payments-trace",
+      "occurred_at": "2026-10-13T08:00:00Z"
+    },
+    {
+      "id": "demo:pr-notifications-template",
+      "kind": "PullRequest",
+      "title": "Update notification templates",
+      "body": "Change in notifications. Update notification templates. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-notifications-template",
+      "status": "merged",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-notifications-template",
+      "kind": "Commit",
+      "title": "Update notification templates \u2014 implementation",
+      "body": "Change in notifications. Update notification templates. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-notifications-template",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:pr-ledger-metrics",
+      "kind": "PullRequest",
+      "title": "Expose ledger pool utilization",
+      "body": "Change in ledger. Expose ledger pool utilization. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-ledger-metrics",
+      "status": "merged",
+      "occurred_at": "2026-09-21T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-ledger-metrics",
+      "kind": "Commit",
+      "title": "Expose ledger pool utilization \u2014 implementation",
+      "body": "Change in ledger. Expose ledger pool utilization. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-ledger-metrics",
+      "occurred_at": "2026-09-21T08:00:00Z"
+    },
+    {
+      "id": "demo:pr-queue-jitter",
+      "kind": "PullRequest",
+      "title": "Queue retry jitter limits",
+      "body": "Change in queue-worker. Queue retry jitter limits. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-queue-jitter",
+      "status": "merged",
+      "occurred_at": "2026-09-25T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-queue-jitter",
+      "kind": "Commit",
+      "title": "Queue retry jitter limits \u2014 implementation",
+      "body": "Change in queue-worker. Queue retry jitter limits. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-queue-jitter",
+      "occurred_at": "2026-09-25T08:00:00Z"
+    },
+    {
+      "id": "demo:pr-analytics-export",
+      "kind": "PullRequest",
+      "title": "Analytics CSV export",
+      "body": "Change in analytics. Analytics CSV export. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-analytics-export",
+      "status": "merged",
+      "occurred_at": "2026-10-12T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-analytics-export",
+      "kind": "Commit",
+      "title": "Analytics CSV export \u2014 implementation",
+      "body": "Change in analytics. Analytics CSV export. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-analytics-export",
+      "occurred_at": "2026-10-12T08:00:00Z"
+    },
+    {
+      "id": "demo:pr-payments-audit",
+      "kind": "PullRequest",
+      "title": "Payment audit event IDs",
+      "body": "Change in payments. Payment audit event IDs. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-payments-audit",
+      "status": "merged",
+      "occurred_at": "2026-10-10T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-payments-audit",
+      "kind": "Commit",
+      "title": "Payment audit event IDs \u2014 implementation",
+      "body": "Change in payments. Payment audit event IDs. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-payments-audit",
+      "occurred_at": "2026-10-10T08:00:00Z"
+    },
+    {
+      "id": "demo:pr-notifications-metrics",
+      "kind": "PullRequest",
+      "title": "Notification delivery metrics",
+      "body": "Change in notifications. Notification delivery metrics. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-notifications-metrics",
+      "status": "merged",
+      "occurred_at": "2026-10-11T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-notifications-metrics",
+      "kind": "Commit",
+      "title": "Notification delivery metrics \u2014 implementation",
+      "body": "Change in notifications. Notification delivery metrics. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-notifications-metrics",
+      "occurred_at": "2026-10-11T08:00:00Z"
+    },
+    {
+      "id": "demo:pr-ledger-read",
+      "kind": "PullRequest",
+      "title": "Ledger read timeout",
+      "body": "Change in ledger. Ledger read timeout. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-ledger-read",
+      "status": "merged",
+      "occurred_at": "2026-10-09T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-ledger-read",
+      "kind": "Commit",
+      "title": "Ledger read timeout \u2014 implementation",
+      "body": "Change in ledger. Ledger read timeout. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-ledger-read",
+      "occurred_at": "2026-10-09T08:00:00Z"
+    },
+    {
+      "id": "demo:pr-checkout-cart",
+      "kind": "PullRequest",
+      "title": "Checkout cart validation",
+      "body": "Change in checkout. Checkout cart validation. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-checkout-cart",
+      "status": "merged",
+      "occurred_at": "2026-10-08T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-checkout-cart",
+      "kind": "Commit",
+      "title": "Checkout cart validation \u2014 implementation",
+      "body": "Change in checkout. Checkout cart validation. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-checkout-cart",
+      "occurred_at": "2026-10-08T08:00:00Z"
+    },
+    {
+      "id": "demo:pr-queue-health",
+      "kind": "PullRequest",
+      "title": "Queue worker readiness probe",
+      "body": "Change in queue-worker. Queue worker readiness probe. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-queue-health",
+      "status": "merged",
+      "occurred_at": "2026-10-07T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-queue-health",
+      "kind": "Commit",
+      "title": "Queue worker readiness probe \u2014 implementation",
+      "body": "Change in queue-worker. Queue worker readiness probe. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-queue-health",
+      "occurred_at": "2026-10-07T08:00:00Z"
+    },
+    {
+      "id": "demo:pr-analytics-cache",
+      "kind": "PullRequest",
+      "title": "Analytics report cache",
+      "body": "Change in analytics. Analytics report cache. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/pr-analytics-cache",
+      "status": "merged",
+      "occurred_at": "2026-10-06T08:00:00Z"
+    },
+    {
+      "id": "demo:commit-analytics-cache",
+      "kind": "Commit",
+      "title": "Analytics report cache \u2014 implementation",
+      "body": "Change in analytics. Analytics report cache. Review deployment lineage before attributing an incident.",
+      "source_ref": "fixture://northstar/commit-analytics-cache",
+      "occurred_at": "2026-10-06T08:00:00Z"
+    },
+    {
+      "id": "demo:deploy-checkout-retry",
+      "kind": "Deployment",
+      "title": "Deploy checkout-retry",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-checkout-retry",
+      "environment": "production",
+      "status": "completed",
+      "occurred_at": "2026-10-15T09:50:00Z"
+    },
+    {
+      "id": "demo:deploy-ledger-pool",
+      "kind": "Deployment",
+      "title": "Deploy ledger-pool",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-ledger-pool",
+      "environment": "production",
+      "status": "completed",
+      "occurred_at": "2026-10-15T10:40:00Z"
+    },
+    {
+      "id": "demo:deploy-analytics-chart",
+      "kind": "Deployment",
+      "title": "Deploy analytics-chart",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-analytics-chart",
+      "environment": "production",
+      "status": "completed",
+      "occurred_at": "2026-10-15T09:55:00Z"
+    },
+    {
+      "id": "demo:deploy-checkout-future",
+      "kind": "Deployment",
+      "title": "Deploy checkout-future",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-checkout-future",
+      "environment": "production",
+      "status": "completed",
+      "occurred_at": "2026-10-15T10:30:00Z"
+    },
+    {
+      "id": "demo:deploy-checkout-staging",
+      "kind": "Deployment",
+      "title": "Deploy checkout-staging",
+      "body": "Release to staging.",
+      "source_ref": "fixture://northstar/deploy-checkout-staging",
+      "environment": "staging",
+      "status": "completed",
+      "occurred_at": "2026-10-15T09:40:00Z"
+    },
+    {
+      "id": "demo:deploy-checkout-old",
+      "kind": "Deployment",
+      "title": "Deploy checkout-old",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-checkout-old",
+      "environment": "production",
+      "status": "completed",
+      "occurred_at": "2026-10-01T09:00:00Z"
+    },
+    {
+      "id": "demo:deploy-queue-routing",
+      "kind": "Deployment",
+      "title": "Deploy queue-routing",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-queue-routing",
+      "environment": "production",
+      "status": "completed",
+      "occurred_at": "2026-09-24T11:00:00Z"
+    },
+    {
+      "id": "demo:deploy-payments-trace",
+      "kind": "Deployment",
+      "title": "Deploy payments-trace",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-payments-trace",
+      "environment": "production",
+      "status": "completed",
+      "occurred_at": "2026-10-13T09:00:00Z"
+    },
+    {
+      "id": "demo:deploy-notifications-template",
+      "kind": "Deployment",
+      "title": "Deploy notifications-template",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-notifications-template",
+      "environment": "production",
+      "status": "completed",
+      "occurred_at": "2026-10-14T09:00:00Z"
+    },
+    {
+      "id": "demo:deploy-ledger-metrics",
+      "kind": "Deployment",
+      "title": "Deploy ledger-metrics",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-ledger-metrics",
+      "environment": "production",
+      "status": "completed",
+      "occurred_at": "2026-09-21T09:00:00Z"
+    },
+    {
+      "id": "demo:deploy-queue-jitter",
+      "kind": "Deployment",
+      "title": "Deploy queue-jitter",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-queue-jitter",
+      "environment": "production",
+      "status": "completed",
+      "occurred_at": "2026-09-25T09:00:00Z"
+    },
+    {
+      "id": "demo:deploy-analytics-export",
+      "kind": "Deployment",
+      "title": "Deploy analytics-export",
+      "body": "Release to production.",
+      "source_ref": "fixture://northstar/deploy-analytics-export",
+      "environment": "production",
+      "status": "completed",
+      "occurred_at": "2026-10-12T09:00:00Z"
+    },
+    {
+      "id": "demo:doc-checkout-runbook",
+      "kind": "Document",
+      "title": "checkout runbook",
+      "body": "Check checkout metrics, identify recent deployments, compare historical incidents, and escalate to @nina. For retry saturation, inspect retry budget, exponential backoff and jitter before proposing rollback.",
+      "source_ref": "fixture://northstar/doc-checkout-runbook",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-checkout-architecture",
+      "kind": "Document",
+      "title": "checkout architecture guide",
+      "body": "Checkout API: shopping cart, retry policy and order submission.",
+      "source_ref": "fixture://northstar/doc-checkout-architecture",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-checkout-operations",
+      "kind": "Document",
+      "title": "checkout operations checklist",
+      "body": "Verify checkout readiness, error rate, retry volume and dependency health.",
+      "source_ref": "fixture://northstar/doc-checkout-operations",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-checkout-1",
+      "kind": "Ticket",
+      "title": "checkout: review alerts",
+      "body": "Track checkout reliability and link operational evidence. Owner: @nina.",
+      "source_ref": "fixture://northstar/ticket-checkout-1",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-checkout-2",
+      "kind": "Ticket",
+      "title": "checkout: operational follow-up",
+      "body": "Track checkout reliability and link operational evidence. Owner: @nina.",
+      "source_ref": "fixture://northstar/ticket-checkout-2",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-checkout-3",
+      "kind": "Ticket",
+      "title": "checkout: on-call handoff",
+      "body": "Track checkout reliability and link operational evidence. Owner: @nina.",
+      "source_ref": "fixture://northstar/ticket-checkout-3",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-payments-runbook",
+      "kind": "Document",
+      "title": "payments runbook",
+      "body": "Check payments metrics, identify recent deployments, compare historical incidents, and escalate to @priya.",
+      "source_ref": "fixture://northstar/doc-payments-runbook",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-payments-architecture",
+      "kind": "Document",
+      "title": "payments architecture guide",
+      "body": "Payments API: payment authorization and ledger integration.",
+      "source_ref": "fixture://northstar/doc-payments-architecture",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-payments-operations",
+      "kind": "Document",
+      "title": "payments operations checklist",
+      "body": "Verify payments readiness, error rate, retry volume and dependency health.",
+      "source_ref": "fixture://northstar/doc-payments-operations",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-payments-1",
+      "kind": "Ticket",
+      "title": "payments: review alerts",
+      "body": "Track payments reliability and link operational evidence. Owner: @priya.",
+      "source_ref": "fixture://northstar/ticket-payments-1",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-payments-2",
+      "kind": "Ticket",
+      "title": "payments: operational follow-up",
+      "body": "Track payments reliability and link operational evidence. Owner: @priya.",
+      "source_ref": "fixture://northstar/ticket-payments-2",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-payments-3",
+      "kind": "Ticket",
+      "title": "payments: on-call handoff",
+      "body": "Track payments reliability and link operational evidence. Owner: @priya.",
+      "source_ref": "fixture://northstar/ticket-payments-3",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-ledger-runbook",
+      "kind": "Document",
+      "title": "ledger runbook",
+      "body": "Check ledger metrics, identify recent deployments, compare historical incidents, and escalate to @bruno. Inspect database wait time and connection pool limits; Bruno investigated pool saturation.",
+      "source_ref": "fixture://northstar/doc-ledger-runbook",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-ledger-architecture",
+      "kind": "Document",
+      "title": "ledger architecture guide",
+      "body": "Ledger service: transaction storage and database connection pooling.",
+      "source_ref": "fixture://northstar/doc-ledger-architecture",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-ledger-operations",
+      "kind": "Document",
+      "title": "ledger operations checklist",
+      "body": "Verify ledger readiness, error rate, retry volume and dependency health.",
+      "source_ref": "fixture://northstar/doc-ledger-operations",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-ledger-1",
+      "kind": "Ticket",
+      "title": "ledger: review alerts",
+      "body": "Track ledger reliability and link operational evidence. Owner: @bruno.",
+      "source_ref": "fixture://northstar/ticket-ledger-1",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-ledger-2",
+      "kind": "Ticket",
+      "title": "ledger: operational follow-up",
+      "body": "Track ledger reliability and link operational evidence. Owner: @bruno.",
+      "source_ref": "fixture://northstar/ticket-ledger-2",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-ledger-3",
+      "kind": "Ticket",
+      "title": "ledger: on-call handoff",
+      "body": "Track ledger reliability and link operational evidence. Owner: @bruno.",
+      "source_ref": "fixture://northstar/ticket-ledger-3",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-queue-worker-runbook",
+      "kind": "Document",
+      "title": "queue-worker runbook",
+      "body": "Check queue-worker metrics, identify recent deployments, compare historical incidents, and escalate to @mei. For recurring lag, inspect poison messages and dead-letter routing. Mei handled both previous incidents.",
+      "source_ref": "fixture://northstar/doc-queue-worker-runbook",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-queue-worker-architecture",
+      "kind": "Document",
+      "title": "queue-worker architecture guide",
+      "body": "Queue worker: background jobs, delivery retries and queue lag.",
+      "source_ref": "fixture://northstar/doc-queue-worker-architecture",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-queue-worker-operations",
+      "kind": "Document",
+      "title": "queue-worker operations checklist",
+      "body": "Verify queue-worker readiness, error rate, retry volume and dependency health.",
+      "source_ref": "fixture://northstar/doc-queue-worker-operations",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-queue-worker-1",
+      "kind": "Ticket",
+      "title": "queue-worker: review alerts",
+      "body": "Track queue-worker reliability and link operational evidence. Owner: @mei.",
+      "source_ref": "fixture://northstar/ticket-queue-worker-1",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-queue-worker-2",
+      "kind": "Ticket",
+      "title": "queue-worker: operational follow-up",
+      "body": "Track queue-worker reliability and link operational evidence. Owner: @mei.",
+      "source_ref": "fixture://northstar/ticket-queue-worker-2",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-queue-worker-3",
+      "kind": "Ticket",
+      "title": "queue-worker: on-call handoff",
+      "body": "Track queue-worker reliability and link operational evidence. Owner: @mei.",
+      "source_ref": "fixture://northstar/ticket-queue-worker-3",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-notifications-runbook",
+      "kind": "Document",
+      "title": "notifications runbook",
+      "body": "Check notifications metrics, identify recent deployments, compare historical incidents, and escalate to @lena.",
+      "source_ref": "fixture://northstar/doc-notifications-runbook",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-notifications-architecture",
+      "kind": "Document",
+      "title": "notifications architecture guide",
+      "body": "Notifications service: email and message delivery.",
+      "source_ref": "fixture://northstar/doc-notifications-architecture",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-notifications-operations",
+      "kind": "Document",
+      "title": "notifications operations checklist",
+      "body": "Verify notifications readiness, error rate, retry volume and dependency health.",
+      "source_ref": "fixture://northstar/doc-notifications-operations",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-notifications-1",
+      "kind": "Ticket",
+      "title": "notifications: review alerts",
+      "body": "Track notifications reliability and link operational evidence. Owner: @lena.",
+      "source_ref": "fixture://northstar/ticket-notifications-1",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-notifications-2",
+      "kind": "Ticket",
+      "title": "notifications: operational follow-up",
+      "body": "Track notifications reliability and link operational evidence. Owner: @lena.",
+      "source_ref": "fixture://northstar/ticket-notifications-2",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-notifications-3",
+      "kind": "Ticket",
+      "title": "notifications: on-call handoff",
+      "body": "Track notifications reliability and link operational evidence. Owner: @lena.",
+      "source_ref": "fixture://northstar/ticket-notifications-3",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-analytics-runbook",
+      "kind": "Document",
+      "title": "analytics runbook",
+      "body": "Check analytics metrics, identify recent deployments, compare historical incidents, and escalate to @omar.",
+      "source_ref": "fixture://northstar/doc-analytics-runbook",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-analytics-architecture",
+      "kind": "Document",
+      "title": "analytics architecture guide",
+      "body": "Analytics service: event aggregation and reporting.",
+      "source_ref": "fixture://northstar/doc-analytics-architecture",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:doc-analytics-operations",
+      "kind": "Document",
+      "title": "analytics operations checklist",
+      "body": "Verify analytics readiness, error rate, retry volume and dependency health.",
+      "source_ref": "fixture://northstar/doc-analytics-operations",
+      "occurred_at": "2026-10-02T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-analytics-1",
+      "kind": "Ticket",
+      "title": "analytics: review alerts",
+      "body": "Track analytics reliability and link operational evidence. Owner: @omar.",
+      "source_ref": "fixture://northstar/ticket-analytics-1",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-analytics-2",
+      "kind": "Ticket",
+      "title": "analytics: operational follow-up",
+      "body": "Track analytics reliability and link operational evidence. Owner: @omar.",
+      "source_ref": "fixture://northstar/ticket-analytics-2",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    },
+    {
+      "id": "demo:ticket-analytics-3",
+      "kind": "Ticket",
+      "title": "analytics: on-call handoff",
+      "body": "Track analytics reliability and link operational evidence. Owner: @omar.",
+      "source_ref": "fixture://northstar/ticket-analytics-3",
+      "status": "open",
+      "occurred_at": "2026-10-14T08:00:00Z"
+    }
+  ],
+  "edges": [
+    {
+      "source": "demo:checkout",
+      "kind": "DEPENDS_ON",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/checkout/DEPENDS_ON/payments"
+    },
+    {
+      "source": "demo:payments",
+      "kind": "DEPENDS_ON",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/payments/DEPENDS_ON/ledger"
+    },
+    {
+      "source": "demo:notifications",
+      "kind": "DEPENDS_ON",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/notifications/DEPENDS_ON/queue-worker"
+    },
+    {
+      "source": "demo:inc-checkout",
+      "kind": "AFFECTS",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/inc-checkout/AFFECTS/checkout"
+    },
+    {
+      "source": "demo:inc-payments",
+      "kind": "AFFECTS",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/inc-payments/AFFECTS/payments"
+    },
+    {
+      "source": "demo:inc-queue",
+      "kind": "AFFECTS",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/inc-queue/AFFECTS/queue-worker"
+    },
+    {
+      "source": "demo:inc-checkout-old",
+      "kind": "AFFECTS",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/inc-checkout-old/AFFECTS/checkout"
+    },
+    {
+      "source": "demo:nina",
+      "kind": "RESOLVED",
+      "target": "demo:inc-checkout-old",
+      "source_ref": "fixture://northstar/links/nina/RESOLVED/inc-checkout-old"
+    },
+    {
+      "source": "demo:inc-checkout-older",
+      "kind": "AFFECTS",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/inc-checkout-older/AFFECTS/checkout"
+    },
+    {
+      "source": "demo:nina",
+      "kind": "RESOLVED",
+      "target": "demo:inc-checkout-older",
+      "source_ref": "fixture://northstar/links/nina/RESOLVED/inc-checkout-older"
+    },
+    {
+      "source": "demo:inc-ledger-old",
+      "kind": "AFFECTS",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/inc-ledger-old/AFFECTS/ledger"
+    },
+    {
+      "source": "demo:bruno",
+      "kind": "RESOLVED",
+      "target": "demo:inc-ledger-old",
+      "source_ref": "fixture://northstar/links/bruno/RESOLVED/inc-ledger-old"
+    },
+    {
+      "source": "demo:inc-queue-old",
+      "kind": "AFFECTS",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/inc-queue-old/AFFECTS/queue-worker"
+    },
+    {
+      "source": "demo:mei",
+      "kind": "RESOLVED",
+      "target": "demo:inc-queue-old",
+      "source_ref": "fixture://northstar/links/mei/RESOLVED/inc-queue-old"
+    },
+    {
+      "source": "demo:inc-queue-older",
+      "kind": "AFFECTS",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/inc-queue-older/AFFECTS/queue-worker"
+    },
+    {
+      "source": "demo:mei",
+      "kind": "RESOLVED",
+      "target": "demo:inc-queue-older",
+      "source_ref": "fixture://northstar/links/mei/RESOLVED/inc-queue-older"
+    },
+    {
+      "source": "demo:inc-analytics",
+      "kind": "AFFECTS",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/inc-analytics/AFFECTS/analytics"
+    },
+    {
+      "source": "demo:omar",
+      "kind": "RESOLVED",
+      "target": "demo:inc-analytics",
+      "source_ref": "fixture://northstar/links/omar/RESOLVED/inc-analytics"
+    },
+    {
+      "source": "demo:ada",
+      "kind": "AUTHORED",
+      "target": "demo:pr-checkout-retry",
+      "source_ref": "fixture://northstar/links/ada/AUTHORED/pr-checkout-retry"
+    },
+    {
+      "source": "demo:ada",
+      "kind": "AUTHORED",
+      "target": "demo:commit-checkout-retry",
+      "source_ref": "fixture://northstar/links/ada/AUTHORED/commit-checkout-retry"
+    },
+    {
+      "source": "demo:pr-checkout-retry",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-retry",
+      "source_ref": "fixture://northstar/links/pr-checkout-retry/INCLUDES/commit-checkout-retry"
+    },
+    {
+      "source": "demo:pr-checkout-retry",
+      "kind": "MODIFIES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/pr-checkout-retry/MODIFIES/checkout"
+    },
+    {
+      "source": "demo:commit-checkout-retry",
+      "kind": "MODIFIES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/commit-checkout-retry/MODIFIES/checkout"
+    },
+    {
+      "source": "demo:ada",
+      "kind": "AUTHORED",
+      "target": "demo:commit-checkout-retry-test",
+      "source_ref": "fixture://northstar/links/ada/AUTHORED/commit-checkout-retry-test"
+    },
+    {
+      "source": "demo:pr-checkout-retry",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-retry-test",
+      "source_ref": "fixture://northstar/links/pr-checkout-retry/INCLUDES/commit-checkout-retry-test"
+    },
+    {
+      "source": "demo:bruno",
+      "kind": "AUTHORED",
+      "target": "demo:pr-ledger-pool",
+      "source_ref": "fixture://northstar/links/bruno/AUTHORED/pr-ledger-pool"
+    },
+    {
+      "source": "demo:bruno",
+      "kind": "AUTHORED",
+      "target": "demo:commit-ledger-pool",
+      "source_ref": "fixture://northstar/links/bruno/AUTHORED/commit-ledger-pool"
+    },
+    {
+      "source": "demo:pr-ledger-pool",
+      "kind": "INCLUDES",
+      "target": "demo:commit-ledger-pool",
+      "source_ref": "fixture://northstar/links/pr-ledger-pool/INCLUDES/commit-ledger-pool"
+    },
+    {
+      "source": "demo:pr-ledger-pool",
+      "kind": "MODIFIES",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/pr-ledger-pool/MODIFIES/ledger"
+    },
+    {
+      "source": "demo:commit-ledger-pool",
+      "kind": "MODIFIES",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/commit-ledger-pool/MODIFIES/ledger"
+    },
+    {
+      "source": "demo:bruno",
+      "kind": "AUTHORED",
+      "target": "demo:commit-ledger-pool-test",
+      "source_ref": "fixture://northstar/links/bruno/AUTHORED/commit-ledger-pool-test"
+    },
+    {
+      "source": "demo:pr-ledger-pool",
+      "kind": "INCLUDES",
+      "target": "demo:commit-ledger-pool-test",
+      "source_ref": "fixture://northstar/links/pr-ledger-pool/INCLUDES/commit-ledger-pool-test"
+    },
+    {
+      "source": "demo:omar",
+      "kind": "AUTHORED",
+      "target": "demo:pr-analytics-chart",
+      "source_ref": "fixture://northstar/links/omar/AUTHORED/pr-analytics-chart"
+    },
+    {
+      "source": "demo:omar",
+      "kind": "AUTHORED",
+      "target": "demo:commit-analytics-chart",
+      "source_ref": "fixture://northstar/links/omar/AUTHORED/commit-analytics-chart"
+    },
+    {
+      "source": "demo:pr-analytics-chart",
+      "kind": "INCLUDES",
+      "target": "demo:commit-analytics-chart",
+      "source_ref": "fixture://northstar/links/pr-analytics-chart/INCLUDES/commit-analytics-chart"
+    },
+    {
+      "source": "demo:pr-analytics-chart",
+      "kind": "MODIFIES",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/pr-analytics-chart/MODIFIES/analytics"
+    },
+    {
+      "source": "demo:commit-analytics-chart",
+      "kind": "MODIFIES",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/commit-analytics-chart/MODIFIES/analytics"
+    },
+    {
+      "source": "demo:omar",
+      "kind": "AUTHORED",
+      "target": "demo:commit-analytics-chart-test",
+      "source_ref": "fixture://northstar/links/omar/AUTHORED/commit-analytics-chart-test"
+    },
+    {
+      "source": "demo:pr-analytics-chart",
+      "kind": "INCLUDES",
+      "target": "demo:commit-analytics-chart-test",
+      "source_ref": "fixture://northstar/links/pr-analytics-chart/INCLUDES/commit-analytics-chart-test"
+    },
+    {
+      "source": "demo:sam",
+      "kind": "AUTHORED",
+      "target": "demo:pr-checkout-future",
+      "source_ref": "fixture://northstar/links/sam/AUTHORED/pr-checkout-future"
+    },
+    {
+      "source": "demo:sam",
+      "kind": "AUTHORED",
+      "target": "demo:commit-checkout-future",
+      "source_ref": "fixture://northstar/links/sam/AUTHORED/commit-checkout-future"
+    },
+    {
+      "source": "demo:pr-checkout-future",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-future",
+      "source_ref": "fixture://northstar/links/pr-checkout-future/INCLUDES/commit-checkout-future"
+    },
+    {
+      "source": "demo:pr-checkout-future",
+      "kind": "MODIFIES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/pr-checkout-future/MODIFIES/checkout"
+    },
+    {
+      "source": "demo:commit-checkout-future",
+      "kind": "MODIFIES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/commit-checkout-future/MODIFIES/checkout"
+    },
+    {
+      "source": "demo:sam",
+      "kind": "AUTHORED",
+      "target": "demo:commit-checkout-future-test",
+      "source_ref": "fixture://northstar/links/sam/AUTHORED/commit-checkout-future-test"
+    },
+    {
+      "source": "demo:pr-checkout-future",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-future-test",
+      "source_ref": "fixture://northstar/links/pr-checkout-future/INCLUDES/commit-checkout-future-test"
+    },
+    {
+      "source": "demo:lena",
+      "kind": "AUTHORED",
+      "target": "demo:pr-checkout-staging",
+      "source_ref": "fixture://northstar/links/lena/AUTHORED/pr-checkout-staging"
+    },
+    {
+      "source": "demo:lena",
+      "kind": "AUTHORED",
+      "target": "demo:commit-checkout-staging",
+      "source_ref": "fixture://northstar/links/lena/AUTHORED/commit-checkout-staging"
+    },
+    {
+      "source": "demo:pr-checkout-staging",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-staging",
+      "source_ref": "fixture://northstar/links/pr-checkout-staging/INCLUDES/commit-checkout-staging"
+    },
+    {
+      "source": "demo:pr-checkout-staging",
+      "kind": "MODIFIES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/pr-checkout-staging/MODIFIES/checkout"
+    },
+    {
+      "source": "demo:commit-checkout-staging",
+      "kind": "MODIFIES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/commit-checkout-staging/MODIFIES/checkout"
+    },
+    {
+      "source": "demo:lena",
+      "kind": "AUTHORED",
+      "target": "demo:commit-checkout-staging-test",
+      "source_ref": "fixture://northstar/links/lena/AUTHORED/commit-checkout-staging-test"
+    },
+    {
+      "source": "demo:pr-checkout-staging",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-staging-test",
+      "source_ref": "fixture://northstar/links/pr-checkout-staging/INCLUDES/commit-checkout-staging-test"
+    },
+    {
+      "source": "demo:nina",
+      "kind": "AUTHORED",
+      "target": "demo:pr-checkout-old",
+      "source_ref": "fixture://northstar/links/nina/AUTHORED/pr-checkout-old"
+    },
+    {
+      "source": "demo:nina",
+      "kind": "AUTHORED",
+      "target": "demo:commit-checkout-old",
+      "source_ref": "fixture://northstar/links/nina/AUTHORED/commit-checkout-old"
+    },
+    {
+      "source": "demo:pr-checkout-old",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-old",
+      "source_ref": "fixture://northstar/links/pr-checkout-old/INCLUDES/commit-checkout-old"
+    },
+    {
+      "source": "demo:pr-checkout-old",
+      "kind": "MODIFIES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/pr-checkout-old/MODIFIES/checkout"
+    },
+    {
+      "source": "demo:commit-checkout-old",
+      "kind": "MODIFIES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/commit-checkout-old/MODIFIES/checkout"
+    },
+    {
+      "source": "demo:nina",
+      "kind": "AUTHORED",
+      "target": "demo:commit-checkout-old-test",
+      "source_ref": "fixture://northstar/links/nina/AUTHORED/commit-checkout-old-test"
+    },
+    {
+      "source": "demo:pr-checkout-old",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-old-test",
+      "source_ref": "fixture://northstar/links/pr-checkout-old/INCLUDES/commit-checkout-old-test"
+    },
+    {
+      "source": "demo:mei",
+      "kind": "AUTHORED",
+      "target": "demo:pr-queue-routing",
+      "source_ref": "fixture://northstar/links/mei/AUTHORED/pr-queue-routing"
+    },
+    {
+      "source": "demo:mei",
+      "kind": "AUTHORED",
+      "target": "demo:commit-queue-routing",
+      "source_ref": "fixture://northstar/links/mei/AUTHORED/commit-queue-routing"
+    },
+    {
+      "source": "demo:pr-queue-routing",
+      "kind": "INCLUDES",
+      "target": "demo:commit-queue-routing",
+      "source_ref": "fixture://northstar/links/pr-queue-routing/INCLUDES/commit-queue-routing"
+    },
+    {
+      "source": "demo:pr-queue-routing",
+      "kind": "MODIFIES",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/pr-queue-routing/MODIFIES/queue-worker"
+    },
+    {
+      "source": "demo:commit-queue-routing",
+      "kind": "MODIFIES",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/commit-queue-routing/MODIFIES/queue-worker"
+    },
+    {
+      "source": "demo:priya",
+      "kind": "AUTHORED",
+      "target": "demo:pr-payments-trace",
+      "source_ref": "fixture://northstar/links/priya/AUTHORED/pr-payments-trace"
+    },
+    {
+      "source": "demo:priya",
+      "kind": "AUTHORED",
+      "target": "demo:commit-payments-trace",
+      "source_ref": "fixture://northstar/links/priya/AUTHORED/commit-payments-trace"
+    },
+    {
+      "source": "demo:pr-payments-trace",
+      "kind": "INCLUDES",
+      "target": "demo:commit-payments-trace",
+      "source_ref": "fixture://northstar/links/pr-payments-trace/INCLUDES/commit-payments-trace"
+    },
+    {
+      "source": "demo:pr-payments-trace",
+      "kind": "MODIFIES",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/pr-payments-trace/MODIFIES/payments"
+    },
+    {
+      "source": "demo:commit-payments-trace",
+      "kind": "MODIFIES",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/commit-payments-trace/MODIFIES/payments"
+    },
+    {
+      "source": "demo:lena",
+      "kind": "AUTHORED",
+      "target": "demo:pr-notifications-template",
+      "source_ref": "fixture://northstar/links/lena/AUTHORED/pr-notifications-template"
+    },
+    {
+      "source": "demo:lena",
+      "kind": "AUTHORED",
+      "target": "demo:commit-notifications-template",
+      "source_ref": "fixture://northstar/links/lena/AUTHORED/commit-notifications-template"
+    },
+    {
+      "source": "demo:pr-notifications-template",
+      "kind": "INCLUDES",
+      "target": "demo:commit-notifications-template",
+      "source_ref": "fixture://northstar/links/pr-notifications-template/INCLUDES/commit-notifications-template"
+    },
+    {
+      "source": "demo:pr-notifications-template",
+      "kind": "MODIFIES",
+      "target": "demo:notifications",
+      "source_ref": "fixture://northstar/links/pr-notifications-template/MODIFIES/notifications"
+    },
+    {
+      "source": "demo:commit-notifications-template",
+      "kind": "MODIFIES",
+      "target": "demo:notifications",
+      "source_ref": "fixture://northstar/links/commit-notifications-template/MODIFIES/notifications"
+    },
+    {
+      "source": "demo:bruno",
+      "kind": "AUTHORED",
+      "target": "demo:pr-ledger-metrics",
+      "source_ref": "fixture://northstar/links/bruno/AUTHORED/pr-ledger-metrics"
+    },
+    {
+      "source": "demo:bruno",
+      "kind": "AUTHORED",
+      "target": "demo:commit-ledger-metrics",
+      "source_ref": "fixture://northstar/links/bruno/AUTHORED/commit-ledger-metrics"
+    },
+    {
+      "source": "demo:pr-ledger-metrics",
+      "kind": "INCLUDES",
+      "target": "demo:commit-ledger-metrics",
+      "source_ref": "fixture://northstar/links/pr-ledger-metrics/INCLUDES/commit-ledger-metrics"
+    },
+    {
+      "source": "demo:pr-ledger-metrics",
+      "kind": "MODIFIES",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/pr-ledger-metrics/MODIFIES/ledger"
+    },
+    {
+      "source": "demo:commit-ledger-metrics",
+      "kind": "MODIFIES",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/commit-ledger-metrics/MODIFIES/ledger"
+    },
+    {
+      "source": "demo:mei",
+      "kind": "AUTHORED",
+      "target": "demo:pr-queue-jitter",
+      "source_ref": "fixture://northstar/links/mei/AUTHORED/pr-queue-jitter"
+    },
+    {
+      "source": "demo:mei",
+      "kind": "AUTHORED",
+      "target": "demo:commit-queue-jitter",
+      "source_ref": "fixture://northstar/links/mei/AUTHORED/commit-queue-jitter"
+    },
+    {
+      "source": "demo:pr-queue-jitter",
+      "kind": "INCLUDES",
+      "target": "demo:commit-queue-jitter",
+      "source_ref": "fixture://northstar/links/pr-queue-jitter/INCLUDES/commit-queue-jitter"
+    },
+    {
+      "source": "demo:pr-queue-jitter",
+      "kind": "MODIFIES",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/pr-queue-jitter/MODIFIES/queue-worker"
+    },
+    {
+      "source": "demo:commit-queue-jitter",
+      "kind": "MODIFIES",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/commit-queue-jitter/MODIFIES/queue-worker"
+    },
+    {
+      "source": "demo:omar",
+      "kind": "AUTHORED",
+      "target": "demo:pr-analytics-export",
+      "source_ref": "fixture://northstar/links/omar/AUTHORED/pr-analytics-export"
+    },
+    {
+      "source": "demo:omar",
+      "kind": "AUTHORED",
+      "target": "demo:commit-analytics-export",
+      "source_ref": "fixture://northstar/links/omar/AUTHORED/commit-analytics-export"
+    },
+    {
+      "source": "demo:pr-analytics-export",
+      "kind": "INCLUDES",
+      "target": "demo:commit-analytics-export",
+      "source_ref": "fixture://northstar/links/pr-analytics-export/INCLUDES/commit-analytics-export"
+    },
+    {
+      "source": "demo:pr-analytics-export",
+      "kind": "MODIFIES",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/pr-analytics-export/MODIFIES/analytics"
+    },
+    {
+      "source": "demo:commit-analytics-export",
+      "kind": "MODIFIES",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/commit-analytics-export/MODIFIES/analytics"
+    },
+    {
+      "source": "demo:priya",
+      "kind": "AUTHORED",
+      "target": "demo:pr-payments-audit",
+      "source_ref": "fixture://northstar/links/priya/AUTHORED/pr-payments-audit"
+    },
+    {
+      "source": "demo:priya",
+      "kind": "AUTHORED",
+      "target": "demo:commit-payments-audit",
+      "source_ref": "fixture://northstar/links/priya/AUTHORED/commit-payments-audit"
+    },
+    {
+      "source": "demo:pr-payments-audit",
+      "kind": "INCLUDES",
+      "target": "demo:commit-payments-audit",
+      "source_ref": "fixture://northstar/links/pr-payments-audit/INCLUDES/commit-payments-audit"
+    },
+    {
+      "source": "demo:pr-payments-audit",
+      "kind": "MODIFIES",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/pr-payments-audit/MODIFIES/payments"
+    },
+    {
+      "source": "demo:commit-payments-audit",
+      "kind": "MODIFIES",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/commit-payments-audit/MODIFIES/payments"
+    },
+    {
+      "source": "demo:sam",
+      "kind": "AUTHORED",
+      "target": "demo:pr-notifications-metrics",
+      "source_ref": "fixture://northstar/links/sam/AUTHORED/pr-notifications-metrics"
+    },
+    {
+      "source": "demo:sam",
+      "kind": "AUTHORED",
+      "target": "demo:commit-notifications-metrics",
+      "source_ref": "fixture://northstar/links/sam/AUTHORED/commit-notifications-metrics"
+    },
+    {
+      "source": "demo:pr-notifications-metrics",
+      "kind": "INCLUDES",
+      "target": "demo:commit-notifications-metrics",
+      "source_ref": "fixture://northstar/links/pr-notifications-metrics/INCLUDES/commit-notifications-metrics"
+    },
+    {
+      "source": "demo:pr-notifications-metrics",
+      "kind": "MODIFIES",
+      "target": "demo:notifications",
+      "source_ref": "fixture://northstar/links/pr-notifications-metrics/MODIFIES/notifications"
+    },
+    {
+      "source": "demo:commit-notifications-metrics",
+      "kind": "MODIFIES",
+      "target": "demo:notifications",
+      "source_ref": "fixture://northstar/links/commit-notifications-metrics/MODIFIES/notifications"
+    },
+    {
+      "source": "demo:bruno",
+      "kind": "AUTHORED",
+      "target": "demo:pr-ledger-read",
+      "source_ref": "fixture://northstar/links/bruno/AUTHORED/pr-ledger-read"
+    },
+    {
+      "source": "demo:bruno",
+      "kind": "AUTHORED",
+      "target": "demo:commit-ledger-read",
+      "source_ref": "fixture://northstar/links/bruno/AUTHORED/commit-ledger-read"
+    },
+    {
+      "source": "demo:pr-ledger-read",
+      "kind": "INCLUDES",
+      "target": "demo:commit-ledger-read",
+      "source_ref": "fixture://northstar/links/pr-ledger-read/INCLUDES/commit-ledger-read"
+    },
+    {
+      "source": "demo:pr-ledger-read",
+      "kind": "MODIFIES",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/pr-ledger-read/MODIFIES/ledger"
+    },
+    {
+      "source": "demo:commit-ledger-read",
+      "kind": "MODIFIES",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/commit-ledger-read/MODIFIES/ledger"
+    },
+    {
+      "source": "demo:ada",
+      "kind": "AUTHORED",
+      "target": "demo:pr-checkout-cart",
+      "source_ref": "fixture://northstar/links/ada/AUTHORED/pr-checkout-cart"
+    },
+    {
+      "source": "demo:ada",
+      "kind": "AUTHORED",
+      "target": "demo:commit-checkout-cart",
+      "source_ref": "fixture://northstar/links/ada/AUTHORED/commit-checkout-cart"
+    },
+    {
+      "source": "demo:pr-checkout-cart",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-cart",
+      "source_ref": "fixture://northstar/links/pr-checkout-cart/INCLUDES/commit-checkout-cart"
+    },
+    {
+      "source": "demo:pr-checkout-cart",
+      "kind": "MODIFIES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/pr-checkout-cart/MODIFIES/checkout"
+    },
+    {
+      "source": "demo:commit-checkout-cart",
+      "kind": "MODIFIES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/commit-checkout-cart/MODIFIES/checkout"
+    },
+    {
+      "source": "demo:mei",
+      "kind": "AUTHORED",
+      "target": "demo:pr-queue-health",
+      "source_ref": "fixture://northstar/links/mei/AUTHORED/pr-queue-health"
+    },
+    {
+      "source": "demo:mei",
+      "kind": "AUTHORED",
+      "target": "demo:commit-queue-health",
+      "source_ref": "fixture://northstar/links/mei/AUTHORED/commit-queue-health"
+    },
+    {
+      "source": "demo:pr-queue-health",
+      "kind": "INCLUDES",
+      "target": "demo:commit-queue-health",
+      "source_ref": "fixture://northstar/links/pr-queue-health/INCLUDES/commit-queue-health"
+    },
+    {
+      "source": "demo:pr-queue-health",
+      "kind": "MODIFIES",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/pr-queue-health/MODIFIES/queue-worker"
+    },
+    {
+      "source": "demo:commit-queue-health",
+      "kind": "MODIFIES",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/commit-queue-health/MODIFIES/queue-worker"
+    },
+    {
+      "source": "demo:omar",
+      "kind": "AUTHORED",
+      "target": "demo:pr-analytics-cache",
+      "source_ref": "fixture://northstar/links/omar/AUTHORED/pr-analytics-cache"
+    },
+    {
+      "source": "demo:omar",
+      "kind": "AUTHORED",
+      "target": "demo:commit-analytics-cache",
+      "source_ref": "fixture://northstar/links/omar/AUTHORED/commit-analytics-cache"
+    },
+    {
+      "source": "demo:pr-analytics-cache",
+      "kind": "INCLUDES",
+      "target": "demo:commit-analytics-cache",
+      "source_ref": "fixture://northstar/links/pr-analytics-cache/INCLUDES/commit-analytics-cache"
+    },
+    {
+      "source": "demo:pr-analytics-cache",
+      "kind": "MODIFIES",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/pr-analytics-cache/MODIFIES/analytics"
+    },
+    {
+      "source": "demo:commit-analytics-cache",
+      "kind": "MODIFIES",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/commit-analytics-cache/MODIFIES/analytics"
+    },
+    {
+      "source": "demo:deploy-checkout-retry",
+      "kind": "DEPLOYED",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/deploy-checkout-retry/DEPLOYED/checkout"
+    },
+    {
+      "source": "demo:deploy-checkout-retry",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-retry",
+      "source_ref": "fixture://northstar/links/deploy-checkout-retry/INCLUDES/commit-checkout-retry"
+    },
+    {
+      "source": "demo:deploy-checkout-retry",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-retry-test",
+      "source_ref": "fixture://northstar/links/deploy-checkout-retry/INCLUDES/commit-checkout-retry-test"
+    },
+    {
+      "source": "demo:deploy-ledger-pool",
+      "kind": "DEPLOYED",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/deploy-ledger-pool/DEPLOYED/ledger"
+    },
+    {
+      "source": "demo:deploy-ledger-pool",
+      "kind": "INCLUDES",
+      "target": "demo:commit-ledger-pool",
+      "source_ref": "fixture://northstar/links/deploy-ledger-pool/INCLUDES/commit-ledger-pool"
+    },
+    {
+      "source": "demo:deploy-ledger-pool",
+      "kind": "INCLUDES",
+      "target": "demo:commit-ledger-pool-test",
+      "source_ref": "fixture://northstar/links/deploy-ledger-pool/INCLUDES/commit-ledger-pool-test"
+    },
+    {
+      "source": "demo:deploy-analytics-chart",
+      "kind": "DEPLOYED",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/deploy-analytics-chart/DEPLOYED/analytics"
+    },
+    {
+      "source": "demo:deploy-analytics-chart",
+      "kind": "INCLUDES",
+      "target": "demo:commit-analytics-chart",
+      "source_ref": "fixture://northstar/links/deploy-analytics-chart/INCLUDES/commit-analytics-chart"
+    },
+    {
+      "source": "demo:deploy-analytics-chart",
+      "kind": "INCLUDES",
+      "target": "demo:commit-analytics-chart-test",
+      "source_ref": "fixture://northstar/links/deploy-analytics-chart/INCLUDES/commit-analytics-chart-test"
+    },
+    {
+      "source": "demo:deploy-checkout-future",
+      "kind": "DEPLOYED",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/deploy-checkout-future/DEPLOYED/checkout"
+    },
+    {
+      "source": "demo:deploy-checkout-future",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-future",
+      "source_ref": "fixture://northstar/links/deploy-checkout-future/INCLUDES/commit-checkout-future"
+    },
+    {
+      "source": "demo:deploy-checkout-future",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-future-test",
+      "source_ref": "fixture://northstar/links/deploy-checkout-future/INCLUDES/commit-checkout-future-test"
+    },
+    {
+      "source": "demo:deploy-checkout-staging",
+      "kind": "DEPLOYED",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/deploy-checkout-staging/DEPLOYED/checkout"
+    },
+    {
+      "source": "demo:deploy-checkout-staging",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-staging",
+      "source_ref": "fixture://northstar/links/deploy-checkout-staging/INCLUDES/commit-checkout-staging"
+    },
+    {
+      "source": "demo:deploy-checkout-staging",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-staging-test",
+      "source_ref": "fixture://northstar/links/deploy-checkout-staging/INCLUDES/commit-checkout-staging-test"
+    },
+    {
+      "source": "demo:deploy-checkout-old",
+      "kind": "DEPLOYED",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/deploy-checkout-old/DEPLOYED/checkout"
+    },
+    {
+      "source": "demo:deploy-checkout-old",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-old",
+      "source_ref": "fixture://northstar/links/deploy-checkout-old/INCLUDES/commit-checkout-old"
+    },
+    {
+      "source": "demo:deploy-checkout-old",
+      "kind": "INCLUDES",
+      "target": "demo:commit-checkout-old-test",
+      "source_ref": "fixture://northstar/links/deploy-checkout-old/INCLUDES/commit-checkout-old-test"
+    },
+    {
+      "source": "demo:deploy-queue-routing",
+      "kind": "DEPLOYED",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/deploy-queue-routing/DEPLOYED/queue-worker"
+    },
+    {
+      "source": "demo:deploy-queue-routing",
+      "kind": "INCLUDES",
+      "target": "demo:commit-queue-routing",
+      "source_ref": "fixture://northstar/links/deploy-queue-routing/INCLUDES/commit-queue-routing"
+    },
+    {
+      "source": "demo:deploy-payments-trace",
+      "kind": "DEPLOYED",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/deploy-payments-trace/DEPLOYED/payments"
+    },
+    {
+      "source": "demo:deploy-payments-trace",
+      "kind": "INCLUDES",
+      "target": "demo:commit-payments-trace",
+      "source_ref": "fixture://northstar/links/deploy-payments-trace/INCLUDES/commit-payments-trace"
+    },
+    {
+      "source": "demo:deploy-notifications-template",
+      "kind": "DEPLOYED",
+      "target": "demo:notifications",
+      "source_ref": "fixture://northstar/links/deploy-notifications-template/DEPLOYED/notifications"
+    },
+    {
+      "source": "demo:deploy-notifications-template",
+      "kind": "INCLUDES",
+      "target": "demo:commit-notifications-template",
+      "source_ref": "fixture://northstar/links/deploy-notifications-template/INCLUDES/commit-notifications-template"
+    },
+    {
+      "source": "demo:deploy-ledger-metrics",
+      "kind": "DEPLOYED",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/deploy-ledger-metrics/DEPLOYED/ledger"
+    },
+    {
+      "source": "demo:deploy-ledger-metrics",
+      "kind": "INCLUDES",
+      "target": "demo:commit-ledger-metrics",
+      "source_ref": "fixture://northstar/links/deploy-ledger-metrics/INCLUDES/commit-ledger-metrics"
+    },
+    {
+      "source": "demo:deploy-queue-jitter",
+      "kind": "DEPLOYED",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/deploy-queue-jitter/DEPLOYED/queue-worker"
+    },
+    {
+      "source": "demo:deploy-queue-jitter",
+      "kind": "INCLUDES",
+      "target": "demo:commit-queue-jitter",
+      "source_ref": "fixture://northstar/links/deploy-queue-jitter/INCLUDES/commit-queue-jitter"
+    },
+    {
+      "source": "demo:deploy-analytics-export",
+      "kind": "DEPLOYED",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/deploy-analytics-export/DEPLOYED/analytics"
+    },
+    {
+      "source": "demo:deploy-analytics-export",
+      "kind": "INCLUDES",
+      "target": "demo:commit-analytics-export",
+      "source_ref": "fixture://northstar/links/deploy-analytics-export/INCLUDES/commit-analytics-export"
+    },
+    {
+      "source": "demo:nina",
+      "kind": "AUTHORED",
+      "target": "demo:doc-checkout-runbook",
+      "source_ref": "fixture://northstar/links/nina/AUTHORED/doc-checkout-runbook"
+    },
+    {
+      "source": "demo:doc-checkout-runbook",
+      "kind": "DESCRIBES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/doc-checkout-runbook/DESCRIBES/checkout"
+    },
+    {
+      "source": "demo:nina",
+      "kind": "AUTHORED",
+      "target": "demo:doc-checkout-architecture",
+      "source_ref": "fixture://northstar/links/nina/AUTHORED/doc-checkout-architecture"
+    },
+    {
+      "source": "demo:doc-checkout-architecture",
+      "kind": "DESCRIBES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/doc-checkout-architecture/DESCRIBES/checkout"
+    },
+    {
+      "source": "demo:nina",
+      "kind": "AUTHORED",
+      "target": "demo:doc-checkout-operations",
+      "source_ref": "fixture://northstar/links/nina/AUTHORED/doc-checkout-operations"
+    },
+    {
+      "source": "demo:doc-checkout-operations",
+      "kind": "DESCRIBES",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/doc-checkout-operations/DESCRIBES/checkout"
+    },
+    {
+      "source": "demo:ticket-checkout-1",
+      "kind": "AFFECTS",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/ticket-checkout-1/AFFECTS/checkout"
+    },
+    {
+      "source": "demo:ticket-checkout-2",
+      "kind": "AFFECTS",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/ticket-checkout-2/AFFECTS/checkout"
+    },
+    {
+      "source": "demo:ticket-checkout-3",
+      "kind": "AFFECTS",
+      "target": "demo:checkout",
+      "source_ref": "fixture://northstar/links/ticket-checkout-3/AFFECTS/checkout"
+    },
+    {
+      "source": "demo:priya",
+      "kind": "AUTHORED",
+      "target": "demo:doc-payments-runbook",
+      "source_ref": "fixture://northstar/links/priya/AUTHORED/doc-payments-runbook"
+    },
+    {
+      "source": "demo:doc-payments-runbook",
+      "kind": "DESCRIBES",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/doc-payments-runbook/DESCRIBES/payments"
+    },
+    {
+      "source": "demo:priya",
+      "kind": "AUTHORED",
+      "target": "demo:doc-payments-architecture",
+      "source_ref": "fixture://northstar/links/priya/AUTHORED/doc-payments-architecture"
+    },
+    {
+      "source": "demo:doc-payments-architecture",
+      "kind": "DESCRIBES",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/doc-payments-architecture/DESCRIBES/payments"
+    },
+    {
+      "source": "demo:priya",
+      "kind": "AUTHORED",
+      "target": "demo:doc-payments-operations",
+      "source_ref": "fixture://northstar/links/priya/AUTHORED/doc-payments-operations"
+    },
+    {
+      "source": "demo:doc-payments-operations",
+      "kind": "DESCRIBES",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/doc-payments-operations/DESCRIBES/payments"
+    },
+    {
+      "source": "demo:ticket-payments-1",
+      "kind": "AFFECTS",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/ticket-payments-1/AFFECTS/payments"
+    },
+    {
+      "source": "demo:ticket-payments-2",
+      "kind": "AFFECTS",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/ticket-payments-2/AFFECTS/payments"
+    },
+    {
+      "source": "demo:ticket-payments-3",
+      "kind": "AFFECTS",
+      "target": "demo:payments",
+      "source_ref": "fixture://northstar/links/ticket-payments-3/AFFECTS/payments"
+    },
+    {
+      "source": "demo:bruno",
+      "kind": "AUTHORED",
+      "target": "demo:doc-ledger-runbook",
+      "source_ref": "fixture://northstar/links/bruno/AUTHORED/doc-ledger-runbook"
+    },
+    {
+      "source": "demo:doc-ledger-runbook",
+      "kind": "DESCRIBES",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/doc-ledger-runbook/DESCRIBES/ledger"
+    },
+    {
+      "source": "demo:bruno",
+      "kind": "AUTHORED",
+      "target": "demo:doc-ledger-architecture",
+      "source_ref": "fixture://northstar/links/bruno/AUTHORED/doc-ledger-architecture"
+    },
+    {
+      "source": "demo:doc-ledger-architecture",
+      "kind": "DESCRIBES",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/doc-ledger-architecture/DESCRIBES/ledger"
+    },
+    {
+      "source": "demo:bruno",
+      "kind": "AUTHORED",
+      "target": "demo:doc-ledger-operations",
+      "source_ref": "fixture://northstar/links/bruno/AUTHORED/doc-ledger-operations"
+    },
+    {
+      "source": "demo:doc-ledger-operations",
+      "kind": "DESCRIBES",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/doc-ledger-operations/DESCRIBES/ledger"
+    },
+    {
+      "source": "demo:ticket-ledger-1",
+      "kind": "AFFECTS",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/ticket-ledger-1/AFFECTS/ledger"
+    },
+    {
+      "source": "demo:ticket-ledger-2",
+      "kind": "AFFECTS",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/ticket-ledger-2/AFFECTS/ledger"
+    },
+    {
+      "source": "demo:ticket-ledger-3",
+      "kind": "AFFECTS",
+      "target": "demo:ledger",
+      "source_ref": "fixture://northstar/links/ticket-ledger-3/AFFECTS/ledger"
+    },
+    {
+      "source": "demo:mei",
+      "kind": "AUTHORED",
+      "target": "demo:doc-queue-worker-runbook",
+      "source_ref": "fixture://northstar/links/mei/AUTHORED/doc-queue-worker-runbook"
+    },
+    {
+      "source": "demo:doc-queue-worker-runbook",
+      "kind": "DESCRIBES",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/doc-queue-worker-runbook/DESCRIBES/queue-worker"
+    },
+    {
+      "source": "demo:mei",
+      "kind": "AUTHORED",
+      "target": "demo:doc-queue-worker-architecture",
+      "source_ref": "fixture://northstar/links/mei/AUTHORED/doc-queue-worker-architecture"
+    },
+    {
+      "source": "demo:doc-queue-worker-architecture",
+      "kind": "DESCRIBES",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/doc-queue-worker-architecture/DESCRIBES/queue-worker"
+    },
+    {
+      "source": "demo:mei",
+      "kind": "AUTHORED",
+      "target": "demo:doc-queue-worker-operations",
+      "source_ref": "fixture://northstar/links/mei/AUTHORED/doc-queue-worker-operations"
+    },
+    {
+      "source": "demo:doc-queue-worker-operations",
+      "kind": "DESCRIBES",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/doc-queue-worker-operations/DESCRIBES/queue-worker"
+    },
+    {
+      "source": "demo:ticket-queue-worker-1",
+      "kind": "AFFECTS",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/ticket-queue-worker-1/AFFECTS/queue-worker"
+    },
+    {
+      "source": "demo:ticket-queue-worker-2",
+      "kind": "AFFECTS",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/ticket-queue-worker-2/AFFECTS/queue-worker"
+    },
+    {
+      "source": "demo:ticket-queue-worker-3",
+      "kind": "AFFECTS",
+      "target": "demo:queue-worker",
+      "source_ref": "fixture://northstar/links/ticket-queue-worker-3/AFFECTS/queue-worker"
+    },
+    {
+      "source": "demo:lena",
+      "kind": "AUTHORED",
+      "target": "demo:doc-notifications-runbook",
+      "source_ref": "fixture://northstar/links/lena/AUTHORED/doc-notifications-runbook"
+    },
+    {
+      "source": "demo:doc-notifications-runbook",
+      "kind": "DESCRIBES",
+      "target": "demo:notifications",
+      "source_ref": "fixture://northstar/links/doc-notifications-runbook/DESCRIBES/notifications"
+    },
+    {
+      "source": "demo:lena",
+      "kind": "AUTHORED",
+      "target": "demo:doc-notifications-architecture",
+      "source_ref": "fixture://northstar/links/lena/AUTHORED/doc-notifications-architecture"
+    },
+    {
+      "source": "demo:doc-notifications-architecture",
+      "kind": "DESCRIBES",
+      "target": "demo:notifications",
+      "source_ref": "fixture://northstar/links/doc-notifications-architecture/DESCRIBES/notifications"
+    },
+    {
+      "source": "demo:lena",
+      "kind": "AUTHORED",
+      "target": "demo:doc-notifications-operations",
+      "source_ref": "fixture://northstar/links/lena/AUTHORED/doc-notifications-operations"
+    },
+    {
+      "source": "demo:doc-notifications-operations",
+      "kind": "DESCRIBES",
+      "target": "demo:notifications",
+      "source_ref": "fixture://northstar/links/doc-notifications-operations/DESCRIBES/notifications"
+    },
+    {
+      "source": "demo:ticket-notifications-1",
+      "kind": "AFFECTS",
+      "target": "demo:notifications",
+      "source_ref": "fixture://northstar/links/ticket-notifications-1/AFFECTS/notifications"
+    },
+    {
+      "source": "demo:ticket-notifications-2",
+      "kind": "AFFECTS",
+      "target": "demo:notifications",
+      "source_ref": "fixture://northstar/links/ticket-notifications-2/AFFECTS/notifications"
+    },
+    {
+      "source": "demo:ticket-notifications-3",
+      "kind": "AFFECTS",
+      "target": "demo:notifications",
+      "source_ref": "fixture://northstar/links/ticket-notifications-3/AFFECTS/notifications"
+    },
+    {
+      "source": "demo:omar",
+      "kind": "AUTHORED",
+      "target": "demo:doc-analytics-runbook",
+      "source_ref": "fixture://northstar/links/omar/AUTHORED/doc-analytics-runbook"
+    },
+    {
+      "source": "demo:doc-analytics-runbook",
+      "kind": "DESCRIBES",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/doc-analytics-runbook/DESCRIBES/analytics"
+    },
+    {
+      "source": "demo:omar",
+      "kind": "AUTHORED",
+      "target": "demo:doc-analytics-architecture",
+      "source_ref": "fixture://northstar/links/omar/AUTHORED/doc-analytics-architecture"
+    },
+    {
+      "source": "demo:doc-analytics-architecture",
+      "kind": "DESCRIBES",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/doc-analytics-architecture/DESCRIBES/analytics"
+    },
+    {
+      "source": "demo:omar",
+      "kind": "AUTHORED",
+      "target": "demo:doc-analytics-operations",
+      "source_ref": "fixture://northstar/links/omar/AUTHORED/doc-analytics-operations"
+    },
+    {
+      "source": "demo:doc-analytics-operations",
+      "kind": "DESCRIBES",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/doc-analytics-operations/DESCRIBES/analytics"
+    },
+    {
+      "source": "demo:ticket-analytics-1",
+      "kind": "AFFECTS",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/ticket-analytics-1/AFFECTS/analytics"
+    },
+    {
+      "source": "demo:ticket-analytics-2",
+      "kind": "AFFECTS",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/ticket-analytics-2/AFFECTS/analytics"
+    },
+    {
+      "source": "demo:ticket-analytics-3",
+      "kind": "AFFECTS",
+      "target": "demo:analytics",
+      "source_ref": "fixture://northstar/links/ticket-analytics-3/AFFECTS/analytics"
+    },
+    {
+      "source": "demo:doc-checkout-runbook",
+      "kind": "DESCRIBES",
+      "target": "demo:inc-checkout-old",
+      "source_ref": "fixture://northstar/links/doc-checkout-runbook/DESCRIBES/inc-checkout-old"
+    },
+    {
+      "source": "demo:doc-queue-worker-runbook",
+      "kind": "DESCRIBES",
+      "target": "demo:inc-queue-old",
+      "source_ref": "fixture://northstar/links/doc-queue-worker-runbook/DESCRIBES/inc-queue-old"
+    },
+    {
+      "source": "demo:ticket-checkout-1",
+      "kind": "LINKED_TO",
+      "target": "demo:inc-checkout",
+      "source_ref": "fixture://northstar/links/ticket-checkout-1/LINKED_TO/inc-checkout"
+    },
+    {
+      "source": "demo:ticket-payments-1",
+      "kind": "LINKED_TO",
+      "target": "demo:inc-payments",
+      "source_ref": "fixture://northstar/links/ticket-payments-1/LINKED_TO/inc-payments"
+    },
+    {
+      "source": "demo:ticket-queue-worker-1",
+      "kind": "LINKED_TO",
+      "target": "demo:inc-queue",
+      "source_ref": "fixture://northstar/links/ticket-queue-worker-1/LINKED_TO/inc-queue"
+    }
+  ]
+}
