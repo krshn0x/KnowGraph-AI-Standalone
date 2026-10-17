@@ -56,6 +56,10 @@ class Settings(BaseSettings):
             or url.fragment
         ):
             raise ValueError("Use an HTTPS API base URL without credentials, query, or fragment.")
+        # The public website root is commonly pasted instead of the API endpoint.
+        # Only normalize this known provider; custom gateways may use other paths.
+        if url.netloc.lower() == "agentrouter.org" and not url.path:
+            return "https://agentrouter.org/v1"
         return value
 
     @field_validator("ollama_base_url")

@@ -1,11 +1,13 @@
 """A bounded model tool loop; evidence is assembled by the server."""
 
+import json
 import logging
 import time
 from typing import Literal
 
 from openai import (
     APIConnectionError,
+    APIStatusError,
     APITimeoutError,
     BadRequestError,
     NotFoundError,
@@ -30,6 +32,38 @@ from knowgraph.providers import ModelSession
 from knowgraph.retrieval import Retrieval
 
 logger = logging.getLogger(__name__)
+
+
+def router_failure_warning(error: APIStatusError) -> str:
+    """Classify provider failures without exposing response bodies or credentials."""
+    body = json.dumps(error.body).lower()
+    if error.status_code in {400, 401, 403} and any(
+        marker in body for marker in ("unauthorized client", "unsupported client")
+    ):
+        return (
+            "Agent Router blocked this application ('unauthorized client detected'). "
+            "Ask your router's support to enable API access for KnowGraph or confirm an "
+            "endpoint that allows custom applications. Changing the model or deadline "
+            "will not resolve this client restriction."
+        )
+    messages = {
+        400: "Agent Router rejected the request. Check that the selected model supports Chat Completions, function tools, and JSON output.",
+        401: "Agent Router rejected authentication. Check the API base URL and use an active key issued by that same router.",
+        402: "Agent Router requires available credit or quota. Check the account balance and the selected model's access in your router dashboard.",
+        403: "Agent Router denied this request. Check the key's permissions, model access, and whether custom applications are allowed.",
+        404: "Agent Router could not find the API endpoint or model. Check the API base URL (agentrouter.org uses /v1) and the exact model ID in your dashboard.",
+        429: "Agent Router quota or rate limit reached. Check your router's limits or wait and retry. No other provider was used.",
+    }
+    if error.status_code >= 500:
+        return (
+            f"Agent Router or its upstream model returned HTTP {error.status_code}. "
+            "Retry the connection test later. No other provider was used."
+        )
+    return messages.get(
+        error.status_code,
+        f"Agent Router rejected the request (HTTP {error.status_code}). "
+        "Check your router's API access and test the connection again.",
+    )
 
 
 class ToolCallLimitError(Exception):
@@ -297,6 +331,14 @@ class Agent:
                 warning = "Cannot reach Google's Gemini API. Check the backend's internet connection and test the connection again."
             elif isinstance(exc, ValueError) and not isinstance(exc, TimeoutError):
                 warning = "The model returned an incomplete, invalid, or unsupported answer. Retrieved graph evidence is preserved; test the selected model in AI settings."
+            if self.settings.llm_provider == "agentrouter":
+                if isinstance(exc, APIStatusError):
+                    warning = router_failure_warning(exc)
+                elif isinstance(exc, APITimeoutError):
+                    limit = True
+                    warning = "Agent Router did not respond within the investigation deadline. Retry the connection test or ask a narrower question."
+                elif isinstance(exc, APIConnectionError):
+                    warning = "Cannot reach Agent Router. Check the API base URL and the backend's internet connection, then test the connection again."
             if self.settings.llm_provider == "ollama":
                 if isinstance(exc, (APITimeoutError, TimeoutError)):
                     limit = True

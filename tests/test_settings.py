@@ -39,6 +39,18 @@ def payload(**updates):
     }
 
 
+def test_agentrouter_website_url_is_normalized_when_saved(configuration_client):
+    response = configuration_client.post(
+        "/settings/ai",
+        json=payload(base_url="https://agentrouter.org/", model="deepseek-v4-flash"),
+    )
+    assert response.status_code == 200
+    router = response.json()["providers"]["agentrouter"]
+    assert router["base_url"] == "https://agentrouter.org/v1"
+    assert router["model"] == "deepseek-v4-flash"
+    assert "private-router-test-key" not in response.text
+
+
 @pytest.mark.parametrize("provider", ["agentrouter", "gemini"])
 def test_settings_key_is_write_only_and_can_be_preserved_or_disconnected(
     configuration_client, provider

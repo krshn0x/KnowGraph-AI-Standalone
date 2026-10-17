@@ -91,6 +91,8 @@ Open **AI settings** in the top bar (also available from Ask KnowGraph and Syste
 
 The URL is configurable because several services use the Agent Router name. For example, the `agentrouter.org` service [documents](https://github.com/agentrouter-org/docs/blob/main/qwencode.md) `https://agentrouter.org/v1`; use that only if it matches your provider. The adapter requires Chat Completions, function tools, and JSON-object output. Model IDs are passed through unchanged.
 
+For `agentrouter.org`, pasting `https://agentrouter.org/` is also accepted and normalized to `https://agentrouter.org/v1`. If your dashboard lists `deepseek-v4-flash`, enter that exact model ID, then select **Test connection** before saving. A response saying **“unauthorized client detected”** means the router blocked the application before model access could be verified. Ask the router's support to enable API access for KnowGraph or provide an endpoint for custom applications; changing the model or deadline does not resolve this restriction. The app reports authentication, permissions, quota, and upstream failures separately without exposing provider response bodies.
+
 Keys entered in the app are held in **backend memory for that server session**. They are never returned by the settings API, placed in browser storage, or written to source files. Leave a saved key blank to keep it; **Disconnect provider** clears it for the session. Restarting the backend restores environment configuration. These settings belong to the local, single-user workspace.
 
 For configuration that survives a restart, put these values in the gitignored root `.env`:

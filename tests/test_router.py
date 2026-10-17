@@ -178,15 +178,72 @@ def test_router_deadline_rejects_a_late_answer(monkeypatch):
     assert agent.ask(AskRequest(question="checkout")).status == "limit_reached"
 
 
-@pytest.mark.parametrize("status", [401, 403, 429, 500])
-def test_router_errors_do_not_leak_provider_bodies_or_retry(status):
+@pytest.mark.parametrize(
+    "status, expected",
+    [
+        (400, "supports Chat Completions"),
+        (401, "rejected authentication"),
+        (402, "available credit or quota"),
+        (403, "key's permissions"),
+        (404, "endpoint or model"),
+        (429, "quota or rate limit"),
+        (500, "upstream model returned HTTP 500"),
+        (502, "upstream model returned HTTP 502"),
+    ],
+)
+def test_router_errors_are_actionable_without_leaking_provider_bodies_or_retrying(
+    status, expected, caplog
+):
     agent, requests = make_router(
         [httpx.Response(status, json={"error": {"message": "private-provider-details"}})]
     )
     answer = agent.ask(AskRequest(question="checkout"))
     assert answer.status == "provider_error"
     assert len(requests) == 1
+    assert expected in answer.warnings[0]
+    assert answer.sources == [SERVICE]
     assert "private-provider-details" not in answer.model_dump_json()
+    assert "private-provider-details" not in caplog.text
+
+
+@pytest.mark.parametrize("status", [401, 403])
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"error": {"message": "unauthorized client detected; private-provider-details"}},
+        {"message": "Unsupported client: private-provider-details"},
+        {"error": "unauthorized client detected; private-provider-details"},
+    ],
+)
+def test_router_client_restriction_is_distinguished_from_an_invalid_key(status, body, caplog):
+    agent, requests = make_router([httpx.Response(status, json=body)])
+    answer = agent.ask(AskRequest(question="checkout"))
+    assert answer.status == "provider_error" and not answer.claims
+    assert "blocked this application" in answer.warnings[0]
+    assert "KnowGraph" in answer.warnings[0]
+    assert "rejected authentication" not in answer.warnings[0]
+    assert len(requests) == 1
+    assert "private-provider-details" not in answer.model_dump_json() + caplog.text
+
+
+@pytest.mark.parametrize(
+    "error, status, expected",
+    [
+        (httpx.ConnectError("private-network-details"), "provider_error", "Cannot reach"),
+        (
+            httpx.ReadTimeout("private-network-details"),
+            "limit_reached",
+            "investigation deadline",
+        ),
+    ],
+)
+def test_router_network_failures_are_distinguished_without_leaking_details(error, status, expected):
+    agent, requests = make_router([error])
+    answer = agent.ask(AskRequest(question="checkout"))
+    assert answer.status == status and not answer.claims
+    assert expected in answer.warnings[0]
+    assert len(requests) == 1
+    assert "private-network-details" not in answer.model_dump_json()
 
 
 @pytest.mark.parametrize(
@@ -237,3 +294,20 @@ def test_health_reports_the_selected_provider_without_credentials():
 def test_router_configuration_rejects_unsafe_or_invalid_endpoints(url):
     with pytest.raises(ValidationError):
         router_settings(agentrouter_base_url=url)
+
+
+@pytest.mark.parametrize(
+    "url, expected",
+    [
+        ("https://agentrouter.org/", "https://agentrouter.org/v1"),
+        (" https://agentrouter.org ", "https://agentrouter.org/v1"),
+        ("https://agentrouter.org/v1/", "https://agentrouter.org/v1"),
+        ("https://agentrouter.org/custom/", "https://agentrouter.org/custom"),
+        ("https://custom-router.example/", "https://custom-router.example"),
+        ("https://agentrouter.org.example/", "https://agentrouter.org.example"),
+    ],
+)
+def test_only_the_known_agentrouter_website_root_is_normalized(url, expected):
+    settings = router_settings(agentrouter_base_url=url, agentrouter_model="deepseek-v4-flash")
+    assert settings.active_base_url == expected
+    assert settings.active_model == "deepseek-v4-flash"
