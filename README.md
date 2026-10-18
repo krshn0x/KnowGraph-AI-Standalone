@@ -6,19 +6,60 @@ The **Next.js + React + TypeScript** frontend is a dark engineering console: pur
 
 The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI settings offer **local Ollama (no API key)**, **Token Harbour / DeepSeek** through OpenAI-compatible Chat Completions, and OpenAI’s Responses API with configurable `gpt-6.1-sol`. Google Gemini remains available through backend configuration. All structured investigation, expert, document, graph, and ingestion views work without an API key.
 
+Built for **Graph Hacks Track 3**: connect engineering knowledge, retrieve multi-hop evidence, and explain answers through their sources.
+
+**Contents:** [Setup](#start-with-docker) · [Token Harbour](#connect-token-harbour--deepseek) · [Features and demo](#what-you-can-do) · [Graph data model](#graph-data-model) · [Cypher queries](#cypher-queries) · [Graph algorithms](#graph-algorithms-and-evidence-validation) · [Ingestion](#ingestion-contract) · [API](#api) · [Development and tests](#local-development-and-tests)
+
+## How it works
+
+```mermaid
+flowchart LR
+    UI[Next.js + React console] --> API[FastAPI + Pydantic]
+    API --> Agent[Bounded tool-calling agent]
+    Agent <--> LLM[Configured model API]
+    Agent --> Retrieval[Predefined Cypher tools]
+    API --> Retrieval
+    Retrieval --> DB[(FalkorDB)]
+    Files[CSV / JSON records] --> Ingest[Validate + idempotent upserts]
+    Ingest --> DB
+    DB --> Evidence[Retrieved nodes, edges and paths]
+    Evidence --> Answer[Answer + sources + experts + evidence graph]
+    Answer --> UI
+```
+
+Python owns retrieval, ingestion, and answer validation. The model chooses among five read-only tools; the server executes their predefined queries, validates every cited ID, and returns the graph relationships supporting the answer. File ingestion runs separately from chat.
+
 ## Start with Docker
 
-Install Docker Desktop/Engine with Compose, start Docker, and run from this repository:
+**Prerequisites:** Git and a running Docker Desktop/Engine with Docker Compose v2. Docker supplies Python, Node.js, and FalkorDB; host Python and Node installations are needed only for [native development](#local-development-and-tests). An LLM key is optional for the structured investigation, expert, document, and graph views.
+
+From a new checkout:
 
 ```bash
 git clone https://github.com/krshn0x/KnowGraph-AI-Standalone.git
 cd KnowGraph-AI-Standalone
 cp .env.example .env
 # Optional: configure provider credentials in .env, or use AI settings in the app.
-docker compose up -d --build
+docker compose up -d --build --wait
 ```
 
 Open **http://localhost:8501** for the dashboard and **http://localhost:8000/docs** for the API. Compose starts FalkorDB, seeds an empty graph, starts the API, then starts the Next.js standalone server. Initial startup downloads images and dependencies. Check startup with `docker compose ps` and `docker compose logs api seed frontend`.
+
+| Service | Local address | Purpose |
+|---|---|---|
+| Next.js frontend | `http://localhost:8501` | Dashboard, chat, and evidence explorer |
+| FastAPI | `http://localhost:8000/docs` | Interactive API documentation |
+| Health check | `http://localhost:8000/health` | Database readiness, counts, and model configuration |
+| FalkorDB | `localhost:6379` | Redis-compatible graph connection |
+
+Verify the seeded workspace:
+
+```bash
+curl --fail http://localhost:8000/health
+docker compose exec api knowgraph stats
+```
+
+A fresh seed reports `{"nodes": 113, "edges": 209}`. Counts can differ after imports. `ai_configured` reports configuration presence; use **AI settings → Test connection** to verify model access, graph tool calling, and a cited answer.
 
 A named volume persists FalkorDB's actual data directory (`/var/lib/falkordb/data`); append-only persistence is enabled. Normal startup skips seeding an existing graph, preserving imported updates. `docker compose down` retains the volume. Services are published on loopback for this local single-user prototype.
 
@@ -129,6 +170,213 @@ Incident investigation defaults to the preceding **24 hours**, matches the incid
 
 [Detailed demo script](docs/demo-script.md) · [Architecture and schema](docs/architecture.md)
 
+## Graph data model
+
+FalkorDB stores a property graph named `knowgraph` by default (`FALKORDB_GRAPH` changes it). Every node has the common `:Entity` label and one kind label, such as `:Entity:Incident`. The canonical enums and validation rules live in [models.py](knowgraph/models.py) and [ingestion.py](knowgraph/ingestion.py).
+
+| Node kind | Represents | Example ID |
+|---|---|---|
+| `Person` | Engineers and recorded contributors | `demo:ada` |
+| `Service` | Applications and service dependencies | `demo:checkout` |
+| `PullRequest` | Reviewed changes connected to services and commits | `demo:pr-checkout-retry` |
+| `Commit` | Individual code changes | `demo:commit-checkout-retry` |
+| `Incident` | Failures, onset times, and resolution status | `demo:inc-checkout` |
+| `Ticket` | Engineering work and issue records | `demo:ticket-checkout-1` |
+| `Document` | Runbooks, technical docs, and resolution notes | `demo:doc-checkout-runbook` |
+| `Deployment` | Releases to a service and environment | `demo:deploy-checkout-retry` |
+
+New records require `id`, `kind`, `title`, and `source_ref`. Optional properties are `body`, `occurred_at`, `status`, and `environment`; new incidents and deployments also require a timezone-aware `occurred_at`. Timestamps are normalized to UTC, and a private integer `_time` stores epoch seconds for deployment/incident filtering. IDs are source-qualified and stable across imports. `source_ref` retains the originating record URL or fixture reference.
+
+All stored relationships are directed. Ingestion accepts these endpoint types:
+
+| Relationship | Source → target | Use |
+|---|---|---|
+| `AUTHORED` | Person → PullRequest, Commit, or Document | Find contributors |
+| `MODIFIES` | PullRequest or Commit → Service | Associate changes with a service |
+| `AFFECTS` | Incident or Ticket → Service | Establish affected services |
+| `RESOLVED` | Person → Incident or Ticket | Record resolution experience |
+| `DEPENDS_ON` | Service → Service | Follow upstream dependencies |
+| `DESCRIBES` | Document → Service, Incident, or Ticket | Connect documentation |
+| `DEPLOYED` | Deployment → Service | Associate releases with services |
+| `INCLUDES` | Deployment or PullRequest → Commit | Link a deployed commit to its pull request |
+| `LINKED_TO` | Any supported node kind → any supported node kind | Preserve explicit cross-references |
+
+```mermaid
+flowchart LR
+    Person -->|AUTHORED| PullRequest
+    Person -->|AUTHORED| Commit
+    Person -->|AUTHORED| Document
+    Person -->|RESOLVED| Incident
+    PullRequest -->|INCLUDES| Commit
+    PullRequest -->|MODIFIES| Service
+    Commit -->|MODIFIES| Service
+    Deployment -->|INCLUDES| Commit
+    Deployment -->|DEPLOYED| Service
+    Incident -->|AFFECTS| Service
+    Ticket -->|AFFECTS| Service
+    Document -->|DESCRIBES| Service
+    Service -->|DEPENDS_ON| Service
+```
+
+For example, an investigation connects `Incident → Service ← Deployment → Commit ← PullRequest ← Person`. It joins through commits explicitly included in a deployment, rather than treating every PR touching a service as a deployed change. The diagram shows the main paths; the table lists every allowed relationship.
+
+Initialization creates an exact-match index with `CREATE INDEX ON :Entity(id)` and a title/body full-text index with `CALL db.idx.fulltext.createNodeIndex('Entity', 'title', 'body')`. Relationship IDs are `edge:` plus the first 24 hex characters of SHA-256 over `source|kind|target`; this preserves identity for directed relationships across retries. The implementation is in [GraphStore](knowgraph/graph.py).
+
+## Cypher queries
+
+These examples mirror the query templates in [graph.py](knowgraph/graph.py) and [retrieval.py](knowgraph/retrieval.py). Each `Parameters` comment gives sample driver bindings for the bundled data. Read queries return node/relationship properties so the server can build evidence paths; the application requests one extra path beyond its display limit to detect truncation.
+
+To run a parameterized read from the repository root after [Python setup](#local-development-and-tests):
+
+```python
+from knowgraph.config import Settings
+from knowgraph.graph import GraphStore
+
+store = GraphStore(Settings())
+try:
+    rows = store.read(
+        "MATCH (n:Entity {id:$id}) RETURN properties(n)",
+        {"id": "demo:inc-checkout"},
+    )
+    print(rows)
+finally:
+    store.close()
+```
+
+### 1. Search source records
+
+Search first attempts exact ID lookup. Otherwise it constructs a prefix-only full-text query from at most 12 word tokens; user-supplied search operators are not forwarded to FalkorDB.
+
+```cypher
+// Parameters: {"term":"retry* saturation*","kinds":["Document","Ticket"],"limit":20}
+CALL db.idx.fulltext.queryNodes('Entity', $term) YIELD node, score
+WHERE size($kinds)=0 OR node.kind IN $kinds
+RETURN properties(node)
+ORDER BY score DESC, node.id
+LIMIT $limit
+```
+
+### 2. Follow incident dependencies
+
+The investigator separately retrieves the incident's direct `AFFECTS` edges, then follows up to two directed dependency hops:
+
+```cypher
+// Parameters: {"id":"demo:inc-checkout","limit":101}
+MATCH p=(i:Incident {id:$id})-[:AFFECTS]->(:Service)-[:DEPENDS_ON*1..2]->(:Service)
+RETURN [n IN nodes(p) | properties(n)], [r IN relationships(p) | properties(r)]
+LIMIT $limit
+```
+
+### 3. Filter candidate deployments by time and environment
+
+`$ids` contains the affected service and dependency IDs. `$start` and `$end` are computed from the incident onset and lookback, with inclusive endpoints. This example uses the seeded checkout incident's 24-hour window ending at `2026-10-15T10:00:00Z`; an empty `$env` disables environment filtering.
+
+```cypher
+// Parameters: {"ids":["demo:checkout","demo:payments","demo:ledger"],"start":1791972000,"end":1792058400,"env":"production","limit":101}
+MATCH p=(s:Service)<-[:DEPLOYED]-(d:Deployment)
+WHERE s.id IN $ids AND d._time >= $start AND d._time <= $end
+  AND ($env='' OR d.environment=$env)
+RETURN [n IN nodes(p) | properties(n)], [r IN relationships(p) | properties(r)]
+LIMIT $limit
+```
+
+### 4. Connect deployed commits to pull requests and authors
+
+The deployment IDs come from the filtered candidate set above:
+
+```cypher
+// Parameters: {"ids":["demo:deploy-checkout-retry"],"limit":101}
+MATCH p=(d:Deployment)-[:INCLUDES]->(c:Commit)<-[:INCLUDES]-(pr:PullRequest)
+WHERE d.id IN $ids
+RETURN [n IN nodes(p) | properties(n)], [r IN relationships(p) | properties(r)]
+LIMIT $limit
+```
+
+The investigator also retrieves deployment → commit paths directly, so a deployed commit remains visible when no PR is recorded. It resolves authors from the retrieved commit and PR IDs:
+
+```cypher
+// Parameters: {"ids":["demo:commit-checkout-retry","demo:pr-checkout-retry"],"limit":101}
+MATCH p=(person:Person)-[:AUTHORED]->(c:Entity)
+WHERE c.id IN $ids
+RETURN [n IN nodes(p) | properties(n)], [r IN relationships(p) | properties(r)]
+LIMIT $limit
+```
+
+### 5. Retrieve evidence for expert ranking
+
+One of the three expert evidence queries finds people who resolved incidents affecting the selected service:
+
+```cypher
+// Parameters: {"ids":["demo:checkout"],"limit":101}
+MATCH p=(person:Person)-[:RESOLVED]->(:Incident)-[:AFFECTS]->(s:Service)
+WHERE s.id IN $ids
+RETURN [n IN nodes(p) | properties(n)], [r IN relationships(p) | properties(r)]
+LIMIT $limit
+```
+
+The other branches retrieve `Person -AUTHORED→ Commit/PullRequest -MODIFIES→ Service` and `Person -AUTHORED→ Document -DESCRIBES→ Service`. Python deduplicates supporting records and computes the scores described [below](#graph-algorithms-and-evidence-validation).
+
+### 6. Find connected documentation
+
+```cypher
+// Parameters: {"ids":["demo:checkout"],"limit":101}
+MATCH p=(d:Document)-[:DESCRIBES]->(s:Service)
+WHERE s.id IN $ids
+RETURN [n IN nodes(p) | properties(n)], [r IN relationships(p) | properties(r)]
+LIMIT $limit
+```
+
+Documentation retrieval merges these results with full-text Document/Ticket hits, tickets connected through `AFFECTS`, documents describing a supplied incident/ticket ID, and explicit `DESCRIBES`, `AFFECTS`, or `LINKED_TO` relationships around text-search hits.
+
+### 7. Expand one layer of the evidence neighborhood
+
+```cypher
+// Parameters: {"ids":["demo:checkout"],"limit":401}
+MATCH p=(a:Entity)-[]-(b:Entity)
+WHERE a.id IN $ids
+RETURN [n IN nodes(p) | properties(n)], [r IN relationships(p) | properties(r)]
+LIMIT $limit
+```
+
+This query searches either relationship direction for exploration. `GraphStore.neighborhood()` repeats it breadth-first with a visited set, at most three hops, and a maximum of 100 returned nodes. Stored edge direction is retained in the evidence graph.
+
+### 8. Update knowledge without duplicates
+
+Only the validated ingestion pipeline runs writes. These examples use the validated `Service` and `DEPENDS_ON` enum values; other labels/types are selected from the same allowlist. All record values are parameters.
+
+```cypher
+// Parameters: {"id":"company:checkout","props":{"id":"company:checkout","kind":"Service","title":"Company checkout","source_ref":"fixture://company/checkout"}}
+MERGE (n:Entity {id:$id})
+SET n:Service
+SET n += $props
+```
+
+```cypher
+// Parameters: {"source":"company:checkout","target":"demo:payments","id":"edge:5d4c0937be34a480b0559460","props":{"source":"company:checkout","target":"demo:payments","kind":"DEPENDS_ON","id":"edge:5d4c0937be34a480b0559460"}}
+MATCH (a:Entity {id:$source}), (b:Entity {id:$target})
+MERGE (a)-[r:DEPENDS_ON {id:$id}]->(b)
+ON CREATE SET r.source_ref=''
+SET r += $props
+```
+
+Whole-upload validation and a renewable Redis import lock precede these upserts. Omitted fields remain unchanged. Repeating an import updates the same IDs instead of creating duplicate records. Use the [ingestion API](#ingestion-contract) for normal updates.
+
+## Graph algorithms and evidence validation
+
+The project combines bounded graph traversal with Python scoring and validation. It does not depend on a graph analytics plugin.
+
+| Algorithm | Implementation and bounds | Result |
+|---|---|---|
+| Incident investigation | Direct affected services → up to two directed dependency hops → deployments in the requested time/environment window → included commits, PRs, and authors; enrich with earlier incidents, resolvers, and resolution documents | Candidate changes, chronological timeline, and actual supporting paths |
+| Expert ranking | Deduplicate each person's supporting records by record ID; sum **3 per resolved incident**, **2 per authored commit or PR**, **1 per authored document**; break ties by latest supporting activity, then person ID; return up to 10 people | Explainable expertise scores with source records |
+| Neighborhood exploration | Breadth-first expansion with a visited set; up to three layers, 400 accepted paths per queried layer, and 100 returned nodes; report truncation | Bounded evidence subgraph without inventing links |
+| Evidence assembly | Merge nodes, edges, and paths by ID; path IDs are `path:` plus 24 SHA-256 hex characters over the ordered node IDs followed by edge IDs | Stable references to retrieved relationships |
+| Citation validation | Parse the model's answer with Pydantic; require every claim's evidence IDs to belong to the current question's retrieved nodes, edges, or paths; build the displayed graph from cited evidence | Unsupported IDs reject the generated answer; retrieved records remain available |
+
+Expert scores are computed from explicit graph relationships, not inferred from job titles. In the unchanged seed, Nina's checkout score is **13**: two resolved incidents (6), two authored changes (4), and three authored documents (3). Both a commit and its PR can contribute if they are distinct recorded contributions; repeated paths to the same record do not increase its score.
+
+All retrieval reads use FalkorDB `GRAPH.RO_QUERY` with a two-second query timeout. The model selects `search_entities`, `investigate_incident`, `find_experts`, `find_documents`, or `get_evidence_paths`; it cannot submit arbitrary Cypher or mutate the graph. The agent permits at most eight tool calls and validates citations after fresh retrieval on every question. Deployment timing establishes correlation, and citation validation establishes traceability; neither alone proves a causal diagnosis.
+
 ## Ingestion contract
 
 Upload through the dashboard or `POST /ingest` as multipart form data:
@@ -203,7 +451,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open **http://localhost:3000** during development. The Next.js server proxies `/api/*` to `API_BASE_URL` (default `http://127.0.0.1:8000`). Configure it in `web/.env.local` for local development; Compose supplies its internal API address at runtime. OpenAI credentials stay exclusively in FastAPI.
+Open **http://localhost:3000** during development. The Next.js server proxies `/api/*` to `API_BASE_URL` (default `http://127.0.0.1:8000`). Configure it in `web/.env.local` for local development; Compose supplies its internal API address at runtime. Provider credentials stay exclusively in FastAPI. Keep the API and frontend running in separate terminals; use a third terminal for tests. If you already created `.env` during Docker setup, reuse that file.
 
 `knowgraph stats` prints canonical graph counts. Explicit `knowgraph seed` merges the fixture, so use it intentionally: it can restore fixture fields changed by a previous import. Automatic Compose seeding uses `--only-if-empty` instead.
 
@@ -228,8 +476,6 @@ npm run test:e2e
 # Against a running Docker stack, including the real API proxy check:
 PLAYWRIGHT_BASE_URL=http://127.0.0.1:8501 KNOWGRAPH_LIVE_API=1 npm run test:e2e
 ```
-
-Production JavaScript dependencies pass `npm audit --omit=dev`. The development-only Next.js lint dependency chain currently reports an unpatched `braces` advisory; do not lint untrusted glob configurations.
 
 Optional live-model evaluation incurs API usage:
 
