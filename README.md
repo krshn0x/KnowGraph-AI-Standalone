@@ -136,7 +136,7 @@ flowchart LR
     Document -->|DESCRIBES| Incident
     Document -->|DESCRIBES| Ticket
     Service -->|DEPENDS_ON| Service
-    EntityA["Any supported node"] -.->|LINKED_TO| EntityB["Any supported node"]
+    EntityA["Any supported<br/>node"] -.->|LINKED_TO| EntityB["Any supported<br/>node"]
 ```
 
 ## FalkorDB drives the answer
