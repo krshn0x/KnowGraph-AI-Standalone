@@ -8,7 +8,7 @@ The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationship
 
 Built for **Graph Hacks Track 3**: connect engineering knowledge, retrieve multi-hop evidence, and explain answers through their sources.
 
-**Contents:** [Setup](#start-with-docker) · [Token Harbour](#connect-token-harbour--deepseek) · [Features and demo](#what-you-can-do) · [Graph data model](#graph-data-model) · [Cypher queries](#cypher-queries) · [Graph algorithms](#graph-algorithms-and-evidence-validation) · [Ingestion](#ingestion-contract) · [API](#api) · [Development and tests](#local-development-and-tests)
+**Contents:** [Setup](#start-with-docker) · [Token Harbour](#connect-token-harbour--deepseek) · [Features and demo](#what-you-can-do) · [Graph data model](#graph-data-model) · [Graph-backed answers](#how-falkordb-drives-every-answer) · [Cypher queries](#cypher-queries) · [Graph algorithms](#graph-algorithms-and-evidence-validation) · [Ingestion](#ingestion-contract) · [API](#api) · [Development and tests](#local-development-and-tests)
 
 ## How it works
 
@@ -27,7 +27,7 @@ flowchart LR
     Answer --> UI
 ```
 
-Python owns retrieval, ingestion, and answer validation. The model chooses among five read-only tools; the server executes their predefined queries, validates every cited ID, and returns the graph relationships supporting the answer. File ingestion runs separately from chat.
+Python owns retrieval, ingestion, and answer validation. The model chooses among five read-only tools; the server executes their predefined queries against FalkorDB, validates every cited ID, and returns the graph relationships supporting the answer. The model never receives a second, non-graph knowledge store and cannot execute generated Cypher. If it cites an ID that FalkorDB did not return for the current question, the answer is rejected. File ingestion runs separately from chat.
 
 ## Start with Docker
 
@@ -193,6 +193,7 @@ flowchart LR
     Person -->|AUTHORED| Commit
     Person -->|AUTHORED| Document
     Person -->|RESOLVED| Incident
+    Person -->|RESOLVED| Ticket
     PullRequest -->|INCLUDES| Commit
     PullRequest -->|MODIFIES| Service
     Commit -->|MODIFIES| Service
@@ -201,12 +202,62 @@ flowchart LR
     Incident -->|AFFECTS| Service
     Ticket -->|AFFECTS| Service
     Document -->|DESCRIBES| Service
+    Document -->|DESCRIBES| Incident
+    Document -->|DESCRIBES| Ticket
     Service -->|DEPENDS_ON| Service
+    EntityA[Any supported node] -.->|LINKED_TO| EntityB[Any supported node]
 ```
 
-For example, an investigation connects `Incident → Service ← Deployment → Commit ← PullRequest ← Person`. It joins through commits explicitly included in a deployment, rather than treating every PR touching a service as a deployed change. The diagram shows the main paths; the table lists every allowed relationship.
+For example, an investigation connects `Incident → Service ← Deployment → Commit ← PullRequest ← Person`. It joins through commits explicitly included in a deployment, rather than treating every PR touching a service as a deployed change.
 
 Initialization creates an exact-match index with `CREATE INDEX ON :Entity(id)` and a title/body full-text index with `CALL db.idx.fulltext.createNodeIndex('Entity', 'title', 'body')`. Relationship IDs are `edge:` plus the first 24 hex characters of SHA-256 over `source|kind|target`; this preserves identity for directed relationships across retries. The implementation is in [GraphStore](knowgraph/graph.py).
+
+## How FalkorDB drives every answer
+
+FalkorDB is the agent's decision layer, rather than a visualization added after generation. The LLM decides which bounded retrieval tool to call; every company fact supplied to it then comes from a parameterized Cypher query. The server keeps the returned node, edge, and path IDs as an evidence allowlist and accepts only claims citing that allowlist.
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as Tool-calling agent
+    participant R as Retrieval layer
+    participant F as FalkorDB
+    participant V as Citation validator
+    U->>A: Investigate demo:inc-checkout
+    A->>R: investigate_incident(id, 24h)
+    R->>F: Parameterized read-only Cypher
+    F-->>R: Nodes + relationships + paths
+    R-->>A: Evidence IDs and source properties
+    A->>R: find_experts / find_documents
+    R->>F: More bounded Cypher traversals
+    F-->>R: Experience and document paths
+    A->>V: Draft claims with evidence_ids
+    V-->>U: Validated answer + cited graph
+```
+
+The seeded checkout investigation makes that flow visible with real graph records:
+
+```mermaid
+flowchart LR
+    I[Incident<br/>demo:inc-checkout] -->|AFFECTS| S[Service<br/>demo:checkout]
+    D[Deployment<br/>demo:deploy-checkout-retry] -->|DEPLOYED| S
+    D -->|INCLUDES| C[Commit<br/>demo:commit-checkout-retry]
+    PR[Pull request<br/>demo:pr-checkout-retry] -->|INCLUDES| C
+    Ada[Person<br/>demo:ada] -->|AUTHORED| C
+    Old[Past incident<br/>demo:inc-checkout-old] -->|AFFECTS| S
+    Nina[Person<br/>demo:nina] -->|RESOLVED| Old
+    Nina -->|AUTHORED| Doc[Runbook<br/>demo:doc-checkout-runbook]
+    Doc -->|DESCRIBES| S
+```
+
+| Agent result | FalkorDB evidence used | Decision boundary |
+|---|---|---|
+| Candidate change | Incident `AFFECTS` checkout; the production deployment `DEPLOYED` checkout within the 24-hour window; that deployment `INCLUDES` the retry commit | Reported as a time-correlated candidate, not a proven cause |
+| Change author | Ada `AUTHORED` the exact deployed commit and its pull request | No author is inferred from a team name or job title |
+| Relevant expert | Nina `RESOLVED` earlier checkout incidents and `AUTHORED` checkout documents | Scores come only from distinct relationship-backed records |
+| Recommended runbook | The runbook `DESCRIBES` checkout and is returned by document traversal/search | The source body and path are shown for inspection |
+
+The API returns `tool_calls`, `sources`, claim-level `evidence_ids`, the cited `evidence` subgraph, and broader `retrieved_evidence`. The Evidence Graph view renders those same returned relationships. Fabricated or stale citations fail closed: the UI receives an insufficient-evidence response plus any records that FalkorDB actually returned, never an unsupported generated claim.
 
 ## Cypher queries
 

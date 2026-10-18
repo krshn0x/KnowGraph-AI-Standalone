@@ -17,6 +17,7 @@ SOURCE = Entity(
 
 def local_settings(**updates):
     return Settings(
+        _env_file=None,
         **{
             "llm_provider": "ollama",
             "ollama_model": DEFAULT_OLLAMA_MODEL,
@@ -25,7 +26,7 @@ def local_settings(**updates):
             "gemini_api_key": "private-gemini-key",
             "agentrouter_api_key": "private-router-key",
             **updates,
-        }
+        },
     )
 
 
