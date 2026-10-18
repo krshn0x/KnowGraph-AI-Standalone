@@ -10,13 +10,13 @@ KnowGraph uses a **bounded, graph-first tool-calling agent**. The model chooses 
 
 ```mermaid
 flowchart LR
-    U[User question] --> A[Tool-calling agent]
-    A --> T[Five bounded graph tools]
-    T --> C[Parameterized Cypher]
-    C --> F[(FalkorDB)]
-    F --> E[Nodes, edges and paths]
-    E --> V[Citation validator]
-    V --> R[Answer + sources + experts + evidence graph]
+    U["User question"] --> A["Tool-calling agent"]
+    A --> T["Five bounded graph tools"]
+    T --> C["Parameterized Cypher"]
+    C --> F[("FalkorDB")]
+    F --> E["Nodes, edges and paths"]
+    E --> V["Citation validator"]
+    V --> R["Answer + sources + experts + evidence graph"]
 ```
 
 If a model invents an evidence ID, the backend rejects the generated claims and returns only the records FalkorDB actually found.
@@ -136,7 +136,7 @@ flowchart LR
     Document -->|DESCRIBES| Incident
     Document -->|DESCRIBES| Ticket
     Service -->|DEPENDS_ON| Service
-    EntityA[Any supported node] -.->|LINKED_TO| EntityB[Any supported node]
+    EntityA["Any supported node"] -.->|LINKED_TO| EntityB["Any supported node"]
 ```
 
 ## FalkorDB drives the answer
@@ -145,14 +145,14 @@ For the checkout incident, FalkorDB supplies each decision:
 
 ```mermaid
 flowchart LR
-    I[Incident<br/>demo:inc-checkout] -->|AFFECTS| S[Service<br/>demo:checkout]
-    D[Deployment<br/>demo:deploy-checkout-retry] -->|DEPLOYED| S
-    D -->|INCLUDES| C[Commit<br/>demo:commit-checkout-retry]
-    PR[Pull request<br/>demo:pr-checkout-retry] -->|INCLUDES| C
-    Ada[Person<br/>demo:ada] -->|AUTHORED| C
-    Old[Past incident] -->|AFFECTS| S
-    Nina[Person<br/>demo:nina] -->|RESOLVED| Old
-    Nina -->|AUTHORED| Doc[Checkout runbook]
+    I["Incident<br/>demo:inc-checkout"] -->|AFFECTS| S["Service<br/>demo:checkout"]
+    D["Deployment<br/>demo:deploy-checkout-retry"] -->|DEPLOYED| S
+    D -->|INCLUDES| C["Commit<br/>demo:commit-checkout-retry"]
+    PR["Pull request<br/>demo:pr-checkout-retry"] -->|INCLUDES| C
+    Ada["Person<br/>demo:ada"] -->|AUTHORED| C
+    Old["Past incident"] -->|AFFECTS| S
+    Nina["Person<br/>demo:nina"] -->|RESOLVED| Old
+    Nina -->|AUTHORED| Doc["Checkout runbook"]
     Doc -->|DESCRIBES| S
 ```
 
