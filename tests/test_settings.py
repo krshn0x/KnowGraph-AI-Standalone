@@ -10,25 +10,49 @@ from knowgraph.models import Answer, Entity
 
 @pytest.mark.parametrize("source", ["environment", "dotenv"])
 @pytest.mark.parametrize(
-    "prefix,provider", [("TOKENHARBOUR", "tokenharbour"), ("AGENTROUTER", "agentrouter")]
+    "provider,key_name,base_name,model_name",
+    [
+        (
+            "compatible",
+            "COMPATIBLE_API_KEY",
+            "COMPATIBLE_API_BASE_URL",
+            "COMPATIBLE_API_MODEL",
+        ),
+        (
+            "tokenharbour",
+            "TOKENHARBOUR_API_KEY",
+            "TOKENHARBOUR_BASE_URL",
+            "TOKENHARBOUR_MODEL",
+        ),
+        (
+            "agentrouter",
+            "AGENTROUTER_API_KEY",
+            "AGENTROUTER_BASE_URL",
+            "AGENTROUTER_MODEL",
+        ),
+    ],
 )
-def test_tokenharbour_and_legacy_configuration_names(
-    monkeypatch, tmp_path, source, prefix, provider
+def test_compatible_and_legacy_configuration_names(
+    monkeypatch, tmp_path, source, provider, key_name, base_name, model_name
 ):
     for name in (
         "LLM_PROVIDER",
-        *(
-            f"{p}_{f}"
-            for p in ("TOKENHARBOUR", "AGENTROUTER")
-            for f in ("API_KEY", "BASE_URL", "MODEL")
-        ),
+        "COMPATIBLE_API_KEY",
+        "COMPATIBLE_API_BASE_URL",
+        "COMPATIBLE_API_MODEL",
+        "TOKENHARBOUR_API_KEY",
+        "TOKENHARBOUR_BASE_URL",
+        "TOKENHARBOUR_MODEL",
+        "AGENTROUTER_API_KEY",
+        "AGENTROUTER_BASE_URL",
+        "AGENTROUTER_MODEL",
     ):
         monkeypatch.delenv(name, raising=False)
     values = {
         "LLM_PROVIDER": provider,
-        f"{prefix}_API_KEY": "private-tokenharbour-test-key",
-        f"{prefix}_BASE_URL": "https://tokenharbor.ai/v1",
-        f"{prefix}_MODEL": "deepseek-v4-flash:free",
+        key_name: "private-tokenharbour-test-key",
+        base_name: "https://tokenharbor.ai/v1",
+        model_name: "deepseek-v4-flash:free",
     }
     env_file = None
     if source == "dotenv":
@@ -47,14 +71,17 @@ def test_tokenharbour_and_legacy_configuration_names(
 
 
 @pytest.mark.parametrize("override", [None, "private-session-key", ""])
-def test_tokenharbour_names_take_precedence_and_session_snapshots_override_environment(
+def test_compatible_names_take_precedence_and_session_snapshots_override_environment(
     monkeypatch, override
 ):
-    monkeypatch.setenv("LLM_PROVIDER", "tokenharbour")
-    for prefix, value in (("TOKENHARBOUR", "current"), ("AGENTROUTER", "legacy")):
+    monkeypatch.setenv("LLM_PROVIDER", "compatible")
+    for prefix, value in (("TOKENHARBOUR", "tokenharbour"), ("AGENTROUTER", "legacy")):
         monkeypatch.setenv(f"{prefix}_API_KEY", f"private-{value}-key")
         monkeypatch.setenv(f"{prefix}_BASE_URL", f"https://{value}.example/v1")
         monkeypatch.setenv(f"{prefix}_MODEL", f"{value}-model")
+    monkeypatch.setenv("COMPATIBLE_API_KEY", "private-current-key")
+    monkeypatch.setenv("COMPATIBLE_API_BASE_URL", "https://current.example/v1")
+    monkeypatch.setenv("COMPATIBLE_API_MODEL", "current-model")
     settings = Settings(_env_file=None)
     assert settings.active_api_key.get_secret_value() == "private-current-key"
     assert settings.active_base_url == "https://current.example/v1"

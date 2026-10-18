@@ -1,6 +1,6 @@
 # KnowGraph AI — three-minute demo
 
-Before presenting, run `docker compose up -d --build`. Open http://localhost:8501. The Northstar Labs records are fictional. For AI chat, use AI settings to configure local Ollama, Gemini, Agent Router / DeepSeek, or OpenAI with an accessible model and key; the deterministic feature screens do not require them.
+Before presenting, run `docker compose up -d --build`. Open http://localhost:8501. The Northstar Labs records are fictional. For AI chat, use AI settings to configure an OpenAI-compatible provider, OpenAI, or local Ollama with an accessible model and key where required; the deterministic feature screens do not require them. Token Harbour with `deepseek-v4.1-flash:free` is the recommended compatible preset.
 
 **0:00–0:45 — Investigate checkout.** In Investigations, select “Checkout errors after morning release.” Show the incident timeline and the deployment/commit/PR/author paths. Explain that staging releases, deployments after onset, and unrelated services are excluded. Timing alone does not establish cause.
 

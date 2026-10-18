@@ -38,26 +38,32 @@ class Settings(BaseSettings):
     gemini_model: str = Field(default=DEFAULT_GEMINI_MODEL, max_length=200)
     agentrouter_api_key: SecretStr = Field(
         default=SecretStr(""),
-        validation_alias=AliasChoices("TOKENHARBOUR_API_KEY", "AGENTROUTER_API_KEY"),
+        validation_alias=AliasChoices(
+            "COMPATIBLE_API_KEY", "TOKENHARBOUR_API_KEY", "AGENTROUTER_API_KEY"
+        ),
     )
     agentrouter_base_url: str = Field(
         default="",
         max_length=2048,
-        validation_alias=AliasChoices("TOKENHARBOUR_BASE_URL", "AGENTROUTER_BASE_URL"),
+        validation_alias=AliasChoices(
+            "COMPATIBLE_API_BASE_URL", "TOKENHARBOUR_BASE_URL", "AGENTROUTER_BASE_URL"
+        ),
     )
     agentrouter_model: str = Field(
         default="",
         max_length=200,
-        validation_alias=AliasChoices("TOKENHARBOUR_MODEL", "AGENTROUTER_MODEL"),
+        validation_alias=AliasChoices(
+            "COMPATIBLE_API_MODEL", "TOKENHARBOUR_MODEL", "AGENTROUTER_MODEL"
+        ),
     )
     agent_deadline_seconds: float = Field(default=60, ge=1, le=900)
     agent_max_tool_calls: int = Field(default=8, ge=1, le=24)
 
     @field_validator("llm_provider", mode="before")
     @classmethod
-    def normalize_tokenharbour_provider(cls, value):
+    def normalize_compatible_provider(cls, value):
         # Keep the existing adapter and session API compatible with saved settings.
-        return "agentrouter" if value == "tokenharbour" else value
+        return "agentrouter" if value in {"compatible", "tokenharbour"} else value
 
     @field_validator("ollama_deadline_seconds", mode="before")
     @classmethod
@@ -162,15 +168,16 @@ class Settings(BaseSettings):
             missing = [
                 name
                 for name, value in (
-                    ("TOKENHARBOUR_API_KEY", self.agentrouter_api_key.get_secret_value().strip()),
-                    ("TOKENHARBOUR_BASE_URL", self.agentrouter_base_url),
-                    ("TOKENHARBOUR_MODEL", self.agentrouter_model),
+                    ("COMPATIBLE_API_KEY", self.agentrouter_api_key.get_secret_value().strip()),
+                    ("COMPATIBLE_API_BASE_URL", self.agentrouter_base_url),
+                    ("COMPATIBLE_API_MODEL", self.agentrouter_model),
                 )
                 if not value
             ]
             if missing:
                 return (
-                    f"Set {', '.join(missing)} in the backend environment to enable Token Harbour."
+                    f"Set {', '.join(missing)} in the backend environment to enable "
+                    "OpenAI-compatible answers."
                 )
         elif not self.openai_api_key.get_secret_value().strip():
             return "Set OPENAI_API_KEY in the backend environment to enable AI answers."
@@ -201,7 +208,7 @@ class AISettingsInput(BaseModel):
         if self.provider == "agentrouter":
             self.base_url = Settings.validate_router_url(self.base_url)
             if not self.base_url:
-                raise ValueError("Enter the Agent Router API base URL.")
+                raise ValueError("Enter an OpenAI-compatible API base URL.")
         if self.provider == "ollama":
             if not self.base_url.strip():
                 raise ValueError("Enter the Ollama API base URL.")

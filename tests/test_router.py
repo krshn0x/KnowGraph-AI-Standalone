@@ -254,7 +254,12 @@ def test_incomplete_router_configuration_never_uses_an_openai_key(field):
     agent = Agent(RouterRetrieval(), settings)
     assert agent.client is None
     answer = agent.ask(AskRequest(question="checkout"))
-    assert field.upper().replace("AGENTROUTER", "TOKENHARBOUR") in answer.warnings[0]
+    expected = {
+        "agentrouter_api_key": "COMPATIBLE_API_KEY",
+        "agentrouter_base_url": "COMPATIBLE_API_BASE_URL",
+        "agentrouter_model": "COMPATIBLE_API_MODEL",
+    }
+    assert expected[field] in answer.warnings[0]
     assert "unrelated-openai-key" not in answer.model_dump_json()
 
 

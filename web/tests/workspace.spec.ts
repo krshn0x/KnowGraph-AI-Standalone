@@ -170,7 +170,7 @@ test("mobile navigation and import controls fit the viewport", async ({ page }) 
   await page.screenshot({ path: "test-results/sources-mobile.png", fullPage: true });
 });
 
-test("Token Harbour settings prefill defaults, preserve edits, and save a write-only key", async ({ page }) => {
+test("compatible API settings recommend Token Harbour, preserve edits, and save a write-only key", async ({ page }) => {
   let saved = false;
   const settings = () => ({ provider: saved ? "agentrouter" : "openai", configured: saved, storage: saved ? "session" : "environment", providers: {
     openai: { model: "gpt-6.1-sol", base_url: "https://api.openai.com/v1", has_api_key: false },
@@ -188,10 +188,11 @@ test("Token Harbour settings prefill defaults, preserve edits, and save a write-
   await page.route("**/api/health", route => route.fulfill({ json: { ...fixtures.health, provider: saved ? "agentrouter" : "openai", model: saved ? "my-deepseek-v4" : "gpt-6.1-sol", ai_configured: saved } }));
   await page.goto("/ask");
   await page.getByRole("button", { name: "AI settings", exact: true }).click();
-  await page.getByLabel("AI provider", { exact: true }).selectOption({ label: "Token Harbour" });
-  await expect(page.getByLabel("Token Harbour API base URL")).toHaveValue("https://tokenharbor.ai/v1");
+  await page.getByLabel("AI provider", { exact: true }).selectOption({ label: "OpenAI-compatible API" });
+  await expect(page.getByLabel("Compatible API base URL")).toHaveValue("https://tokenharbor.ai/v1");
   await expect(page.getByLabel("AI model ID")).toHaveValue("deepseek-v4.1-flash:free");
-  await page.getByLabel("Token Harbour API base URL").fill("https://router.example.test/v1");
+  await expect(page.getByRole("dialog")).toContainText("Recommended preset: Token Harbour");
+  await page.getByLabel("Compatible API base URL").fill("https://router.example.test/v1");
   await page.getByLabel("AI model ID").fill("my-deepseek-v4");
   await page.getByLabel("Provider API key").fill("fake-router-key-for-ui-test");
   await expect(page.getByLabel("Provider API key")).toHaveAttribute("type", "password");
@@ -199,9 +200,9 @@ test("Token Harbour settings prefill defaults, preserve edits, and save a write-
   await expect(page.locator(".model-tag")).toContainText("my-deepseek-v4");
   await expect(page.getByText("AI answers aren’t configured")).toHaveCount(0);
   await page.getByRole("button", { name: "System status", exact: true }).click();
-  await expect(page.getByRole("dialog")).toContainText("Token Harbour");
+  await expect(page.getByRole("dialog")).toContainText("OpenAI-compatible API");
   await page.getByRole("button", { name: "Configure AI provider", exact: true }).click();
-  await expect(page.getByLabel("Token Harbour API base URL")).toHaveValue("https://router.example.test/v1");
+  await expect(page.getByLabel("Compatible API base URL")).toHaveValue("https://router.example.test/v1");
   await expect(page.getByLabel("AI model ID")).toHaveValue("my-deepseek-v4");
   await expect(page.getByLabel("Provider API key")).toHaveValue("");
   await expect(page.getByText("Saved on backend")).toBeVisible();
@@ -210,7 +211,7 @@ test("Token Harbour settings prefill defaults, preserve edits, and save a write-
   await page.screenshot({ path: "test-results/ai-settings-mobile.png" });
 });
 
-test("Gemini is absent from settings and legacy configurations can switch to Token Harbour", async ({ page }) => {
+test("Gemini is absent from settings and legacy configurations can switch to a compatible API", async ({ page }) => {
   let saved = false;
   const endpoint = "https://tokenharbor.ai/v1";
   const model = "deepseek-v4.1-flash:free";
@@ -231,9 +232,9 @@ test("Gemini is absent from settings and legacy configurations can switch to Tok
   await page.goto("/ask");
   await page.getByRole("button", { name: "AI settings", exact: true }).click();
   await expect(page.getByLabel("AI provider", { exact: true })).toHaveValue("agentrouter");
-  await expect(page.getByLabel("AI provider").locator("option")).toHaveText(["OpenAI", "Token Harbour", "Local Ollama"]);
+  await expect(page.getByLabel("AI provider").locator("option")).toHaveText(["OpenAI", "OpenAI-compatible API", "Local Ollama"]);
   await expect(page.getByLabel("AI model ID")).toHaveValue(model);
-  await expect(page.getByLabel("Token Harbour API base URL")).toHaveValue(endpoint);
+  await expect(page.getByLabel("Compatible API base URL")).toHaveValue(endpoint);
   await expect(page.getByLabel("Provider API key")).toHaveValue("");
   await expect(page.getByLabel("Provider API key")).toHaveAttribute("required", "");
   await expect(page.getByText("Saved on backend")).toHaveCount(0);
@@ -249,14 +250,14 @@ test("Gemini is absent from settings and legacy configurations can switch to Tok
   await page.getByRole("button", { name: "Save AI settings" }).click();
   await expect(page.locator(".model-tag")).toContainText(model);
   await page.getByRole("button", { name: "System status", exact: true }).click();
-  await expect(page.getByRole("dialog")).toContainText("Token Harbour");
+  await expect(page.getByRole("dialog")).toContainText("OpenAI-compatible API");
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "AI settings", exact: true }).click();
   await expect(page.getByLabel("Provider API key")).toHaveValue("");
   await expect(page.getByText("Saved on backend")).toBeVisible();
   expect(await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }))).not.toContain(payload.api_key);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.screenshot({ path: "test-results/token-harbour-settings-mobile.png" });
+  await page.screenshot({ path: "test-results/compatible-api-settings-mobile.png" });
 });
 
 test("local Ollama can be selected and saved without any API key", async ({ page }) => {

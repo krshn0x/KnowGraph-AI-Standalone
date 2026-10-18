@@ -5,7 +5,7 @@ flowchart LR
     UI[Next.js / React console] --> Proxy[Same-origin server API proxy]
     Proxy --> API[FastAPI and Pydantic]
     API --> Agent[Bounded tool-calling agent]
-    Agent <--> LLM[Native Gemini / OpenAI Responses / Agent Router or Ollama Chat Completions]
+    Agent <--> LLM[OpenAI Responses / compatible or Ollama Chat Completions]
     Agent --> Tools[Typed read-only graph tools]
     API --> Tools
     Tools --> DB[(FalkorDB)]
@@ -20,7 +20,7 @@ The API owns all business logic. The TypeScript console consumes typed JSON thro
 
 ## Model providers and credentials
 
-`ModelSession` adapts the existing bounded agent to OpenAI Responses or OpenAI-compatible Chat Completions for Agent Router and Ollama, or Google’s native `generateContent` API for Gemini. Gemini uses a fixed Google endpoint and its own key in a header; the full native model content, including opaque thought signatures, is replayed on every tool turn and never returned as evidence. Tool planning and final JSON formatting are separate for Gemini. The router adapter uses JSON-object output plus server-side Pydantic validation and replays DeepSeek `reasoning_content` with tool calls when present. Reasoning is never exposed as evidence. All providers use the same five read-only tools, citation allowlist, deadline, and tool-call budget; there is no automatic cross-provider fallback.
+`ModelSession` adapts the bounded agent to OpenAI Responses or OpenAI-compatible Chat Completions. The compatible adapter supports configurable endpoints and model IDs, uses JSON-object output plus server-side Pydantic validation, and replays DeepSeek `reasoning_content` with tool calls when present. Reasoning is never exposed as evidence. All providers use the same five read-only tools, citation allowlist, deadline, and tool-call budget; there is no automatic cross-provider fallback.
 
 The settings API accepts credentials as write-only fields and returns only whether a key exists. Invalid settings requests receive sanitized errors without raw request values. UI changes live in backend process memory and affect new questions; each question uses an immutable configuration snapshot and closes its provider client afterward. A restart restores environment settings. This prototype uses one backend process and loopback-only ports, with no multi-user authentication.
 
