@@ -59,6 +59,20 @@ docker compose exec api knowgraph stats
 
 Normal restarts preserve FalkorDB data in the `graph-data` volume and seed only an empty graph.
 
+## Go-to questions for the agent
+
+1. "What is the current status of the checkout service?"
+2. "What has Priya worked on recently?"
+3. "What documentation exists for the notifications service?"
+4. "Which deployments and PRs recently touched the payments service?"
+5. "Are there any open incidents right now?"
+6. "Who can help me with ledger database problems?"
+7. "What tickets are open for the ledger service?"
+8. "Who is the strongest expert for analytics issues, and what analytics tickets are still open?"
+9. "Who resolved the queue service incidents?"
+10. "What changed right before the demo:inc-checkout incident, and which runbook applies?"
+11. "What past incidents have affected the queue service?"
+
 ## Use any OpenAI-compatible provider
 
 In **AI settings**, choose **OpenAI-compatible API** and enter the provider's API base URL, model ID, and key. The endpoint must support OpenAI-style Chat Completions, function tools, and JSON-object output.
