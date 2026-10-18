@@ -2,6 +2,7 @@ name: knowgraph-ai
 
 services:
   ollama:
+    restart: unless-stopped
     profiles: ["local-ai"]
     image: ollama/ollama@sha256:5d3a2f25f9825628daba94dc0b1d421c7d57d6c03ae5faa9ba050e058bab8241
     ports:
@@ -18,6 +19,7 @@ services:
       retries: 30
 
   falkordb:
+    restart: unless-stopped
     image: falkordb/falkordb@sha256:b0bdcac2cbaff989e77cb0610439b7a9289e86de033ccbbd4368b66fb680ae7a
     ports:
       - "127.0.0.1:${FALKORDB_PORT:-6379}:6379"
@@ -43,6 +45,7 @@ services:
         condition: service_healthy
 
   api:
+    restart: unless-stopped
     build: .
     command: ["uvicorn", "knowgraph.api:app", "--host", "0.0.0.0", "--port", "8000"]
     ports:
@@ -77,6 +80,7 @@ services:
       retries: 20
 
   frontend:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: web/Dockerfile
