@@ -10,13 +10,13 @@ KnowGraph uses a **bounded, graph-first tool-calling agent**. The model chooses 
 
 ```mermaid
 flowchart LR
-    U["User question"] --> A["Tool-calling agent"]
-    A --> T["Five bounded graph tools"]
-    T --> C["Parameterized Cypher"]
+    U["User question"] --> A["Tool-calling<br/>agent"]
+    A --> T["Five bounded<br/>graph tools"]
+    T --> C["Parameterized<br/>Cypher"]
     C --> F[("FalkorDB")]
-    F --> E["Nodes, edges and paths"]
-    E --> V["Citation validator"]
-    V --> R["Answer + sources + experts + evidence graph"]
+    F --> E["Nodes, edges<br/>and paths"]
+    E --> V["Citation<br/>validator"]
+    V --> R["Answer +<br/>sources + experts<br/>+ evidence graph"]
 ```
 
 If a model invents an evidence ID, the backend rejects the generated claims and returns only the records FalkorDB actually found.
