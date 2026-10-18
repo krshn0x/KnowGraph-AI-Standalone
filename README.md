@@ -4,7 +4,7 @@ An engineering company brain powered by **FalkorDB**. Investigate incidents, fin
 
 The **Next.js + React + TypeScript** frontend is a dark engineering console: pure black surfaces, white actions, grayscale accents, dense incident context, and an interactive React Flow evidence graph. FastAPI owns the graph and agent logic.
 
-The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI chat supports **local Ollama (no API key)**, **Google Gemini (free tier available)**, **Token Harbour / DeepSeek** through OpenAI-compatible Chat Completions, or OpenAI’s Responses API with configurable `gpt-6.1-sol`. All structured investigation, expert, document, graph, and ingestion views work without an API key.
+The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI settings offer **local Ollama (no API key)**, **Token Harbour / DeepSeek** through OpenAI-compatible Chat Completions, and OpenAI’s Responses API with configurable `gpt-6.1-sol`. Google Gemini remains available through backend configuration. All structured investigation, expert, document, graph, and ingestion views work without an API key.
 
 ## Start with Docker
 
@@ -63,12 +63,9 @@ A **tool-call limit** is separate from a timeout: the agent permits at most eigh
 
 For slow local models, run `ollama ps` to check whether inference uses CPU or GPU. Prefer the native Ollama app on macOS: [Docker Desktop on macOS does not support Ollama GPU acceleration](https://docs.ollama.com/faq#how-do-i-use-ollama-with-gpu-acceleration-in-docker). Preload the selected model with `ollama run qwen3:4b ""` before asking; [Ollama keeps models loaded for five minutes by default](https://docs.ollama.com/faq#how-do-i-keep-a-model-loaded-in-memory-or-make-it-unload-immediately).
 
-## Connect Google Gemini (free tier available)
+## Google Gemini (backend configuration only)
 
-1. Create a Gemini API key in [Google AI Studio](https://aistudio.google.com/apikey).
-2. Open **AI settings** in KnowGraph and choose **Google Gemini**.
-3. Keep the prefilled **gemini-3.8-flash** model and paste the key. No custom API URL or OpenAI key is needed.
-4. Select **Test connection** to verify model access, graph tool calling, and a cited answer using the entered key. This does not save the form; after a successful test, save the settings and ask a question in **Ask KnowGraph**.
+Gemini is not offered in the AI settings dropdown. Existing backend integrations remain supported. Create a key in [Google AI Studio](https://aistudio.google.com/apikey) and configure it through the environment.
 
 Google currently lists this model with free-tier input/output usage; [project eligibility, quotas, and billing settings apply](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.8-flash). This app does not change your Google billing tier or guarantee unlimited free usage. A quota error preserves available graph evidence and does not retry automatically or switch providers. To retain the key across backend restarts, set the following in the gitignored root `.env`, then run `docker compose up -d api`:
 
@@ -78,7 +75,7 @@ GEMINI_API_KEY=your-google-ai-studio-key
 GEMINI_MODEL=gemini-3.8-flash
 ```
 
-Gemini uses Google's native `generateContent` API, with the complete model parts and thought signatures preserved between tool calls and the same server-side citation validation. The OpenAI compatibility layer is not used for Gemini. UI-entered keys follow the session-only storage behavior described below.
+Gemini uses Google's native `generateContent` API, with the complete model parts and thought signatures preserved between tool calls and the same server-side citation validation. Opening AI settings for an existing Gemini configuration offers Token Harbour instead; switching requires that provider's own key and an explicit save.
 
 ## Connect Token Harbour / DeepSeek
 

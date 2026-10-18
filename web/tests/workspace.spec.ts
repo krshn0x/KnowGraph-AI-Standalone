@@ -210,48 +210,53 @@ test("Token Harbour settings prefill defaults, preserve edits, and save a write-
   await page.screenshot({ path: "test-results/ai-settings-mobile.png" });
 });
 
-test("Gemini settings offer the free-tier starter model and need only a key", async ({ page }) => {
+test("Gemini is absent from settings and legacy configurations can switch to Token Harbour", async ({ page }) => {
   let saved = false;
-  const endpoint = "https://generativelanguage.googleapis.com/v1beta";
+  const endpoint = "https://tokenharbor.ai/v1";
+  const model = "deepseek-v4-flash:free";
+  const payload = { provider: "agentrouter", model, base_url: endpoint, api_key: "fake-token-harbour-ui-key" };
   await page.route("**/api/settings/ai", async route => {
     if (route.request().method() === "POST") {
-      expect(route.request().postDataJSON()).toEqual({ provider: "gemini", model: "gemini-3.8-flash", base_url: endpoint, api_key: "fake-gemini-ui-key" });
+      expect(route.request().postDataJSON()).toEqual(payload);
       saved = true;
     }
-    await route.fulfill({ json: { provider: saved ? "gemini" : "openai", configured: saved, storage: saved ? "session" : "environment", providers: {
+    await route.fulfill({ json: { provider: saved ? "agentrouter" : "gemini", configured: true, storage: saved ? "session" : "environment", providers: {
       openai: { model: "gpt-6.1-sol", base_url: "https://api.openai.com/v1", has_api_key: false },
-      agentrouter: { model: "", base_url: "", has_api_key: false },
-      gemini: { model: "gemini-3.8-flash", base_url: endpoint, has_api_key: saved },
+      agentrouter: { model: saved ? model : "", base_url: saved ? endpoint : "", has_api_key: saved },
+      gemini: { model: "gemini-3.8-flash", base_url: "https://generativelanguage.googleapis.com/v1beta", has_api_key: true },
       ollama: { model: "qwen3:4b", base_url: "http://host.docker.internal:11434/v1", has_api_key: false },
     } } });
   });
-  await page.route("**/api/health", route => route.fulfill({ json: { ...fixtures.health, provider: saved ? "gemini" : "openai", model: saved ? "gemini-3.8-flash" : "gpt-6.1-sol", ai_configured: saved } }));
+  await page.route("**/api/health", route => route.fulfill({ json: { ...fixtures.health, provider: saved ? "agentrouter" : "gemini", model: saved ? model : "gemini-3.8-flash", ai_configured: true } }));
   await page.goto("/ask");
   await page.getByRole("button", { name: "AI settings", exact: true }).click();
-  await page.getByLabel("AI provider", { exact: true }).selectOption("gemini");
-  await expect(page.getByLabel("AI model ID")).toHaveValue("gemini-3.8-flash");
-  await expect(page.getByLabel("Token Harbour API base URL")).toHaveCount(0);
-  await expect(page.getByRole("dialog")).toContainText("has a free tier");
-  await expect(page.getByRole("link", { name: "Get a Gemini API key" })).toHaveAttribute("href", "https://aistudio.google.com/apikey");
+  await expect(page.getByLabel("AI provider", { exact: true })).toHaveValue("agentrouter");
+  await expect(page.getByLabel("AI provider").locator("option")).toHaveText(["OpenAI", "Token Harbour", "Local Ollama"]);
+  await expect(page.getByLabel("AI model ID")).toHaveValue(model);
+  await expect(page.getByLabel("Token Harbour API base URL")).toHaveValue(endpoint);
+  await expect(page.getByLabel("Provider API key")).toHaveValue("");
+  await expect(page.getByLabel("Provider API key")).toHaveAttribute("required", "");
+  await expect(page.getByText("Saved on backend")).toHaveCount(0);
+  await expect(page.getByRole("dialog")).not.toContainText("Gemini");
   await page.route("**/api/settings/ai/test", async route => {
-    expect(route.request().postDataJSON()).toEqual({ provider: "gemini", model: "gemini-3.8-flash", base_url: endpoint, api_key: "fake-gemini-ui-key" });
+    expect(route.request().postDataJSON()).toEqual(payload);
     expect(saved).toBe(false);
-    await route.fulfill({ json: { ok: true, provider: "gemini", model: "gemini-3.8-flash", message: "Model access, graph tool calling, and a cited answer were verified. These settings have not been saved." } });
+    await route.fulfill({ json: { ok: true, provider: "agentrouter", model, message: "Model access, graph tool calling, and a cited answer were verified. These settings have not been saved." } });
   });
-  await page.getByLabel("Provider API key").fill("fake-gemini-ui-key");
+  await page.getByLabel("Provider API key").fill(payload.api_key);
   await page.getByRole("button", { name: "Test connection", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("have not been saved");
   await page.getByRole("button", { name: "Save AI settings" }).click();
-  await expect(page.locator(".model-tag")).toContainText("gemini-3.8-flash");
+  await expect(page.locator(".model-tag")).toContainText(model);
   await page.getByRole("button", { name: "System status", exact: true }).click();
-  await expect(page.getByRole("dialog")).toContainText("Google Gemini");
+  await expect(page.getByRole("dialog")).toContainText("Token Harbour");
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "AI settings", exact: true }).click();
   await expect(page.getByLabel("Provider API key")).toHaveValue("");
   await expect(page.getByText("Saved on backend")).toBeVisible();
-  expect(await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }))).not.toContain("fake-gemini-ui-key");
+  expect(await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }))).not.toContain(payload.api_key);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.screenshot({ path: "test-results/gemini-settings-mobile.png" });
+  await page.screenshot({ path: "test-results/token-harbour-settings-mobile.png" });
 });
 
 test("local Ollama can be selected and saved without any API key", async ({ page }) => {
@@ -272,7 +277,7 @@ test("local Ollama can be selected and saved without any API key", async ({ page
   await page.route("**/api/health", route => route.fulfill({ json: { ...fixtures.health, provider: saved ? "ollama" : "openai", model: saved ? "qwen3:4b" : "gpt-6.1-sol", ai_configured: saved } }));
   await page.goto("/ask");
   await page.getByRole("button", { name: "AI settings", exact: true }).click();
-  await page.getByLabel("AI provider", { exact: true }).selectOption("gemini");
+  await page.getByLabel("AI provider", { exact: true }).selectOption("agentrouter");
   await page.getByLabel("Provider API key").fill("cloud-key-must-not-go-to-ollama");
   await page.getByLabel("AI provider", { exact: true }).selectOption("ollama");
   await expect(page.getByLabel("Provider API key")).toHaveCount(0);
