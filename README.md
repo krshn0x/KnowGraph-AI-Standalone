@@ -4,7 +4,7 @@ An engineering company brain powered by **FalkorDB**. Investigate incidents, fin
 
 The **Next.js + React + TypeScript** frontend is a dark engineering console: pure black surfaces, white actions, grayscale accents, dense incident context, and an interactive React Flow evidence graph. FastAPI owns the graph and agent logic.
 
-The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI chat supports **local Ollama (no API key)**, **Google Gemini (free tier available)**, **Agent Router / DeepSeek** through OpenAI-compatible Chat Completions, or OpenAI’s Responses API with configurable `gpt-6.1-sol`. All structured investigation, expert, document, graph, and ingestion views work without an API key.
+The bundled Northstar Labs workspace is fictional: **113 nodes, 209 relationships, three incident scenarios**. AI chat supports **local Ollama (no API key)**, **Google Gemini (free tier available)**, **Token Harbour / DeepSeek** through OpenAI-compatible Chat Completions, or OpenAI’s Responses API with configurable `gpt-6.1-sol`. All structured investigation, expert, document, graph, and ingestion views work without an API key.
 
 ## Start with Docker
 
@@ -80,18 +80,18 @@ GEMINI_MODEL=gemini-3.8-flash
 
 Gemini uses Google's native `generateContent` API, with the complete model parts and thought signatures preserved between tool calls and the same server-side citation validation. The OpenAI compatibility layer is not used for Gemini. UI-entered keys follow the session-only storage behavior described below.
 
-## Connect Agent Router / DeepSeek
+## Connect Token Harbour / DeepSeek
 
 Open **AI settings** in the top bar (also available from Ask KnowGraph and System status):
 
-1. Choose **Agent Router / DeepSeek**.
-2. Enter your router’s OpenAI-compatible **API base URL** and the **exact model ID** shown in its dashboard for DeepSeek V4.
-3. Paste the API key into the password field and select **Save AI settings**.
-4. Open **Ask KnowGraph** and ask a question. Saving configures the provider; actual model access is checked when you send a question.
+1. Choose **Token Harbour**.
+2. New connections prefill **https://tokenharbor.ai/v1** and **deepseek-v4-flash:free**. Existing custom settings are preserved, and both fields remain editable.
+3. Verify your Token Harbour account email and paste the API key into the password field.
+4. Select **Test connection**, then **Save AI settings** after a successful test. Open **Ask KnowGraph** to chat.
 
-The URL is configurable because several services use the Agent Router name. For example, the `agentrouter.org` service [documents](https://github.com/agentrouter-org/docs/blob/main/qwencode.md) `https://agentrouter.org/v1`; use that only if it matches your provider. The adapter requires Chat Completions, function tools, and JSON-object output. Model IDs are passed through unchanged.
+Token Harbour [documents](https://tokenharbor.ai/docs/api/curl) an OpenAI-compatible Chat Completions endpoint. The adapter requires function tools and JSON-object output; model IDs are passed through unchanged. Free-route availability and quotas depend on your Token Harbour account. The UI uses the existing `agentrouter` backend provider ID and environment variable names for compatibility.
 
-For `agentrouter.org`, pasting `https://agentrouter.org/` is also accepted and normalized to `https://agentrouter.org/v1`. If your dashboard lists `deepseek-v4-flash`, enter that exact model ID, then select **Test connection** before saving. A response saying **“unauthorized client detected”** means the router blocked the application before model access could be verified. Ask the router's support to enable API access for KnowGraph or provide an endpoint for custom applications; changing the model or deadline does not resolve this restriction. The app reports authentication, permissions, quota, and upstream failures separately without exposing provider response bodies.
+Other OpenAI-compatible gateways remain supported by editing the endpoint and model. For legacy `agentrouter.org` connections, the website root is normalized to `/v1`. An **“unauthorized client detected”** response means that gateway blocked the application before model access could be verified; ask its support about access for custom applications.
 
 Keys entered in the app are held in **backend memory for that server session**. They are never returned by the settings API, placed in browser storage, or written to source files. Leave a saved key blank to keep it; **Disconnect provider** clears it for the session. Restarting the backend restores environment configuration. These settings belong to the local, single-user workspace.
 
@@ -100,11 +100,11 @@ For configuration that survives a restart, put these values in the gitignored ro
 ```dotenv
 LLM_PROVIDER=agentrouter
 AGENTROUTER_API_KEY=your-key
-AGENTROUTER_BASE_URL=https://your-router.example/v1
-AGENTROUTER_MODEL=exact-model-id-from-your-dashboard
+AGENTROUTER_BASE_URL=https://tokenharbor.ai/v1
+AGENTROUTER_MODEL=deepseek-v4-flash:free
 ```
 
-Then run `docker compose up -d api`. For OpenAI, select it in AI settings or use `LLM_PROVIDER=openai`, `OPENAI_API_KEY`, and `OPENAI_MODEL`. Provider keys remain separate; an Agent Router configuration never falls back to an OpenAI key.
+Then run `docker compose up -d api`. For OpenAI, select it in AI settings or use `LLM_PROVIDER=openai`, `OPENAI_API_KEY`, and `OPENAI_MODEL`. Provider keys remain separate; a Token Harbour configuration never falls back to an OpenAI key.
 
 ## What you can do
 
@@ -240,7 +240,7 @@ Optional live-model evaluation incurs API usage:
 RUN_LIVE_MODEL=1 RUN_INTEGRATION=1 pytest -q -m live
 ```
 
-It requires a running model for Ollama, or credentials and model access for the selected hosted provider (Ollama, Gemini, Agent Router, or OpenAI). CI runs without paid credentials. A configured key in `/health` indicates configuration only; it does not prove model access or provider availability.
+It requires a running model for Ollama, or credentials and model access for the selected hosted provider (Ollama, Gemini, Token Harbour, or OpenAI). CI runs without paid credentials. A configured key in `/health` indicates configuration only; it does not prove model access or provider availability.
 
 ## Limits and failure behavior
 

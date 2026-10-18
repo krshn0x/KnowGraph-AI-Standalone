@@ -170,7 +170,7 @@ test("mobile navigation and import controls fit the viewport", async ({ page }) 
   await page.screenshot({ path: "test-results/sources-mobile.png", fullPage: true });
 });
 
-test("Agent Router settings save a write-only key and show the selected model", async ({ page }) => {
+test("Token Harbour settings prefill defaults, preserve edits, and save a write-only key", async ({ page }) => {
   let saved = false;
   const settings = () => ({ provider: saved ? "agentrouter" : "openai", configured: saved, storage: saved ? "session" : "environment", providers: {
     openai: { model: "gpt-6.1-sol", base_url: "https://api.openai.com/v1", has_api_key: false },
@@ -188,8 +188,10 @@ test("Agent Router settings save a write-only key and show the selected model", 
   await page.route("**/api/health", route => route.fulfill({ json: { ...fixtures.health, provider: saved ? "agentrouter" : "openai", model: saved ? "my-deepseek-v4" : "gpt-6.1-sol", ai_configured: saved } }));
   await page.goto("/ask");
   await page.getByRole("button", { name: "AI settings", exact: true }).click();
-  await page.getByLabel("AI provider", { exact: true }).selectOption("agentrouter");
-  await page.getByLabel("Agent Router API base URL").fill("https://router.example.test/v1");
+  await page.getByLabel("AI provider", { exact: true }).selectOption({ label: "Token Harbour" });
+  await expect(page.getByLabel("Token Harbour API base URL")).toHaveValue("https://tokenharbor.ai/v1");
+  await expect(page.getByLabel("AI model ID")).toHaveValue("deepseek-v4-flash:free");
+  await page.getByLabel("Token Harbour API base URL").fill("https://router.example.test/v1");
   await page.getByLabel("AI model ID").fill("my-deepseek-v4");
   await page.getByLabel("Provider API key").fill("fake-router-key-for-ui-test");
   await expect(page.getByLabel("Provider API key")).toHaveAttribute("type", "password");
@@ -197,8 +199,10 @@ test("Agent Router settings save a write-only key and show the selected model", 
   await expect(page.locator(".model-tag")).toContainText("my-deepseek-v4");
   await expect(page.getByText("AI answers aren’t configured")).toHaveCount(0);
   await page.getByRole("button", { name: "System status", exact: true }).click();
-  await expect(page.getByRole("dialog")).toContainText("Agent Router");
+  await expect(page.getByRole("dialog")).toContainText("Token Harbour");
   await page.getByRole("button", { name: "Configure AI provider", exact: true }).click();
+  await expect(page.getByLabel("Token Harbour API base URL")).toHaveValue("https://router.example.test/v1");
+  await expect(page.getByLabel("AI model ID")).toHaveValue("my-deepseek-v4");
   await expect(page.getByLabel("Provider API key")).toHaveValue("");
   await expect(page.getByText("Saved on backend")).toBeVisible();
   expect(await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }))).not.toContain("fake-router-key-for-ui-test");
@@ -226,7 +230,7 @@ test("Gemini settings offer the free-tier starter model and need only a key", as
   await page.getByRole("button", { name: "AI settings", exact: true }).click();
   await page.getByLabel("AI provider", { exact: true }).selectOption("gemini");
   await expect(page.getByLabel("AI model ID")).toHaveValue("gemini-3.8-flash");
-  await expect(page.getByLabel("Agent Router API base URL")).toHaveCount(0);
+  await expect(page.getByLabel("Token Harbour API base URL")).toHaveCount(0);
   await expect(page.getByRole("dialog")).toContainText("has a free tier");
   await expect(page.getByRole("link", { name: "Get a Gemini API key" })).toHaveAttribute("href", "https://aistudio.google.com/apikey");
   await page.route("**/api/settings/ai/test", async route => {
