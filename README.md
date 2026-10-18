@@ -90,13 +90,6 @@ docker compose up -d --build api
 
 Existing `TOKENHARBOUR_*` and `AGENTROUTER_*` environment variables remain supported. Keys entered in the UI stay in backend memory, are never returned to the browser, and are cleared when the backend restarts. Never commit a real key.
 
-## Three-minute demo
-
-1. Open **Investigations** and select `demo:inc-checkout`.
-2. Inspect the production deployment, included commit, pull request, and author paths.
-3. Open **Experts** and **Documents** to see relationship-backed rankings and sources.
-4. Ask: `Investigate demo:inc-checkout. What changed, who can help, and which runbook should I read?`
-5. Open the cited evidence graph and inspect the source records.
 
 ## Graph data model
 
