@@ -61,7 +61,7 @@ Normal restarts preserve FalkorDB data in the `graph-data` volume and seed only 
 
 ## Go-to questions for the agent
 
-The local and free LLMs this demo runs on are not capable of reasoning over broad, open-ended questions. We have therefore prepared a set of narrower, to-the-point questions that stay within the agent's bounded graph tools and produce reliable, evidence-backed answers.
+The local and free LLMs this demo runs on are not capable of reasoning over broad, open-ended questions. We have therefore prepared a set of narrower, to-the-point questions that stay within the agent's bounded graph tools and produce reliable, evidence-backed answers. If you are using a stronger model, feel free to go with your own questions.
 
 1. "What is the current status of the checkout service?"
 2. "What has Priya worked on recently?"
