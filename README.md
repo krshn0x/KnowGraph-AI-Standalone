@@ -71,7 +71,7 @@ The recommended preset is filled automatically:
 | API URL | `https://tokenharbor.ai/v1` |
 | Model | `deepseek-v4.1-flash:free` |
 
-Judges can replace those values with any compatible provider. Select **Test connection** before saving; the test verifies model access, graph tool calling, and a cited answer without changing saved settings.
+You can replace those values with any compatible provider. Select **Test connection** before saving; the test verifies model access, graph tool calling, and a cited answer without changing saved settings.
 
 To preserve a provider across backend restarts, use the gitignored `.env`:
 
