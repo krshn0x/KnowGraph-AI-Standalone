@@ -109,7 +109,7 @@ For slow local models, run `ollama ps` to check whether inference uses CPU or GP
 Open **AI settings** in the top bar (also available from Ask KnowGraph and System status):
 
 1. Choose **Token Harbour**.
-2. New connections prefill **https://tokenharbor.ai/v1** and **deepseek-v4-flash:free**. Existing custom settings are preserved, and both fields remain editable.
+2. New connections prefill **https://tokenharbor.ai/v1** and **deepseek-v4.1-flash:free**. Existing custom settings are preserved, and both fields remain editable.
 3. Verify your Token Harbour account email and paste the API key into the password field.
 4. Select **Test connection**, then **Save AI settings** after a successful test. Open **Ask KnowGraph** to chat.
 
@@ -125,7 +125,7 @@ For configuration that survives a restart, put these values in the gitignored ro
 LLM_PROVIDER=tokenharbour
 TOKENHARBOUR_API_KEY=your-key
 TOKENHARBOUR_BASE_URL=https://tokenharbor.ai/v1
-TOKENHARBOUR_MODEL=deepseek-v4-flash:free
+TOKENHARBOUR_MODEL=deepseek-v4.1-flash:free
 ```
 
 Then run `docker compose up -d --build api`. For OpenAI, select it in AI settings or use `LLM_PROVIDER=openai`, `OPENAI_API_KEY`, and `OPENAI_MODEL`. Provider keys remain separate; a Token Harbour configuration never falls back to an OpenAI key.

@@ -190,7 +190,7 @@ test("Token Harbour settings prefill defaults, preserve edits, and save a write-
   await page.getByRole("button", { name: "AI settings", exact: true }).click();
   await page.getByLabel("AI provider", { exact: true }).selectOption({ label: "Token Harbour" });
   await expect(page.getByLabel("Token Harbour API base URL")).toHaveValue("https://tokenharbor.ai/v1");
-  await expect(page.getByLabel("AI model ID")).toHaveValue("deepseek-v4-flash:free");
+  await expect(page.getByLabel("AI model ID")).toHaveValue("deepseek-v4.1-flash:free");
   await page.getByLabel("Token Harbour API base URL").fill("https://router.example.test/v1");
   await page.getByLabel("AI model ID").fill("my-deepseek-v4");
   await page.getByLabel("Provider API key").fill("fake-router-key-for-ui-test");
@@ -213,7 +213,7 @@ test("Token Harbour settings prefill defaults, preserve edits, and save a write-
 test("Gemini is absent from settings and legacy configurations can switch to Token Harbour", async ({ page }) => {
   let saved = false;
   const endpoint = "https://tokenharbor.ai/v1";
-  const model = "deepseek-v4-flash:free";
+  const model = "deepseek-v4.1-flash:free";
   const payload = { provider: "agentrouter", model, base_url: endpoint, api_key: "fake-token-harbour-ui-key" };
   await page.route("**/api/settings/ai", async route => {
     if (route.request().method() === "POST") {
