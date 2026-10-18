@@ -8,6 +8,65 @@ from knowgraph.config import Settings
 from knowgraph.models import Answer, Entity
 
 
+@pytest.mark.parametrize("source", ["environment", "dotenv"])
+@pytest.mark.parametrize(
+    "prefix,provider", [("TOKENHARBOUR", "tokenharbour"), ("AGENTROUTER", "agentrouter")]
+)
+def test_tokenharbour_and_legacy_configuration_names(
+    monkeypatch, tmp_path, source, prefix, provider
+):
+    for name in (
+        "LLM_PROVIDER",
+        *(
+            f"{p}_{f}"
+            for p in ("TOKENHARBOUR", "AGENTROUTER")
+            for f in ("API_KEY", "BASE_URL", "MODEL")
+        ),
+    ):
+        monkeypatch.delenv(name, raising=False)
+    values = {
+        "LLM_PROVIDER": provider,
+        f"{prefix}_API_KEY": "private-tokenharbour-test-key",
+        f"{prefix}_BASE_URL": "https://tokenharbor.ai/v1",
+        f"{prefix}_MODEL": "deepseek-v4-flash:free",
+    }
+    env_file = None
+    if source == "dotenv":
+        env_file = tmp_path / ".env"
+        env_file.write_text("\n".join(f"{k}={v}" for k, v in values.items()) + "\n")
+    else:
+        for name, value in values.items():
+            monkeypatch.setenv(name, value)
+    settings = Settings(_env_file=env_file)
+    assert settings.llm_provider == "agentrouter"
+    assert settings.active_base_url == "https://tokenharbor.ai/v1"
+    assert settings.active_model == "deepseek-v4-flash:free"
+    assert settings.active_api_key.get_secret_value() == "private-tokenharbour-test-key"
+    assert settings.configuration_message is None
+    assert "private-tokenharbour-test-key" not in repr(settings)
+
+
+@pytest.mark.parametrize("override", [None, "private-session-key", ""])
+def test_tokenharbour_names_take_precedence_and_session_snapshots_override_environment(
+    monkeypatch, override
+):
+    monkeypatch.setenv("LLM_PROVIDER", "tokenharbour")
+    for prefix, value in (("TOKENHARBOUR", "current"), ("AGENTROUTER", "legacy")):
+        monkeypatch.setenv(f"{prefix}_API_KEY", f"private-{value}-key")
+        monkeypatch.setenv(f"{prefix}_BASE_URL", f"https://{value}.example/v1")
+        monkeypatch.setenv(f"{prefix}_MODEL", f"{value}-model")
+    settings = Settings(_env_file=None)
+    assert settings.active_api_key.get_secret_value() == "private-current-key"
+    assert settings.active_base_url == "https://current.example/v1"
+    assert settings.active_model == "current-model"
+    if override is not None:
+        # The settings API rebuilds Settings from a snapshot, including disconnects.
+        snapshot = settings.model_dump() | {"agentrouter_api_key": override}
+        changed = Settings(_env_file=None, **snapshot)
+        assert changed.active_api_key.get_secret_value() == override
+        assert changed.active_model == settings.active_model
+
+
 @pytest.fixture
 def configuration_client(monkeypatch):
     monkeypatch.setattr(

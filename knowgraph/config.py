@@ -3,7 +3,15 @@ from ipaddress import ip_address
 from typing import Literal
 from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator, model_validator
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    ConfigDict,
+    Field,
+    SecretStr,
+    field_validator,
+    model_validator,
+)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
@@ -13,7 +21,7 @@ DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434/v1"
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore", populate_by_name=True)
 
     falkordb_host: str = "localhost"
     falkordb_port: int = 6379
@@ -28,11 +36,28 @@ class Settings(BaseSettings):
     ollama_max_output_tokens: int = Field(default=1536, ge=256, le=4096)
     gemini_api_key: SecretStr = SecretStr("")
     gemini_model: str = Field(default=DEFAULT_GEMINI_MODEL, max_length=200)
-    agentrouter_api_key: SecretStr = SecretStr("")
-    agentrouter_base_url: str = Field(default="", max_length=2048)
-    agentrouter_model: str = Field(default="", max_length=200)
+    agentrouter_api_key: SecretStr = Field(
+        default=SecretStr(""),
+        validation_alias=AliasChoices("TOKENHARBOUR_API_KEY", "AGENTROUTER_API_KEY"),
+    )
+    agentrouter_base_url: str = Field(
+        default="",
+        max_length=2048,
+        validation_alias=AliasChoices("TOKENHARBOUR_BASE_URL", "AGENTROUTER_BASE_URL"),
+    )
+    agentrouter_model: str = Field(
+        default="",
+        max_length=200,
+        validation_alias=AliasChoices("TOKENHARBOUR_MODEL", "AGENTROUTER_MODEL"),
+    )
     agent_deadline_seconds: float = Field(default=60, ge=1, le=900)
     agent_max_tool_calls: int = Field(default=8, ge=1, le=8)
+
+    @field_validator("llm_provider", mode="before")
+    @classmethod
+    def normalize_tokenharbour_provider(cls, value):
+        # Keep the existing adapter and session API compatible with saved settings.
+        return "agentrouter" if value == "tokenharbour" else value
 
     @field_validator("ollama_deadline_seconds", mode="before")
     @classmethod
@@ -137,15 +162,15 @@ class Settings(BaseSettings):
             missing = [
                 name
                 for name, value in (
-                    ("AGENTROUTER_API_KEY", self.agentrouter_api_key.get_secret_value().strip()),
-                    ("AGENTROUTER_BASE_URL", self.agentrouter_base_url),
-                    ("AGENTROUTER_MODEL", self.agentrouter_model),
+                    ("TOKENHARBOUR_API_KEY", self.agentrouter_api_key.get_secret_value().strip()),
+                    ("TOKENHARBOUR_BASE_URL", self.agentrouter_base_url),
+                    ("TOKENHARBOUR_MODEL", self.agentrouter_model),
                 )
                 if not value
             ]
             if missing:
                 return (
-                    f"Set {', '.join(missing)} in the backend environment to enable Agent Router."
+                    f"Set {', '.join(missing)} in the backend environment to enable Token Harbour."
                 )
         elif not self.openai_api_key.get_secret_value().strip():
             return "Set OPENAI_API_KEY in the backend environment to enable AI answers."

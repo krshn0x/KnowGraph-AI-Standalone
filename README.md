@@ -113,22 +113,22 @@ Open **AI settings** in the top bar (also available from Ask KnowGraph and Syste
 3. Verify your Token Harbour account email and paste the API key into the password field.
 4. Select **Test connection**, then **Save AI settings** after a successful test. Open **Ask KnowGraph** to chat.
 
-Token Harbour [documents](https://tokenharbor.ai/docs/api/curl) an OpenAI-compatible Chat Completions endpoint. The adapter requires function tools and JSON-object output; model IDs are passed through unchanged. Free-route availability and quotas depend on your Token Harbour account. The UI uses the existing `agentrouter` backend provider ID and environment variable names for compatibility.
+Token Harbour [documents](https://tokenharbor.ai/docs/api/curl) an OpenAI-compatible Chat Completions endpoint. The adapter requires function tools and JSON-object output; model IDs are passed through unchanged. Free-route availability and quotas depend on your Token Harbour account.
 
-Other OpenAI-compatible gateways remain supported by editing the endpoint and model. For legacy `agentrouter.org` connections, the website root is normalized to `/v1`. An **“unauthorized client detected”** response means that gateway blocked the application before model access could be verified; ask its support about access for custom applications.
+Other OpenAI-compatible gateways remain supported by editing the endpoint and model.
 
 Keys entered in the app are held in **backend memory for that server session**. They are never returned by the settings API, placed in browser storage, or written to source files. Leave a saved key blank to keep it; **Disconnect provider** clears it for the session. Restarting the backend restores environment configuration. These settings belong to the local, single-user workspace.
 
 For configuration that survives a restart, put these values in the gitignored root `.env`:
 
 ```dotenv
-LLM_PROVIDER=agentrouter
-AGENTROUTER_API_KEY=your-key
-AGENTROUTER_BASE_URL=https://tokenharbor.ai/v1
-AGENTROUTER_MODEL=deepseek-v4-flash:free
+LLM_PROVIDER=tokenharbour
+TOKENHARBOUR_API_KEY=your-key
+TOKENHARBOUR_BASE_URL=https://tokenharbor.ai/v1
+TOKENHARBOUR_MODEL=deepseek-v4-flash:free
 ```
 
-Then run `docker compose up -d api`. For OpenAI, select it in AI settings or use `LLM_PROVIDER=openai`, `OPENAI_API_KEY`, and `OPENAI_MODEL`. Provider keys remain separate; a Token Harbour configuration never falls back to an OpenAI key.
+Then run `docker compose up -d --build api`. For OpenAI, select it in AI settings or use `LLM_PROVIDER=openai`, `OPENAI_API_KEY`, and `OPENAI_MODEL`. Provider keys remain separate; a Token Harbour configuration never falls back to an OpenAI key.
 
 ## What you can do
 
