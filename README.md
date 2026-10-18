@@ -100,7 +100,7 @@ Run `docker compose up -d api` after environment changes. Ollama gets a **300-se
 
 When `OLLAMA_DEADLINE_SECONDS` is unset, the local budget is the larger of 300 and `AGENT_DEADLINE_SECONDS`, so existing increases to the shared setting still work. An explicit Ollama value overrides that fallback. Hosted providers retain the default 60-second shared deadline. The local adapter requests at most 1,536 output tokens per turn by default (`OLLAMA_MAX_OUTPUT_TOKENS`, range 256–4,096); thinking is disabled where the model supports it. The frontend allows the backend’s full 900-second maximum, including slow response headers. Hosting platforms may impose their own execution limits.
 
-A **tool-call limit** is separate from a timeout: the agent permits at most eight graph tool calls, then asks for a final answer. A model that continues calling tools receives a distinct warning; increasing the deadline does not change this limit. Deadline warnings show the effective seconds and tool count, and all failures preserve retrieved graph evidence. There is no automatic cloud fallback.
+A **tool-call limit** is separate from a timeout: the agent permits up to 16 graph tool calls by default (8 before v0.2, configurable up to 24), then asks for a final answer. A model that continues calling tools receives a distinct warning; increasing the deadline does not change this limit. Deadline warnings show the effective seconds and tool count, and all failures preserve retrieved graph evidence. There is no automatic cloud fallback.
 
 For slow local models, run `ollama ps` to check whether inference uses CPU or GPU. Prefer the native Ollama app on macOS: [Docker Desktop on macOS does not support Ollama GPU acceleration](https://docs.ollama.com/faq#how-do-i-use-ollama-with-gpu-acceleration-in-docker). Preload the selected model with `ollama run qwen3:4b ""` before asking; [Ollama keeps models loaded for five minutes by default](https://docs.ollama.com/faq#how-do-i-keep-a-model-loaded-in-memory-or-make-it-unload-immediately).
 
@@ -361,7 +361,7 @@ The project combines bounded graph traversal with Python scoring and validation.
 
 Expert scores are computed from explicit graph relationships, not inferred from job titles. In the unchanged seed, Nina's checkout score is **13**: two resolved incidents (6), two authored changes (4), and three authored documents (3). Both a commit and its PR can contribute if they are distinct recorded contributions; repeated paths to the same record do not increase its score.
 
-All retrieval reads use FalkorDB `GRAPH.RO_QUERY` with a two-second query timeout. The model selects `search_entities`, `investigate_incident`, `find_experts`, `find_documents`, or `get_evidence_paths`; it cannot submit arbitrary Cypher or mutate the graph. The agent permits at most eight tool calls and validates citations after fresh retrieval on every question. Deployment timing establishes correlation, and citation validation establishes traceability; neither alone proves a causal diagnosis.
+All retrieval reads use FalkorDB `GRAPH.RO_QUERY` with a two-second query timeout. The model selects `search_entities`, `investigate_incident`, `find_experts`, `find_documents`, or `get_evidence_paths`; it cannot submit arbitrary Cypher or mutate the graph. The agent permits up to sixteen tool calls by default and validates citations after fresh retrieval on every question. Deployment timing establishes correlation, and citation validation establishes traceability; neither alone proves a causal diagnosis.
 
 ## Ingestion contract
 
@@ -473,7 +473,7 @@ It requires a running model for Ollama, or credentials and model access for Toke
 
 ## Limits and failure behavior
 
-- The agent has five predefined read-only graph tools, at most eight tool calls, and default investigation deadlines of 300 seconds for Ollama and 60 seconds for hosted providers (configurable up to 900). Each graph query has a two-second execution timeout. No model-generated Cypher is executed.
+- The agent has five predefined read-only graph tools, up to 16 tool calls (`AGENT_MAX_TOOL_CALLS`, maximum 24), and default investigation deadlines of 300 seconds for Ollama and 60 seconds for hosted providers (configurable up to 900). Each graph query has a two-second execution timeout. No model-generated Cypher is executed.
 - Citation IDs must have been retrieved during the current question. This validates traceability, not semantic truth; inspect source bodies when judging a hypothesis.
 - Missing key, provider failure, malformed output, and time/tool limits retain available source evidence and show an explicit warning. Structured feature views remain available without the model.
 - Database outages return a sanitized HTTP 503. Unknown records return 404. Search is lexical full-text prefix matching with all supplied terms required, rather than embedding similarity.

@@ -51,7 +51,7 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("TOKENHARBOUR_MODEL", "AGENTROUTER_MODEL"),
     )
     agent_deadline_seconds: float = Field(default=60, ge=1, le=900)
-    agent_max_tool_calls: int = Field(default=8, ge=1, le=8)
+    agent_max_tool_calls: int = Field(default=8, ge=1, le=24)
 
     @field_validator("llm_provider", mode="before")
     @classmethod
